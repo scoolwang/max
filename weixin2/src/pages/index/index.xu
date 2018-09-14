@@ -1,0 +1,71 @@
+<style>
+  .container{
+    background-color: orange;
+  }
+  .test {
+    color: orange;
+  }
+</style>
+<style lang="less" src="../../less/index.less"></style>
+<template>
+  <view bindtap="tapPro" class="padding">点击更新组件信息组件</view>
+  <k-test text="{{name}}" bind:select="select" custom-class="test"></k-test>
+  <view bindtap="doAwait">点击测试await方法</view>
+  <view>{{syncItem}}</view>
+</template>
+<script>
+  import xupy from 'xupy/index'
+  import regeneratorRuntime from '../../compile/runtime'
+
+  export default class Index extends xupy.page{
+    config = {
+      "navigationBarTitleText": "首页",
+      "usingComponents": {
+        "k-test": "../../components/test/index"
+      }
+    }
+
+    data = {
+      name: 'chaunjie',
+      syncItem: '这个是异步初始化数据'
+    }
+
+    methods = {
+      select (e) {
+        console.log('组件传回的值:' + e.detail)
+      }
+    }
+
+    onLoad () {
+      this.setData({
+        name: '组件初始化数据'
+      })
+      setTimeout(() => {
+        this.$parent.globalData.name = '这是全局数据'
+        console.log(this.data)
+      }, 3000)
+    }
+
+    sleep (s) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve('异步数据拿到')
+        }, s * 1000)
+      })
+    }
+
+    async testAsync () {
+      const data = await this.sleep(3)
+      this.setData({syncItem: data})
+    }
+
+    doAwait () {
+      this.testAsync()
+    }
+
+    tapPro (e) {
+      this.setData({name: '组件更新信息后显示'})
+      // wx.navigateTo({url: '../test/index'})
+    }
+  }
+</script>

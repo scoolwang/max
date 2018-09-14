@@ -1,0 +1,53 @@
+
+<style>
+@import './font/css/home.wxss';
+@import './font/css/test.wxss';
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  /*background: #e7e7e7;*/
+}
+</style>
+
+<script>
+// import wepy from 'wepy'
+// import 'wepy-async-function'
+import wepy from 'xupy/index'
+import regeneratorRuntime from './compile/runtime'
+// import * as resource from './mixins/resource'
+import {login} from './mixins/login.js'
+
+export default class extends wepy.app {
+  config = {
+    "pages": [
+      "pages/index"
+    ],
+    "window": {
+      "navigationBarBackgroundColor": "#fff",
+      "navigationBarTitleText": "kai-ui",
+      "navigationBarTextStyle": "black",
+      "backgroundTextStyle": "dark",
+      "backgroundColor": "#e7e7e7"
+    },
+    "debug": true
+  }
+  globalData = {
+    name: 'chaunjie'
+  }
+  constructor () {
+    super()
+    // this.intercept('request', resource)
+  }
+
+  onLaunch() {
+    wx.authorize({
+      scope: 'scope.record',
+    })
+    login()
+  }
+}
+</script>

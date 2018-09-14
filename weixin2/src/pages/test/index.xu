@@ -1,0 +1,38 @@
+<template>
+  <view bindtap="tapPro">{{name}}</view>
+</template>>
+<script>
+  import xupy from 'xupy/index'
+  export default class Index extends xupy.page{
+    config = {
+      "navigationBarTitleText": "主页"
+    }
+
+    data = {
+      name: 'chaunjie'
+    }
+
+    methods = {
+      test () {
+        console.log(99999)
+      },
+      tap (e) {
+        console.log(e)
+      }
+    }
+
+    onLoad () {
+      setTimeout(() => {
+        this.setData({
+          name: 'xudao'
+        }, () => {
+          console.log(this.data)
+        })
+      }, 3000)
+    }
+
+    tapPro (e) {
+      console.log(e)
+    }
+  }
+</script>

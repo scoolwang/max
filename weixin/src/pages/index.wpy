@@ -1,0 +1,326 @@
+
+<template>
+  <scroll-view class="page">
+    <view>
+      <view class="title">车型</view>
+      <view class="item">
+        <text class="tag">DOTA2</text>
+      </view>
+    </view>
+    <view>
+      <view class="title">发车时间</view>
+      <view class="item">
+
+        <text class="icon-calendar item-icon"></text>
+        <picker mode="date" value="{{date}}" start="{{startDate}}" end="2021-1-1" bindchange="bindDateChange">
+          <view class="picker">
+            {{date || '选择日期'}}
+          </view>
+        </picker>
+        <text class="icon-clock-1 item-icon item-icon-clock"></text>
+        <picker mode="time" value="{{time}}" start="09:01" end="21:01" bindchange="bindTimeChange">
+          <view class="picker">
+            {{time || '选择时间'}}
+          </view>
+        </picker>
+        <text class="icon-cancel-circled item-icon item-icon-cancel"></text>
+        <!-- <label class="checkbox">
+          <checkbox name="ck" value="2" checked="true"/>
+        </label> -->
+        <!-- <input disabled=true class="input" placeholder="请选择时间" placeholder-class="holder-text" /> -->
+      </view>
+
+    </view>
+    <view>
+      <view class="title">发车地点</view>
+      <view class="item">
+        <text class="icon-location item-icon"></text>
+        <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="" fields="month">
+          <view class="picker">
+            {{region[1] || '所在城市' }}
+          </view>
+        </picker>
+        <!-- <input disabled=true class="input" placeholder="所在城市" placeholder-class="holder-text" /> -->
+      </view>
+    </view>
+    <view>
+      <view class="title">车位</view>
+      <view class="item">
+        <text class="icon-users item-icon"></text>
+        <input class="input site-input" placeholder="车位" type="number" placeholder-class="holder-text" value="{{params.limit}}" />
+        <text class="site-unit">人</text>
+      </view>
+    </view>
+    <view>
+      <view class="title">描述</view>
+      <view class="item">
+        <!-- <area :value.sync="params.desc"></area> -->
+        <area value="{{params.desc}}" placeholder="说点什么" :limit="limit"></area>
+        <!-- <textarea value="{{}}" maxlength=10 class="input desc-area" placeholder="说点什么" placeholder-class="holder-text" /> -->
+      </view>
+    </view>
+    <view>
+      <view class="title">活动封面</view>
+      <view class="item cover-item">
+        <view class="upload-box" catchtap="upLoad">
+          <image class="upload-img" mode="scaleToFil" src="{{cover}}"></image>
+        </view>
+      </view>
+    </view>
+    <view class="primary-button" catchtap="submit">发布</view>
+  </scroll-view>
+</template>
+<script>
+import wepy from 'wepy'
+import { getUserInfo } from '../mixins/common'
+import {rootUrl} from '../mixins/config.js'
+import {addActivity} from '../mixins/api.js'
+import area from '../components/TextArea'
+const qiniuUploader = require('../mixins/qiniuUploader')
+export default class extends wepy.page {
+  config = {
+    navigationBarTitleText: '发布活动',
+    enablePullDownRefresh: false,
+    backgroundTextStyle: 'black',
+    backgroundColor: '#ffffff',
+    onReachBottomDistance: 50
+  }
+  data = {
+    userinfo: {},
+    date: '',
+    startDate: '',
+    endDate: '',
+    time: '',
+    region: [],
+    cover: '',
+    limit: 10,
+    params: {
+      gameId: 1,
+      startTime: '',
+      limit: 1,
+      desc: '',
+      cover: ''
+    }
+  }
+  components = {
+    area: area
+  }
+  onLoad () {
+    this.initPicker()
+    this.getAddrss()
+    this.$on('change', (val) => {
+      this.params.desc = val
+    })
+    getUserInfo().then((info) => {
+      // this.userinfo = info
+      // this.cover = info.avatarUrl
+      this.cover = 'http://peqep4fsa.bkt.clouddn.com/tmp/wxe37b540617a53b3a.o6zAJs7luTa_z79r7ZDDbXtedpzc.5yR6Nb6F82gs24b0c83619ef7b7c5b44471f47ed17da.png'
+    })
+  }
+  initPicker () {
+    const time = new Date()
+    const year = time.getFullYear()
+    const day = time.getDate()
+    const month = time.getMonth() + 1
+    this.startDate = year + '-' + month + '-' + day
+    // this.startDate = '2020-9-1'
+  }
+  getAddrss () {
+    let that = this
+    wepy.getLocation({
+      success (res) {
+        var log = res.longitude
+        var lat = res.latitude
+        wepy.request({
+          url: 'https://api.map.baidu.com/geocoder/v2/?ak=DQNYwj5Nv3Hg6TBNaCmth9n0l47EIKRb&location=' + lat + ',' + log + '&output=json',
+          _unintercept: true,
+          success (res) {
+            let ads = res.result.addressComponent
+            that.region = [ads.province, ads.city]
+          }
+        })
+      }
+    })
+  }
+  methods = {
+    bindDateChange (res) {
+      this.date = res.detail.value
+      console.log(res)
+    },
+    bindTimeChange (res) {
+      this.time = res.detail.value
+      console.log(res)
+    },
+    bindRegionChange (res) {
+      this.region = res.detail.value
+      console.log(res)
+    },
+    initPicker () {
+      const time = new Date()
+      const year = time.getFullYear()
+      const day = time.getDate()
+      const month = time.getMonth() + 1
+      this.startDate = year + '-' + month + '-' + day
+    },
+    upLoad () {
+      var that = this
+      // 初始化
+      var options = {
+        region: 'ECN', // 华东区
+        uptokenURL: rootUrl + '/api/upload/token',
+        domain: 'http://peqep4fsa.bkt.clouddn.com/',
+        shouldUseQiniuFileName: false
+      }
+      qiniuUploader.init(options)
+      // 选择图片
+      wepy.chooseImage({
+        count: 1,
+        success: function (res) {
+          console.log(res)
+          var filePath = res.tempFilePaths[0]
+          console.log(res.tempFilePath)
+          // 交给七牛上传
+          wepy.showLoading({
+            mask: true
+          })
+          qiniuUploader.upload(filePath, (res) => {
+            wepy.hideLoading()
+            that.cover = res.imageURL + '?imageView2/2/w/100/h/120'
+          }, (error) => {
+            console.log('error: ' + error)
+          })
+        }
+      })
+    },
+    submit () {
+      let startTime = this.date + ' ' + this.time
+      this.params.startTime = new Date(startTime).getTime() / 1000
+      this.params.city = this.region[1]
+      this.params.cover = this.cover
+      addActivity(this.params).then((res) => {
+        console.log(res)
+      })
+    }
+  }
+}
+</script>
+<style lang="less">
+  .title {
+    margin: 15px 0;
+    color: #000;
+    font-size: 14px;
+    font-weight: Regular;
+    padding-left: 25px;
+  }
+  .item {
+    background-color: #fff;
+    padding: 10px 25px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .item-icon {
+    color: #b9b9b9;
+    font-size: 16px;
+    margin-right: 15px;
+  }
+  .holder-text {
+    font-size: 14px;
+    color: #ebebeb;
+/*    font-weight: lighter;
+*/  }
+  .input {
+    flex: 1;
+/*    font-weight: lighter;
+*/    font-size: 14px;
+  }
+  .tag {
+    font-size: 10px;
+/*    font-weight: lighter;
+*/    color: #fff;
+    background: #C77F3F;
+    border-radius: 2px;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 5px;
+  }
+  .site-input {
+    width: 20px;
+    /*background-color: red;*/
+    flex: none;
+  }
+  .site-unit {
+    font-size: 14px;
+    color: #EBEBEB;
+/*    font-weight: lighter;
+*/  }
+  .desc-area {
+    height: 90px;
+  }
+  .upload-img, .upload-box {
+    width: 100px;
+    height: 120px;
+  }
+  .cover-item {
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .primary-button {
+    background: #7CC986;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 0;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+  }
+  .page {
+    padding-bottom: 70px;
+  }
+  .picker {
+    font-size: 14px;
+    width: 80px;
+    height: 16px;
+    color: #ebebeb;
+    line-height: 16px;
+    /*font-weight: lighter;*/
+  }
+  .item-icon-clock {
+    margin-left: 20px;
+  }
+  .item-icon-cancel {
+    position: absolute;
+    right: 0;
+  }
+  checkbox {
+    position: absolute;
+    right: 0;
+  }
+  checkbox .wx-checkbox-input{
+     width: 30rpx; /* 背景的宽 */
+     height: 30rpx; /* 背景的高 */
+  }
+  /* 选中后的 背景样式 （红色背景 无边框 可根据UI需求自己修改） */
+  checkbox .wx-checkbox-input.wx-checkbox-input-checked{
+     border: none;
+     /*background: red;*/
+  }
+  /* 选中后的 对勾样式 （白色对勾 可根据UI需求自己修改） */
+  checkbox .wx-checkbox-input.wx-checkbox-input-checked::before{
+     border-radius: 50%;/* 圆角 */
+     width: 20rpx;/* 选中后对勾大小，不要超过背景的尺寸 */
+     height: 20rpx;/* 选中后对勾大小，不要超过背景的尺寸 */
+     line-height: 20rpx;
+     text-align: center;
+     font-size:22px; /* 对勾大小 30rpx */
+     /*color:#fff;  对勾颜色 白色 */
+     background: transparent;
+     /*transform:translate(-50%, -50%) scale(1);*/
+     /*-webkit-transform:translate(-50%, -50%) scale(1);*/
+  }
+</style>

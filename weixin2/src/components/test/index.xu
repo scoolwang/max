@@ -1,0 +1,47 @@
+<template>
+  <view class="custom-class" bindtap="tap" data-index="{{tag}}">{{text}}</view>
+</template>>
+<script>
+  import xupy from 'xupy/index'
+  export default class Test extends xupy.component{
+    config = {
+      "component": true
+    }
+
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+
+    properties = {
+      text: {
+        type: String,
+        value: '99999'
+      }
+    }
+
+    data = {
+      tag: 'abc'
+    }
+
+    methods = {
+      test () {
+        console.log(99999)
+      },
+      tap (e) {
+        console.log(e)
+        const dataset = e.currentTarget.dataset
+        this.doSelect.call(this, dataset.index);
+      },
+      doSelect (res) {
+        this.triggerEvent('select', res);
+      }
+    }
+
+    ready () {
+      this.setData({tag: 'tapd'})
+      console.log('component')
+    }
+  }
+</script>
