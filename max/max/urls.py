@@ -22,6 +22,10 @@ urlpatterns = [
     path('api/register', max_views.register, name="register"),
     path('api/activityList', max_views.activityList, name="activityList"),
     path('api/upload/token', max_views.uploadToken, name="uploadToken"),
+    path('api/upload/void/token', max_views.uploadToken, name="voidToken"),
     path('api/add/activity', max_views.addActivity, name="addActivity"),
+    path('api/auth', max_views.auth, name="auth"),
+    path('index', max_views.index, name="index"),
+    path('index1', max_views.index1, name="index1"),
     path('admin/', admin.site.urls),
 ]

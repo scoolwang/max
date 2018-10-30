@@ -146,7 +146,9 @@ def register (arg):
 
 # 查询所有活动
 def activityList (arg):
-  sql = 'select t1.*, t2.name, t2.city, t2.level from activity t1 left join user t2 on t1.userId=t2.id'
+  # sql = 'select t1.*, t2.name as userName, t2.level from activity t1 left join user t2 on t1.userId=t2.id'
+  # sql = 'select t1.*, t3.*, t2.name as userName, t2.level from activity as t1, auth as t3 left join user t2 on t1.userId=t2.id and t3.userId=t2.id'
+  sql = 'select t1.*, t3.age, t3.sex, t3.level, t3.rank, t3.voidSrc, t2.city, t2.name as userName from activity as t1, auth as t3, user as t2 where t1.userId=t2.id and t3.userId=t2.id and t3.gameId=t1.gameId'
   results = runSql(sql)
   if len(results) == 0 :
     results = []
@@ -176,7 +178,7 @@ def addActivity (arg):
   startTime = arg['startTime']
   desc = arg['desc']
   limit = int(arg['limit'])
-  city = arg['city']
+  # city = arg['city']
   cover = arg['cover']
   gameId = arg['gameId']
   activityId = str(uuid.uuid1())
@@ -193,11 +195,29 @@ def addActivity (arg):
   if userInfo == '1' or userInfo == '2':
     return returnFormat('', 'token无效', '701')
   else:
-    sql = 'insert into activity (id, userId, createTime, startTime, t_desc, t_limit, t_left, city, cover, gameId) values ("%s", "%s", "%d", "%d", "%s", "%d", "%d", "%s", "%s", "%s")' % (activityId, userId, createTime, startTime, desc, limit, 0, city, cover, gameId)
+    sql = 'insert into activity (id, userId, createTime, startTime, t_desc, t_limit, t_left, cover, gameId) values ("%s", "%s", "%d", "%d", "%s", "%d", "%d", "%s", "%s")' % (activityId, userId, createTime, startTime, desc, limit, 0, cover, gameId)
     print(sql)
     results = runSql(sql)
     return returnFormat('', '发布成功')
 
+def auth (arg):
+  token = arg['token']
+  gameId = int(arg['gameId'])
+  voidSrc = arg['voidSrc']
+  gameImg = arg['gameImg']
+  sex = arg['sex']
+  age = arg['age']
+  authId = str(uuid.uuid1())
+  userInfo = getUserByToken(token)
+  print(userInfo)
+  if userInfo == '1' or userInfo == '2':
+    return returnFormat('', 'token无效', '701')
+  else:
+    userId = userInfo['id']
+    sql = 'insert into auth (id, userId, gameId, voidSrc, gameImg, sex, age) values ("%s", "%s", "%d", "%s", "%s", "%s", "%s")' % (authId, userId, gameId, voidSrc, gameImg, sex, age)
+    print(sql)
+    results = runSql(sql)
+    return returnFormat('', '提交成功')
 
 
 
