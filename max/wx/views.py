@@ -40,8 +40,23 @@ def uploadVoidToken(request):
 def auth(request):
   return action(request, models.auth)
 
+def getUserById(request):
+  return action(request, models.getUserById)
+
 def index(request):
     return render(request, 'index3.html')
 
 def index1(request):
     return render(request, 'index1.html')
+
+def getMsg(request):
+  return action(request, models.getMsg)
+
+def readMsg(request):
+  return action(request, models.readChatMsg)
+
+def getUnReadMsg(request):
+  return action(request, models.getUnReadMsgByUser)
+
+def addMsg(request):
+  return action(request, models.addMsg)

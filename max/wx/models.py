@@ -19,6 +19,7 @@ def runSql (sql):
   with mysql() as cur:
     cur.execute(sql)
     results = cur.fetchall()
+    print('sql执行结果')
     print(results)
   return results
 
@@ -93,6 +94,24 @@ def getUser (arg):
 
   return returnFormat(obj)
 
+def getUserById (arg):
+  tokenGet = arg['token']
+  userId = arg['userId']
+  userInfo = getUserByToken(tokenGet)
+  sql2 = 'select * from user where id="%s"' % (userId)
+
+  if userInfo == '1' or userInfo == '2':
+    return returnFormat('', 'token无效', '701')
+
+  results2 = runSql(sql2)
+  if len(results2) == 0 :
+    results2 = False
+  else:
+    results2 = results2[0]
+
+  if not results2 :
+    return returnFormat('', '用户不存在', '901')
+  return returnFormat(results2)
 # 登录
 def login (arg):
   openId = arg['openId']
@@ -170,7 +189,6 @@ def getUserByToken (token):
 
   return results
 
-
 # 发布活动
 def addActivity (arg):
   token = arg['token']
@@ -199,7 +217,7 @@ def addActivity (arg):
     print(sql)
     results = runSql(sql)
     return returnFormat('', '发布成功')
-
+# 认证
 def auth (arg):
   token = arg['token']
   gameId = int(arg['gameId'])
@@ -219,15 +237,78 @@ def auth (arg):
     results = runSql(sql)
     return returnFormat('', '提交成功')
 
+# 添加未读消息
+def addMsg (arg):
+  msgId = str(uuid.uuid1())
+  sendId = arg['sendId']
+  receiveId = arg['receiveId']
+  msg = arg['msg']
+  timeStr = arg['time']
+  msgType = int(arg['type'])
+  status = 0
+  print(arg)
+  print('时间')
+  print(timeStr)
+  # userInfo = getUserByToken(token)
+  # if userInfo == '1' or userInfo == '2':
+  #   return returnFormat('', 'token无效', '701')
+  # else:
+  sql = 'insert into message (id, sendId, receiveId, msg, time, type, status) values ("%s", "%s", "%s", "%s", "%d", "%d", "%d")' % (msgId, sendId, receiveId, msg, timeStr, msgType, status)
+  print(sql)
+  results = runSql(sql)
+  return returnFormat('', '添加成功')
 
+# 获取未读消息列表
+def getMsg (arg):
+  token = arg['token']
+  userInfo = getUserByToken(token)
+  print('用户信心')
+  print(userInfo)
+  print('用户信心1')
+  if userInfo == '1' or userInfo == '2':
+    return returnFormat('', 'token无效', '701')
+  else:
+    userId = userInfo['id']
+    print('信息查询')
+    sql = 'select t1.*, t2.name, t2.avatarUrl from message as t1, user as t2 where t1.receiveId= "%s" and t1.status=0 and t2.id=t1.sendId order by t1.time ASC' % (userId)
+    print(sql)
+    results = runSql(sql)
+    return returnFormat(results, 'success')
 
+#标记消息为已读状态
+def readChatMsg (arg):
+  sendId = arg['id']
+  token = arg['token']
+  userInfo = getUserByToken(token)
+  print('用户信心')
+  print(userInfo)
+  print('用户信心1')
+  if userInfo == '1' or userInfo == '2':
+    return returnFormat('', 'token无效', '701')
+  else:
+    userId = userInfo['id']
+    sql = 'update message set status=1 where receiveId="%s" and sendId="%s"' % (userId, sendId)
+    results = runSql(sql)
+    return returnFormat('', '')
 
-
-
-
-
-
-
+# 获取用户的未读消息
+def getUnReadMsgByUser (arg):
+  print('获取用户的未读消息')
+  print(arg)
+  sendId = arg['id']
+  token = arg['token']
+  userInfo = getUserByToken(token)
+  if userInfo == '1' or userInfo == '2':
+    return returnFormat('', 'token无效', '701')
+  else:
+    userId = userInfo['id']
+    sql = 'select * from message where receiveId="%s" and sendId="%s" and status=0' % (userId, sendId)
+    results = runSql(sql)
+    readChatMsg({
+      'id': sendId,
+      'token': token
+    })
+    return returnFormat(results, '拉取用户未读消息')
 
 
 

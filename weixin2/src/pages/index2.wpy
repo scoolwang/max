@@ -18,12 +18,12 @@
           </view>
         </picker>
         <text class="iconfont icon-clock item-icon item-icon-clock"></text>
-        <picker mode="time" value="{{time}}" bindchange="bindTimeChange">
+        <picker mode="time" value="{{time}}" start="{{startTime}}" bindchange="bindTimeChange">
           <view class="picker {{time?'input':''}}">
-            {{time || '选择时间'}}
+            {{time || '选择时间' + startTime}}
           </view>
         </picker>
-        <text class="iconfont icon-close item-icon item-icon-cancel" bindtap="clearTime"></text>
+        <text class="icon-cancel-circled item-icon item-icon-cancel" bindtap="clearTime"></text>
         <!-- <label class="checkbox">
           <checkbox name="ck" value="2" checked="true"/>
         </label> -->
@@ -31,7 +31,7 @@
       </view>
 
     </view>
-    <!-- <view>
+    <view>
       <view class="title">发车地点</view>
       <view class="item">
         <text class="iconfont icon-location item-icon"></text>
@@ -40,8 +40,9 @@
             {{region[1] || '所在城市' }}
           </view>
         </picker>
+        <!-- <input disabled=true class="input" placeholder="所在城市" placeholder-class="holder-text" /> -->
       </view>
-    </view> -->
+    </view>
     <view>
       <view class="title">车位</view>
       <view class="item">
@@ -62,7 +63,7 @@
       <view class="title">活动封面</view>
       <view class="item cover-item">
         <view class="upload-box" catchtap="upLoad">
-          <image class="upload-img" mode="scaleToFil" src="{{cover + '?imageView2/2/w/100/h/120'}}"></image>
+          <image class="upload-img" mode="scaleToFil" src="{{cover}}"></image>
         </view>
       </view>
     </view>
@@ -118,7 +119,7 @@ export default class Index extends wexp.page {
       // this.userinfo = info
       // this.cover = info.avatarUrl
       this.setData({
-        cover: info.avatarUrl
+        cover: 'http://peqep4fsa.bkt.clouddn.com/tmp/wxe37b540617a53b3a.o6zAJs7luTa_z79r7ZDDbXtedpzc.5yR6Nb6F82gs24b0c83619ef7b7c5b44471f47ed17da.png'
       })
       // this.setData('cover', '')
       // this.cover = ''
@@ -130,8 +131,7 @@ export default class Index extends wexp.page {
     const year = time.getFullYear()
     const day = time.getDate()
     const month = time.getMonth() + 1
-    let mn = time.getMinutes()
-    mn = (mn < 10) ? 0 + mn : mn
+    let minute = time.getMinutes()
     // if (minute < 10) {
     //   console.log(66666)
     // }
@@ -210,6 +210,16 @@ export default class Index extends wexp.page {
       // this.region = res.detail.value
       console.log(res)
     },
+    initPicker () {
+      const time = new Date()
+      const year = time.getFullYear()
+      const day = time.getDate()
+      const month = time.getMonth() + 1
+      // this.startDate = year + '-' + month + '-' + day
+      this.setData({
+        startDate: year + '-' + month + '-' + day
+      })
+    },
     clearTime () {
       this.setData({
         date: '',
@@ -239,7 +249,7 @@ export default class Index extends wexp.page {
           })
           qiniuUploader.upload(filePath, (res) => {
             that.setData({
-              cover: res.imageURL
+              cover: res.imageURL + '?imageView2/2/w/100/h/120'
             })
             wx.hideLoading()
           }, (error) => {
@@ -287,7 +297,7 @@ export default class Index extends wexp.page {
       this.setData({
         params: {
           startTime: startTime,
-          // city: this.data.region[1] || '',
+          city: this.data.region[1] || '',
           cover: this.data.cover,
           desc: this.data.params.desc,
           limit: this.data.params.limit,
@@ -377,7 +387,7 @@ export default class Index extends wexp.page {
   }
   .picker {
     font-size: 14px;
-    width: 100px;
+    width: 80px;
     height: 16px;
     color: #ebebeb;
     line-height: 16px;

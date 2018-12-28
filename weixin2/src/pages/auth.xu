@@ -1,226 +1,626 @@
 
 <template>
   <scroll-view class="page">
-    <view>
-      <view class="title">车型</view>
-      <view class="item">
-        <text class="tag">DOTA2</text>
+    <picker mode="selector" range="{{sexlist}}" range-key="name" value="" bindchange="sexChange">
+      <view  class="cell">
+        <text class="cell-label">性别</text>
+        <view class="cell-right">
+          <text class="cell-value {{!sex ? 'empty-value': ''}}">{{sex || '请设置'}}</text>
+          <text class="iconfont icon-arrow-right icon"></text>
+        </view>
       </view>
-    </view>
-    <view>
-      <view class="title">发车时间</view>
-      <view class="item">
+    </picker>
+    <picker class="picker" bindchange="ageChange" mode="date">
+      <view class="cell">
+        <text class="cell-label">年龄</text>
+        <view class="cell-right">
+          <text class="cell-value {{!age?'empty-value': ''}}">{{age || '请设置'}}</text>
+          <text class="iconfont icon-arrow-right icon"></text>
+        </view>
+      </view>
+    </picker>
+    <view class="upload-cell">
+      <view class="header">
+        <text>资质图</text>
 
-        <text class="iconfont icon-date item-icon"></text>
-        <picker mode="date" value="{{date}}" start="{{startDate}}" bindchange="bindDateChange">
-          <view class="picker {{date?'input':''}}">
-            {{date || '选择日期'}}
-          </view>
-        </picker>
-        <text class="iconfont icon-clock item-icon item-icon-clock"></text>
-        <picker mode="time" value="{{time}}" bindchange="bindTimeChange">
-          <view class="picker {{time?'input':''}}">
-            {{time || '选择时间'}}
-          </view>
-        </picker>
-        <text class="icon-cancel-circled item-icon item-icon-cancel" bindtap="clearTime"></text>
-        <!-- <label class="checkbox">
-          <checkbox name="ck" value="2" checked="true"/>
-        </label> -->
-        <!-- <input disabled=true class="input" placeholder="请选择时间" placeholder-class="holder-text" /> -->
+        <view class="cell-right">
+          <text class="iconfont icon-image image-icon"></text>
+          <text class="tip">示例</text>
+        </view>
       </view>
-
-    </view>
-    <view>
-      <view class="title">发车地点</view>
-      <view class="item">
-        <text class="iconfont icon-location item-icon"></text>
-        <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="" fields="month">
-          <view class="picker {{region[1]?'input':''}}">
-            {{region[1] || '所在城市' }}
-          </view>
-        </picker>
-        <!-- <input disabled=true class="input" placeholder="所在城市" placeholder-class="holder-text" /> -->
-      </view>
-    </view>
-    <view>
-      <view class="title">车位</view>
-      <view class="item">
-        <text class="iconfont icon-group item-icon"></text>
-        <input class="input site-input" type="number" placeholder-class="holder-text" bindinput="limitInput" value="{{params.limit}}" />
-        <text class="site-unit">人</text>
-      </view>
-    </view>
-    <view>
-      <view class="title">描述</view>
-      <view class="item">
-        <!-- <area value="{{params.desc}}" ></area> -->
-        <area value="{{desc}}" placeholder="说点什么" bind:test="descChange" limit="{{limit}}"></area>
-        <!-- <textarea value="{{}}" maxlength=10 class="input desc-area" placeholder="说点什么" placeholder-class="holder-text" /> -->
-      </view>
-    </view>
-    <view>
-      <view class="title">活动封面</view>
-      <view class="item cover-item">
-        <view class="upload-box" catchtap="upLoad">
-          <image class="upload-img" mode="scaleToFil" src="{{cover}}"></image>
+      <view class="tip-text">封面截图需要清晰显示游戏ID和段位</view>
+      <view class="body">
+        <view class="upload-area" bindtap="uploadImg" wx:if="{{imgSrc===''}}">
+          <text class="iconfont icon-image icon-upload"></text>
+          <text class="tip-upload">上传图片{{imgSrc}}</text>
+        </view>
+        <view class="upload-area" wx:else bindtap="uploadImg">
+          <image src="{{imgSrc}}" class="upload-img" mode="scaleToFil" />
         </view>
       </view>
     </view>
-    <cover-view class="primary-button" catchtap="submit">发布</cover-view>
+    <view class="upload-cell">
+      <view class="header">
+        <text>语音</text>
+      </view>
+      <view class="tip-text">录制一段自我介绍的语音</view>
+      <view class="body">
+        <view class="upload-area" bindtap="openRecord" wx:if="{{!voidSrc}}">
+          <text class="iconfont icon-mai icon-upload"></text>
+          <text class="tip-upload">录制语音</text>
+        </view>
+        <view class="void-area" wx:else>
+          <view class="void" bindtap="playerVoid">
+            <text class="iconfont icon-stop icon-stop-item" wx:if="{{playInfo.status===1}}"></text>
+            <text class="iconfont icon-play icon-play-item" wx:else></text>
+            <progress percent="{{playInfo.percent}}" class="progress" stroke-width="3" activeColor="#fff" backgroundColor="rgba(103, 103, 103, 0.8)" active="{{true}}" active-mode="forwards"/>
+            <text class="void-second">5'</text>
+          </view>
+          <!-- <view class="reset-void">重新录制</view> -->
+          <view class="reset-void" bindtap="clearVoid">
+              <text class="iconfont icon-close icon-close-item"></text>
+          </view>
+        </view>
+      </view>
+    </view>
   </scroll-view>
+  <view class="button" bindtap="submit">提交</view>
+  <view class="cover" catchtouchmove="coverTouch" wx:if="{{showModal}}">
+      <view class="modal">
+        <view class="modal-close" bindtap="closeRecord">
+          <text class="iconfont icon-close close-icon"></text>
+        </view>
+        <view class="modal-content">
+          <view class="start-time">00:{{timer >= 10 ? timer : '0' + timer}}</view>
+          <view class="record-tip">最长30秒{{voidStatus}}</view>
+          <!-- <view bindtap="player">播放音频</view>
+          <view bindtap="upLoad">上传音频</view> -->
+          <view class="void-content">
 
+            <view class="reset"  bindtap="resetRecord" wx:if="{{voidStatus===2}}">
+              <text class="iconfont icon-reset"></text>
+            </view>
+            <view class="play"  bindtap="player" wx:if="{{voidStatus===2}}">
+              <text class="iconfont icon-play"></text>
+            </view>
+            <view class="record {{voidStatus===1 ? 'recording': ''}}" bindlongpress="startRecord" wx:if="{{voidStatus===1 || voidStatus===0}}" bindtouchend="stopRecord">
+              <text class="iconfont icon-record"></text>
+            </view>
+            <view class="save" wx:if="{{voidStatus===2}}" bindtap="sureRecord">
+              <text class="iconfont icon-gou"></text>
+            </view>
+          </view>
+        </view>
+      </view>
+  </view>
 </template>
+<style>
+  page {
+    background: #f8f8f8;
+  }
+  .page {
+    padding-bottom: 70px;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    height: 45px;
+    padding: 0 15px;
+    margin-top: 25px;
+    flex-direction: row;
+
+  }
+  .picker {
+    width: 100%;
+    display: block;
+  }
+
+  .cell .icon {
+    position:relative;
+    font-size:14px;
+    font-weight:bolder;
+    color:#ccc;
+
+  }
+  .cell-right {
+    flex: 1;
+    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .cell-value {
+    padding-right: 10px;
+    font-size: 14px;
+  }
+  .empty-value {
+    color: #ebebeb;
+    font-size: 14px;
+  }
+  .cell-label {
+    font-size: 14px;
+  }
+  .upload-cell {
+    background: #fff;
+    padding: 10px 15px;
+    margin-top: 25px;
+    height: 185px;
+  }
+  .header {
+    display: flex;
+  }
+  .header text {
+    font-size: 14px;
+  }
+  .image-icon {
+    color: #1D7EEF;
+    margin-right: 5px;
+  }
+  .tip {
+    color: #ccc;
+  }
+  .upload-area {
+    width: 80px;
+    height: 80px;
+    border: 1px dashed #ccc;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .upload-img  {
+    width: 80px;
+    height: 80px;
+  }
+  .body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+  .icon-upload {
+    color: #1D7EEF;
+    font-size: 20px;
+  }
+  .tip-text {
+    font-size: 12px;
+    color: #ccc;
+    margin: 15px 0;
+    text-align: center;
+  }
+  .tip-upload {
+    font-size: 10px;
+    margin-top: 5px;
+    color: #ccc;
+  }
+  .button {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: 2px;
+    background: #1D7EEF;
+  }
+  /** 遮罩 */
+  .cover {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .modal {
+    margin:0 25px;
+    background: #fff;
+    width: 100%;
+    padding: 15px;
+    opacity: 1;
+    border-radius: 3px;
+    position: relative;
+    min-height: 100px;
+  }
+  .modal-close {
+    width: 0;
+    height: 0;
+    border: 15px solid #1D7EEF;
+    border-left: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-top-right-radius: 3px;
+  }
+  .close-icon {
+    color:#fff;
+    position:absolute;
+    top:-13px;
+    right:-13px;
+    font-size:12px;
+    font-weight:bold;
+  }
+  /** 录音 */
+  .void-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 35px;
+    padding-top: 35px;
+  }
+  .reset, .save {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #1D7EEF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .reset text {
+
+    color: #1D7EEF;
+    font-size: 20px;
+  }
+  .save {
+    background: #1D7EEF;
+  }
+  .save text {
+    color: #fff;
+    font-size: 20px;
+  }
+  .record, .play {
+    width: 50px;
+    height: 55px;
+    border-radius: 50%;
+    background: #1D7EEF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+  }
+  .record text, .play text {
+    font-size: 30px;
+    color: #fff;
+  }
+  .recording {
+    box-shadow: 0px 0px 3px 3px rgba(29, 126, 239, 0.3);
+  }
+  .start-time {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+  .record-tip {
+    text-align: center;
+    font-size: 12px;
+    color: #ccc;
+  }
+  .void {
+    width: 120px;
+    display: flex;
+    height: 25px;
+    align-items: center;
+    background: rgba(29, 126, 239, 0.8);
+    border-radius: 15px;
+    padding: 0 15px;
+  }
+  .progress {
+    flex: 1;
+    border-radius: 2px;
+  }
+  .void-second {
+    font-size: 12px;
+    color: #fff;
+    margin-left: 5px;
+  }
+  .icon-stop-item {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bolder;
+    margin-left: -10px;
+  }
+  .icon-play-item {
+    color: #fff;
+    margin-left: -6px;
+    font-size: 16px;
+  }
+  .void-area {
+    display: flex;
+    height: 80px;
+    align-items: center;
+  }
+  .reset-void {
+    height: 25px;
+    font-size: 10px;
+    color: #1D7EEF;
+    border: 1px solid #E1E1E1;
+    line-height: 25px;
+    border-radius: 13px;
+    width: 25px;
+    text-align: center;
+    letter-spacing: 1px;
+    border-radius: 50%;
+    margin-left: 10px;
+    background: #fff;
+    margin-right: -35px;
+  }
+  .icon-close-item {
+    margin-right: -2px;
+  }
+</style>
 <script>
-import xupy from 'xupy/index'
-import { getUserInfo } from '../mixins/common'
-import {rootUrl} from '../mixins/config.js'
-import {addActivity} from '../mixins/api.js'
-const qiniuUploader = require('../mixins/qiniuUploader')
-export default class extends xupy.page {
+import wexp from 'wexp/index'
+import { uploadImg, uploadVoid } from '../mixins/common'
+// import {rootUrl} from '../mixins/config.js'
+import {addAuth} from '../mixins/api.js'
+// const qiniuUploader = require('../mixins/qiniuUploader')
+const recorderManager = wx.getRecorderManager()
+const innerAudioContext = wx.createInnerAudioContext()
+const palyVoidContext = wx.createInnerAudioContext()
+// const palyVoidContext = wx.createInnerAudioContext()
+export default class extends wexp.page {
   config = {
     "navigationBarTitleText": "发布活动",
     "enablePullDownRefresh": false,
     "backgroundTextStyle": "#333",
-    "backgroundColor": "#eeeeee",
+    "backgroundColor": "#f8f8f8",
     "onReachBottomDistance": 50,
     "usingComponents": {
-      "area": "../components/TextArea"
+      "area": "../components/TextArea",
+      "k-toast": "kai-ui/toast/index"
     }
   }
   data = {
-    userinfo: {},
-    date: '',
-    startDate: '',
-    endDate: '',
-    time: '',
-    region: [],
-    cover: '',
-    limit: 200,
-    desc: '',
-    params: {
-      gameId: 1,
-      startTime: '',
-      limit: 1,
-      desc: '',
-      cover: ''
-    }
+    voidSrc: '',
+    recordSrc: '',
+    timer: 0,
+    timerServer: '',
+    voidStatus: 0,
+    showModal: false,
+    imgSrc: '',
+    sex: '',
+    age: '',
+    endAge: '',
+    playInfo: {
+      status: 0,
+      time: 0,
+      percent: 0
+    },
+    sexlist: [
+      {
+        name: '女',
+        key: '1'
+      },
+      {
+        name: '男',
+        key: '2'
+      }
+    ]
+  }
+  initPlayer () {
+    palyVoidContext.onPlay((res) => {
+      this.setData({
+        'playInfo.status': 1
+      })
+    })
+    palyVoidContext.onPause((res) => {
+      this.setData({
+        'playInfo.status': 0
+      })
+    })
+    palyVoidContext.onStop((res) => {
+      this.setData({
+        'playInfo.status': 0
+      })
+    })
+    palyVoidContext.onEnded((res) => {
+      this.setData({
+        'playInfo.status': 0,
+        'playInfo.percent': 100
+      })
+    })
+    palyVoidContext.onTimeUpdate((res) => {
+      console.log(palyVoidContext.duration)
+      this.setData({
+        'playInfo.time': Math.floor(palyVoidContext.currentTime),
+        'playInfo.percent': palyVoidContext.currentTime / palyVoidContext.duration * 100
+      })
+    })
+  }
+  initRecod () {
+    innerAudioContext.onPlay((res) => {
+      console.log('innerAudioContext播放')
+    })
+    recorderManager.onStop((res) => {
+      innerAudioContext.src = res.tempFilePath
+      // innerAudioContext.src = 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a'
+
+      this.setData({
+        recordSrc: res.tempFilePath
+      })
+      console.log(res)
+      console.log(innerAudioContext)
+      console.log('监听结束录音')
+    })
   }
   onLoad () {
-    this.initPicker()
-    this.getAddrss()
-    // this.$on('change', (val) => {
-    //   this.params.desc = val
-    // })
-    getUserInfo().then((info) => {
-      // this.userinfo = info
-      // this.cover = info.avatarUrl
-      this.setData({
-        cover: 'http://peqep4fsa.bkt.clouddn.com/tmp/wxe37b540617a53b3a.o6zAJs7luTa_z79r7ZDDbXtedpzc.5yR6Nb6F82gs24b0c83619ef7b7c5b44471f47ed17da.png'
-      })
-      // this.setData('cover', '')
-      // this.cover = ''
-    })
-  }
-  initPicker () {
-    const time = new Date()
-    const year = time.getFullYear()
-    const day = time.getDate()
-    const month = time.getMonth() + 1
-    this.setData({
-      startDate: year + '-' + month + '-' + day
-    })
-  }
-  getAddrss () {
-    let that = this
-    wx.getLocation({
+    wx.getSetting({
       success (res) {
-        var log = res.longitude
-        var lat = res.latitude
-        console.log(lat)
-        console.log(log)
-        wx.request({
-          // url: 'https://api.map.baidu.com/geocoder/v2/?ak=DQNYwj5Nv3Hg6TBNaCmth9n0l47EIKRb&location=' + lat + ',' + log + '&output=json',
-          url: 'https://api.map.baidu.com/geocoder/v2/',
-          // _unintercept: true,
-          data: {
-            location: lat + ',' + log,
-            output: 'json',
-            ak: 'DQNYwj5Nv3Hg6TBNaCmth9n0l47EIKRb'
-          },
-          success (res) {
-            let ads = res.data.result.addressComponent
-            that.setData({
-              region: [ads.province, ads.city]
-            })
-            // that.$apply()
-            // that.region = [ads.province, ads.city]
-          },
-          complete (res) {
-            console.log(res)
-          }
-        })
+        console.log(res)
       }
     })
+    this.initPlayer()
+    this.initRecod()
+  }
+  valid () {
+    if (this.data.sex === '') {
+      return '请选择性别'
+    }
+    if (!this.data.age === '') {
+      return '请选择性别'
+    }
+    if (!this.data.imgSrc) {
+      return '请上传资质图'
+    }
+    if (!this.data.voidSrc) {
+      return '请选择录制一段语音'
+    }
+    return true
+  }
+  ages (str) {
+    var r = str.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/)
+    if (r == null) {
+      return false
+    }
+    var d = new Date(r[1], r[3] - 1, r[4])
+    if (d.getFullYear() === r[1] && (d.getMonth() + 1) === r[3] && d.getDate() === r[4]) {
+      var Y = new Date().getFullYear()
+      var age = Y - r[1]
+      return age
+    }
   }
   methods = {
-    descChange (b) {
-      this.setData({
-        'params.desc': b.detail
+    coverTouch () {},
+    /** 提交 */
+    submit () {
+      let error = this.valid()
+      wx.redirectTo({
+        url: 'authResult'
       })
-    },
-    limitInput (b) {
-      this.setData({
-        'params.limit': b.detail.value
-      })
-    },
-    bindDateChange (res) {
-      this.setData({
-        date: res.detail.value
-      })
-      // this.date = res.detail.value
-      console.log(res)
-    },
-    bindTimeChange (res) {
-      this.setData({
-        time: res.detail.value
-      })
-      this.time = res.detail.value
-      console.log(res)
-    },
-    bindRegionChange (res) {
-      this.setData({
-        region: res.detail.value
-      })
-      // this.region = res.detail.value
-      console.log(res)
-    },
-    initPicker () {
-      const time = new Date()
-      const year = time.getFullYear()
-      const day = time.getDate()
-      const month = time.getMonth() + 1
-      // this.startDate = year + '-' + month + '-' + day
-      this.setData({
-        startDate: year + '-' + month + '-' + day
-      })
-    },
-    clearTime () {
-      this.setData({
-        date: '',
-        time: ''
-      })
-    },
-    upLoad () {
-      var that = this
-      // 初始化
-      var options = {
-        region: 'ECN', // 华东区
-        uptokenURL: rootUrl + '/api/upload/token',
-        domain: 'http://peqep4fsa.bkt.clouddn.com/',
-        shouldUseQiniuFileName: false
+      if (error !== true) {
+        wx.showToast({
+          title: error,
+          icon: 'none'
+        })
+        return
       }
-      qiniuUploader.init(options)
+      let pms = uploadVoid(this.data.voidSrc)
+      pms.then((res) => {
+        let age = this.ages(this.data.age)
+        addAuth({
+          gameId: 1,
+          voidSrc: res.imageURL,
+          gameImg: this.data.imgSrc,
+          sex: this.data.sex,
+          age: age
+        }).then((res) => {
+          if (res.code === '200') {
+            wx.showToast({
+              title: '提交成功',
+              icon: 'success'
+            })
+          }
+        })
+      })
+    },
+    /** 性别 */
+    sexChange (res) {
+      let sexObj = this.data.sexlist[res.detail.value]
+      this.setData({
+        sex: sexObj.name
+      })
+    },
+    /** 年龄 */
+    ageChange (res) {
+      this.setData({
+        age: res.detail.value
+      })
+    },
+    /** 打开录音弹窗 */
+    openRecord () {
+      this.setData({
+        showModal: true
+      })
+    },
+    /** 关闭录音弹窗 */
+    closeRecord () {
+      this.setData({
+        showModal: false
+      })
+    },
+    /** 开始录音 */
+    startRecord () {
+      recorderManager.start()
+      let timer = setInterval(() => {
+        let time = Number(this.data.timer)
+        let newTime = time + 1
+        if (newTime === 20) {
+          recorderManager.stop()
+        }
+        if (newTime > 20) {
+          clearInterval(this.data.timerServer)
+          return
+        }
+        console.log(newTime)
+        this.setData({
+          timer: newTime
+        })
+      }, 1000)
+      this.setData({
+        timerServer: timer,
+        voidStatus: 1
+      })
+      console.log('开始录音')
+    },
+    /** 停止录音 */
+    stopRecord () {
+      recorderManager.stop()
+      this.setData({
+        voidStatus: 2
+      })
+      clearInterval(this.data.timerServer)
+      console.log('结束录音')
+    },
+    /** 重新录音 */
+    resetRecord () {
+      this.setData({
+        voidStatus: 0,
+        timer: 0
+      })
+    },
+    // 上传音频到服务端
+    upLoad () {
+      // 初始化
+      let pms = uploadVoid(this.data.voidSrc)
+      pms.then((res) => {
+        console.log('上传成功过')
+      })
+    },
+    // 录音确定结束
+    sureRecord () {
+      palyVoidContext.src = this.data.recordSrc
+      innerAudioContext.stop()
+      this.setData({
+        showModal: false,
+        voidSrc: this.data.recordSrc,
+        voidStatus: 0
+      })
+    },
+    /** 试听录音 */
+    player () {
+      innerAudioContext.play()
+      console.log('播放录音')
+    },
+    /** 播放录好的音频 */
+    playerVoid () {
+      if (this.data.playInfo.status === 0) {
+        palyVoidContext.play()
+      } else {
+        palyVoidContext.pause()
+      }
+    },
+    /** 上传图片 */
+    uploadImg () {
+      let that = this
       // 选择图片
       wx.chooseImage({
         count: 1,
@@ -232,193 +632,28 @@ export default class extends xupy.page {
           wx.showLoading({
             mask: true
           })
-          qiniuUploader.upload(filePath, (res) => {
+          let pms = uploadImg(filePath)
+          pms.then((resUp) => {
             that.setData({
-              cover: res.imageURL + '?imageView2/2/w/100/h/120'
+              imgSrc: resUp.imageURL + '?imageView2/2/w/80/h/80'
             })
             wx.hideLoading()
-          }, (error) => {
-            console.log('error: ' + error)
+            console.log(res)
+          }).catch(() => {
+            wx.hideLoading()
           })
         }
       })
     },
-    submit () {
-      let startTime
-      wx.showToast({
-        title: '成功1',
-        icon: 'success'
-      })
-      if (this.data.date === '') {
-        if (this.data.time !== '') {
-          wx.showToast({
-            title: '请选择日期',
-            icon: 'none'
-          })
-          return
-        } else {
-          startTime = ''
-        }
-      } else {
-        if (this.data.time === '') {
-          wx.showToast({
-            title: '请选择时间',
-            icon: 'none'
-          })
-          return
-        } else {
-          startTime = this.data.date + ' ' + this.data.time
-          startTime = new Date(startTime).getTime() / 1000
-          const nowTime = new Date().getTime() / 1000
-          if (nowTime > startTime) {
-            wx.showToast({
-              title: '发车时间不能早于当前时间',
-              icon: 'none'
-            })
-            return
-          }
-        }
-      }
+    /** 删除录音 */
+    clearVoid () {
       this.setData({
-        params: {
-          startTime: startTime,
-          city: this.data.region[1] || '',
-          cover: this.data.cover,
-          desc: this.data.params.desc,
-          limit: this.data.params.limit,
-          gameId: this.data.params.gameId
-        }
-      })
-      addActivity(this.data.params).then((res) => {
-          wx.showToast({
-            title: '发布成功',
-            icon: 'success'
-          })
+        voidSrc: '',
+        recordSrc: '',
+        voidStatus: 0
       })
     }
   }
 }
 </script>
-<style >
-  page {
-    background: #f8f8f8;
-  }
-  .title {
-    margin: 15px 0;
-    color: #000;
-    font-size: 14px;
-    font-weight: Regular;
-    padding-left: 25px;
-  }
-  .item {
-    background-color: #fff;
-    padding: 10px 25px;
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  .item-icon {
-    color: #b9b9b9;
-    font-size: 16px;
-    margin-right: 15px;
-  }
-  .holder-text {
-    font-size: 14px;
-    color: #ebebeb;
-/*    font-weight: lighter;
-*/  }
-  .tag {
-    font-size: 10px;
-/*    font-weight: lighter;
-*/    color: #fff;
-    background: #C77F3F;
-    border-radius: 2px;
-    height: 20px;
-    line-height: 20px;
-    padding: 0 5px;
-  }
-  .site-unit {
-    font-size: 14px;
-    color: #EBEBEB;
-/*    font-weight: lighter;
-*/  }
-  .desc-area {
-    height: 90px;
-  }
-  .upload-img, .upload-box {
-    width: 100px;
-    height: 120px;
-  }
-  .cover-item {
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-  }
-  .primary-button {
-    background: #7CC986;
-    height: 50px;
-    line-height: 50px;
-    border-radius: 0;
-    font-size: 18px;
-    letter-spacing: 1px;
-    color: #fff;
-    text-align: center;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-  }
-  .page {
-    padding-bottom: 70px;
-  }
-  .picker {
-    font-size: 14px;
-    width: 80px;
-    height: 16px;
-    color: #ebebeb;
-    line-height: 16px;
-    /*font-weight: lighter;*/
-  }
-  .item-icon-clock {
-    margin-left: 20px;
-  }
-  .item-icon-cancel {
-    position: absolute;
-    right: 0;
-  }
-  checkbox {
-    position: absolute;
-    right: 0;
-  }
-  checkbox .wx-checkbox-input{
-     width: 30rpx; /* 背景的宽 */
-     height: 30rpx; /* 背景的高 */
-  }
-  /* 选中后的 背景样式 （红色背景 无边框 可根据UI需求自己修改） */
-  checkbox .wx-checkbox-input.wx-checkbox-input-checked{
-     border: none;
-     /*background: red;*/
-  }
-  /* 选中后的 对勾样式 （白色对勾 可根据UI需求自己修改） */
-  checkbox .wx-checkbox-input.wx-checkbox-input-checked::before{
-     border-radius: 50%;/* 圆角 */
-     width: 20rpx;/* 选中后对勾大小，不要超过背景的尺寸 */
-     height: 20rpx;/* 选中后对勾大小，不要超过背景的尺寸 */
-     line-height: 20rpx;
-     text-align: center;
-     font-size:22px; /* 对勾大小 30rpx */
-     /*color:#fff;  对勾颜色 白色 */
-     background: transparent;
-     /*transform:translate(-50%, -50%) scale(1);*/
-     /*-webkit-transform:translate(-50%, -50%) scale(1);*/
-  }
-  .input {
-    flex: 1;
-    font-size: 14px;
-    color: #333;
-  }
-  .site-input {
-    width: 20px;
-    /*background-color: red;*/
-    flex: none;
-  }
-</style>
+

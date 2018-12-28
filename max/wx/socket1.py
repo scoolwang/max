@@ -5,6 +5,9 @@ import hashlib
 import socket
 import base64
 import struct
+import json
+import time
+from wx import models
 global clients
 clients = {}
 sendMap = {}
@@ -22,6 +25,7 @@ def notify(message, connection):
         else:
             token += struct.pack('!BQ', 127, length)
         data = token + data.encode()
+        print(data)
         # connection.send('%c%c%s' % (0x81, len(message), message))
         connection.send(data)
 
@@ -39,11 +43,10 @@ class websocket_thread(threading.Thread):
 
     def run(self):
         print('new websocket client joined!')
-        data = self.connection.recv(1024)
+        data = self.connection.recv(2048)
         headers = self.parse_headers(data)
         token = self.generate_token(headers['Sec-WebSocket-Key'])
         print('headers数据')
-        print(headers)
         print(data)
         str2 = 'HTTP/1.1 101 Switching Protocols \r\n' \
                 'Upgrade: WebSocket\r\n'\
@@ -51,13 +54,14 @@ class websocket_thread(threading.Thread):
                 'Sec-WebSocket-Accept: %s\r\n\r\n' % token
         str2 = str2.encode('utf8')
         sendMap['id'+ headers['data']['from']] = self.username
-        print(str2)
+        print(sendMap)
         self.connection.send(str2)
         while True:
             print('接受数据')
             try:
                 print('接受数据1')
-                data = self.connection.recv(1024)
+                data = self.connection.recv(2048)
+                print(data)
             except Exception as e:
                 print('接受数据3')
                 print("unexpected error: ", e)
@@ -71,14 +75,40 @@ class websocket_thread(threading.Thread):
             data = self.parse_data(data)
             # if len(data) == 0:
             #     continue
-            message = self.username + ": " + data
+            message = data
             print('发送的数据')
             print(message)
+            print(time.time() * 1000)
+            sqlData = {
+                'msg': message,
+                'sendId': headers['data']['from'],
+                'receiveId': headers['data']['to'],
+                'type': 0,
+                'time': time.time() * 1000
+            }
+            msgData = {
+                'data': message,
+                'from': headers['data']['from'],
+                'to': headers['data']['to'],
+                'type': '0',
+                'time': time.time() * 1000
+            }
             toid = 'id' + headers['data']['to']
+            fromid = 'id' + headers['data']['from']
+            print('clients')
+            print(clients)
+            print('sendMap')
+            print(sendMap)
             toSocketId = sendMap.get(toid)
-            if not toSocketId:
-                return
-            notify(message, clients[toSocketId])
+            print(toid)
+            print(toSocketId)
+            if not toSocketId or not data:
+                if not toSocketId:
+                    # toSocketId = sendMap.get(fromid)
+                    models.addMsg(sqlData)
+            else:
+                message = json.dumps(msgData)
+                notify(message, clients[toSocketId])
 
     def parse_data(self, info):
         code_len = info[1] & 0x7f
@@ -147,7 +177,7 @@ class websocket_server(threading.Thread):
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('127.0.0.1', self.port))
+        sock.bind(('192.168.21.37', self.port))
         sock.listen(5)
 
         print('websocket server started!')

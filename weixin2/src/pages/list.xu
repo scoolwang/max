@@ -1,0 +1,281 @@
+<template>
+<scroll-view class="page">
+  <view class="module" wx:for="{{list}}" wx:key="id">
+  <!-- <button open-type="getUserInfo">获取用户信息</button> -->
+    <view class="info">
+      <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
+      <view class="detail">
+        <view class="row">
+          <view class="user-info">
+            <view class="level-box">
+              <image class="level-img" src="{{item.level}}" />
+              <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text>
+            </view>
+
+            <text class="username">{{item.userName}}</text>
+          </view>
+          <view class="time right">{{item.createTime}}</view>
+        </view>
+        <view class="row">
+          <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+            <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+            <text class="age">{{item.age}}</text>
+          </view>
+          <view class="right voice-box">
+            <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+              <text class="iconfont icon-voice2"></text>
+            </view>
+          </view>
+        </view>
+        <view class="row">
+          <view class="start-time">发车时间：{{item.startTime}}</view>
+          <view class="right">{{item.city}}</view>
+        </view>
+        <view class="row">
+          <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
+          <view class="right">
+            <view class="button">上车</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">
+      {{item.t_desc}}
+    </view>
+  </view>
+
+</scroll-view>
+</template>
+<style>
+page {
+  background: #f7f7f7;
+}
+.module {
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(233,231,231,0.5);
+  margin: 20px 0px;
+}
+.cover-img {
+  width: 123px;
+  height: 123px;
+}
+.level-img {
+  width: 21px;
+  height: 24px;
+}
+.info {
+  display: flex;
+  flex-direction: row;
+  height: 123px;
+}
+.cover {
+  width: 123px;
+  height: 123px;
+}
+.detail {
+  flex: 1;
+  padding: 10px 15px;
+}
+.row {
+  display: flex;
+  font-size: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+.right {
+  flex: 1;
+  text-align: right;
+  font-size: 10px;
+  justify-content: flex-end;
+  display: flex;
+}
+.username {
+  font-size: 14px;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+}
+.level-box {
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+}
+.rank {
+  font-size: 10px;
+  color: #8B572A;
+  padding-left: 3px;
+}
+.icon-sex {
+  font-size: 10px;
+  margin-left: -2px;
+}
+.tag-girl {
+  background: #EC909B;
+}
+.tag-boy {
+  background: #63A9FA;
+}
+.tag {
+  border-radius: 2px;
+  color: #fff;
+  height: 15px;
+  padding: 0 3px;
+  font-size: 10px;
+}
+.age {
+  font-size: 10px;
+  /*font-weight: lighter;*/
+}
+.voice {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px 0 rgba(206,206,206,0.5);
+  background:#fff;
+  line-height:20px;
+  text-align:center;
+}
+.voice text {
+  font-size: 14px;
+  color: #7CC986;
+
+}
+.voice-box {
+  display: flex;
+  justify-content: flex-end;
+
+}
+.desc {
+  padding: 10px;
+  border-top: 1px solid #F3F3F3;
+  font-size: 12px;
+  color: #666;
+  line-height: 18px;
+  letter-spacing: 1px;
+}
+.button {
+  background: #7CC986;
+  border-radius: 2px;
+  width: 45px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  font-size: 10px;
+  color: #fff;
+}
+</style>
+<script>
+  import wexp from 'wexp/index'
+  import {getActivityList} from '../mixins/api.js'
+  const palyVoidContext = wx.createInnerAudioContext()
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "认证结果",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#f7f7f7",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "tabbar": "../components/TabBar"
+      }
+    }
+    data = {
+      list: []
+    }
+    methods = {
+      format (time) {
+        this.formatTime(time)
+      },
+      playVoice (item) {
+        let src = item.currentTarget.dataset.hi
+        palyVoidContext.stop()
+        palyVoidContext.src = src
+        palyVoidContext.play()
+      }
+    }
+    onLoad () {
+      this.getData()
+    }
+    formatTime (time) {
+      let dateTime = new Date(time)
+      let year = dateTime.getFullYear()
+      let month = dateTime.getMonth() + 1
+      let day = dateTime.getDate()
+      let hour = dateTime.getHours()
+      let minute = dateTime.getMinutes()
+      let second = dateTime.getSeconds()
+      let nowDate = new Date().getTime()
+      let str = hour + ':' + (minute < 10 ? '0' + minute : minute)
+      if (nowDate - time <= 60 * 60 * 12) {
+        return str
+      } else {
+        return year + '-' + month + '-' + day + ' ' + str
+      }
+    }
+    formatCreateTime (time) {
+      let dateTime = new Date(time)
+      let year = dateTime.getFullYear()
+      let month = dateTime.getMonth() + 1
+      let day = dateTime.getDate()
+      let hour = dateTime.getHours()
+      let minute = dateTime.getMinutes()
+      let second = dateTime.getSeconds()
+      let now = new Date()
+      let nowDate = new Date().getTime() / 1000
+      let spaceTime = nowDate - time
+      let timeSpanStr = ''
+      if (spaceTime <= 60) {
+        timeSpanStr = '刚刚'
+      } else if (60 * 1 < spaceTime && spaceTime <= 60 * 60) {
+        timeSpanStr = Math.round((spaceTime / (60))) + '分钟前'
+      } else if (60 * 60 * 1 < spaceTime && spaceTime <=  60 * 60 * 24) {
+        timeSpanStr = Math.round(spaceTime / ( 60 * 60)) + '小时前';
+      }
+      else if (60 * 60 * 24 < spaceTime && spaceTime <=  60 * 60 * 24 * 15) {
+        timeSpanStr = Math.round(spaceTime / ( 60 * 60 * 24)) + '天前';
+      }
+      else if (spaceTime > 60 * 60 * 24 * 15 && year == now.getFullYear()) {
+        timeSpanStr = month + '-' + day + ' ' + hour + ':' + minute;
+      } else {
+        timeSpanStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+      }
+      return timeSpanStr
+    }
+    formatLevel (level, rank, levelStart) {
+      // let map = {
+      //   '1': 'guardian',
+      //   '2': 'crusader',
+      //   '3': 'archon',
+      //   '1': 'legend',
+      //   '1': 'ancient',
+      //   '1': 'divine',
+      //   '1': 'immortal_elite',
+      //   '1': 'immortal_top100',
+      //   '1': 'immortal_top10',
+      // }
+      let immortal = ['immortal_elite', 'immortal_top10', 'immortal_top100']
+      let src = 'https://cdn.max-c.com/app/dota2/leaderboard/'
+      if (immortal.indexOf(level) > -1) {
+        src = src + level + '.png'
+      } else {
+        src = src + level + (levelStart === 0 ? '' : '_' + levelStart) + '.png'
+      }
+      console.log(level)
+      return src
+    }
+    getData () {
+      getActivityList().then((res) => {
+        let list = res.data
+        for (let item of list) {
+          item.startTime = this.formatTime(item.startTime)
+          item.createTime = this.formatCreateTime(item.createTime)
+          item.level = this.formatLevel(item.level)
+        }
+        this.setData({
+          list: list
+        })
+      })
+    }
+  }
+</script>

@@ -1,51 +1,72 @@
 
 <style>
 @import './font/css/home.wxss';
-@import './font/css/test.wxss';
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  /*background: #e7e7e7;*/
-}
 </style>
-
 <script>
 // import wepy from 'wepy'
 // import 'wepy-async-function'
-import wepy from 'xupy/index'
-import regeneratorRuntime from './compile/runtime'
+import wepy from 'wexp/index'
 // import * as resource from './mixins/resource'
 import {login} from './mixins/login.js'
 
 export default class extends wepy.app {
   config = {
-    "pages": [
-      "pages/index"
+    'pages': [
+      'pages/foot/foot',
+      'pages/foot/login',
+      'pages/list',
+      'pages/msg',
+      'pages/index',
+      'pages/chat',
+      'pages/authResult',
+      'pages/auth'
     ],
-    "window": {
-      "navigationBarBackgroundColor": "#fff",
-      "navigationBarTitleText": "kai-ui",
-      "navigationBarTextStyle": "black",
-      "backgroundTextStyle": "dark",
-      "backgroundColor": "#e7e7e7"
+    'window': {
+      'navigationBarBackgroundColor': '#fff',
+      'navigationBarTitleText': 'kai-ui',
+      'navigationBarTextStyle': 'black',
+      'backgroundTextStyle': 'dark',
+      'backgroundColor': '#f8f8f8'
     },
-    "debug": true
+    // 'tabBar': {
+    //   'backgroundColor': '#fff',
+    //   'borderStyle': 'white',
+    //   'selectedColor': '#417505',
+    //   'list': [{
+    //     'pagePath': 'pages/list',
+    //     'iconPath': 'image/home.png',
+    //     'selectedIconPath': 'image/home-active.png',
+    //     'text': '首页'
+    //   }, {
+    //     'pagePath': 'pages/foot/foot',
+    //     'iconPath': 'image/message.png',
+    //     'selectedIconPath': 'image/message-active.png',
+    //     'text': '消息'
+    //   }, {
+    //     'pagePath': 'pages/auth',
+    //     'iconPath': 'image/user.png',
+    //     'selectedIconPath': 'image/user-active.png',
+    //     'text': '我的'
+    //   }]
+    // },
+    'debug': true
   }
   globalData = {
     name: 'chaunjie'
   }
-  constructor () {
-    super()
-    // this.intercept('request', resource)
-  }
-
-  onLaunch() {
+  // constructor () {
+  //   super()
+  // }
+  onLaunch(res) {
+    console.log('赚翻参数', res)
+    wx.cloud.init({
+      env: 'test-ba4566'
+    })
     wx.authorize({
-      scope: 'scope.record',
+      scope: 'scope.record'
+    })
+    wx.authorize({
+      scope: 'scope.userInfo'
     })
     login()
   }

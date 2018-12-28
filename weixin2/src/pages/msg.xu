@@ -1,0 +1,264 @@
+<template>
+<view class="page">
+  <view wx:for="{{chatList}}" class="msg-row" bindtap="toChat" data-id="{{item.msg.chatId}}" catchtap="link">
+    <view class="header">
+      <view class="msg-num" wx:if="{{item.len > 0}}">{{item.len }}</view>
+      <image class="avatar" src="{{item.msg.img}}" />
+    </view>
+    <view class="content">
+      <view class="row top-row">
+        <view class="nick">{{item.msg.name}}</view>
+        <view class="time">{{item.timeStr}}</view>
+      </view>
+      <view class="row">
+        <view class="msg">{{item.msg.msg}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{chatList.length <= 0}}" class="empty">
+    <text>暂无消息</text>
+  </view>
+</view>
+
+</template>
+<style>
+  .page {
+    padding-top: 15px;
+  }
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+  }
+  .msg-row {
+    display: flex;
+    margin: 0 15px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #EAE7E7;
+  }
+  .header {
+    position: relative;
+    margin-right: 15px;
+
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .nick {
+    font-size: 14px;
+  }
+  .time, .msg {
+    font-size: 12px;
+    color: #999;
+  }
+  .msg {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+  .top-row {
+    margin-bottom: 10px;
+  }
+  .content {
+    flex: 1;
+    overflow: hidden;
+  }
+  .msg-num {
+    color: #fff;
+    font-size: 12px;
+    height: 16px;
+    background: #FD0000;
+    position: absolute;
+    top: -8px;
+    right: -2px;
+    border-radius: 8px;
+    line-height: 16px;
+    padding: 0 5px;
+  }
+  .empty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    padding-top: 20%;
+    color: #999;
+  }
+</style>
+<script>
+  import wexp from 'wexp/index'
+  import {getUserInfo, formatTime} from '../mixins/common.js'
+  import {getMsg} from '../mixins/api.js'
+  let fileSystemManager = wx.getFileSystemManager()
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "认证结果",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#f8f8f8",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "area": "../components/TextArea"
+      }
+    }
+    data = {
+      unReadUserIds: [], // 未读消息用户id
+      sort: [],
+      msg: [],
+      map: {},
+      userInfo: {},
+      chatList: [],
+      historyMsg: []
+    }
+    methods = {
+      link (e) {
+        let id = e.currentTarget.dataset.id
+        this.$route('navigate', './chat', {id: id})
+      }
+    }
+    toChat () {
+    }
+    getChat (path, id) {
+      let pms = new Promise((resolve, reject) => {
+        fileSystemManager.readFile({
+          filePath: path,
+          encoding: 'utf8',
+          success: res => {
+            let content = res.data
+            let list = content.split('\r\n\r\n')
+            let arry = []
+            if (this.data.map[id] || this.data.unReadUserIds.indexOf(id) > -1) {
+              resolve()
+              return
+            }
+            for (let chat of list) {
+              if (chat) {
+                let obj = JSON.parse(chat)
+                arry.push(obj)
+              }
+            }
+            let lastMsg = arry[arry.length - 1]
+            let historyMsg = this.data.historyMsg
+            let timeStr = formatTime(lastMsg.time)
+            lastMsg.chatId = id
+            historyMsg.push({
+              tt: lastMsg,
+              msg: {
+                img: lastMsg.avatarUrl,
+                name: lastMsg.nick,
+                msg: lastMsg.data,
+                type: lastMsg.type,
+                sendId: lastMsg.from,
+                chatId: lastMsg.to === this.data.userInfo.userId ? lastMsg.from : lastMsg.to
+              },
+              time: lastMsg.time,
+              timeStr: timeStr,
+              len: 0,
+              isHistory: true
+            })
+            console.log('组装历史消息', historyMsg)
+            resolve(historyMsg)
+          }
+        })
+      })
+      return pms
+    }
+    getAll () {
+      let pms = new Promise((resolve, reject) => {
+        getUserInfo().then((res) => {
+          let userId = res.userId
+          this.setData({
+            userInfo: res
+          })
+          // 获取历史聊天记录
+          fileSystemManager.readdir({
+            dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+            success: res => {
+              let pms = []
+              for (let path of res.files) {
+                let id = path.split('.')[0]
+                let chatPms = this.getChat(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path, id)
+                pms.push(chatPms)
+              }
+              Promise.all(pms).then(() => {
+                resolve()
+              })
+            },
+            fail: res => {
+              resolve()
+            }
+          })
+        })
+      })
+      return pms
+    }
+    onLoad () {
+      let pms = this.getAll()
+      let that = this
+      getMsg().then((res) => {
+        let sort = []
+        let map = {}
+        let msg = []
+        let list = res.data
+        for (let item of list) {
+          let sendId = item.sendId
+          item.timeStr = formatTime(item.time)
+          if (map[sendId]) {
+            map[sendId].list.push(item)
+          } else {
+            map[sendId] = {
+              list: [item],
+              avatarUrl: item.avatarUrl,
+              name: item.name,
+              time: item.time
+            }
+            sort.push(sendId)
+          }
+          console.log(map)
+        }
+        for (let val of sort) {
+          let item = map[val]
+          let itemList = item.list
+          let lastList = itemList[itemList.length - 1]
+          let timeStr = formatTime(item.time)
+          // let msgObj = {
+          //   msg: lastList,
+          //   avatarUrl: item.avatarUrl,
+          //   name: item.name
+          // }
+          msg.push({
+            msg: {
+              img: lastList.avatarUrl,
+              name: lastList.name,
+              msg: lastList.msg,
+              type: lastList.type,
+              sendId: lastList.sendId,
+              chatId: lastList.sendId === this.data.userInfo.userId ? lastList.receiveId : lastList.sendId
+            },
+            time: item.time,
+            timeStr: timeStr,
+            isHistory: false,
+            len: itemList.length
+          })
+        }
+        this.setData({
+          unReadUserIds: sort
+        })
+        console.log('组装未读消息', msg)
+        pms.then(() => {
+          msg = msg.concat(that.data.historyMsg)
+          msg.sort((a, b) => {
+            return b.time - a.time
+          })
+          console.log('全套消息', msg)
+          this.setData({
+            chatList: msg
+          })
+        })
+      })
+    }
+  }
+</script>
