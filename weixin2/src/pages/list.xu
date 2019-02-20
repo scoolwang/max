@@ -35,7 +35,7 @@
           <view class="user-info">
             <view class="level-box">
               <image class="level-img" src="{{item.level}}" />
-              <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text>
+              <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
             </view>
 
             <text class="username">{{item.userName}}</text>
@@ -252,11 +252,11 @@
           'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
           'age': '18',
           'sex': '女',
-          'level': 'immortal_elite',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
           'rank': 10,
           'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
           'city': '杭州',
-          'userName': '王甜爽'
+          'userName': '九妹'
         }, {
           'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
           'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
@@ -269,11 +269,11 @@
           'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
           'age': '18',
           'sex': '女',
-          'level': 'immortal_elite',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
           'rank': 10,
           'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
           'city': '杭州',
-          'userName': '王甜爽'
+          'userName': '十三姐'
         }],
         'message': ''
       }
