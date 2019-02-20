@@ -249,7 +249,6 @@
       },
       linkGame () {
         this.$route('navigate', './game')
-
       },
       linkInfo () {
         this.$route('navigate', './editUser')

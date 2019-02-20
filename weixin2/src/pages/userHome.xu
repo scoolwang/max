@@ -19,7 +19,7 @@
   </view>
   <view class="title">游戏认证</view>
   <view class="game-list">
-    <view class="item">
+    <view class="item" bind:tap="linkGame">
       <view class="img-box" catch:tap="previewImg" data-src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
         <image mode="aspectFill" src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
       </view>
@@ -36,7 +36,7 @@
         <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png">
       </view>
     </view>
-    <view class="item">
+    <view class="item" bind:tap="linkGame">
       <view class="img-box" catch:tap="previewImg" data-src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
         <image mode="aspectFill" src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
       </view>
@@ -277,6 +277,9 @@
       },
       goChat () {
         this.$route('navigate', './chat')
+      },
+      linkGame () {
+        this.$route('navigate', './game')
       },
       previewImg (e) {
         let src = e.currentTarget.dataset.src

@@ -1,5 +1,5 @@
 <template>
-  <view class="void" bindtap="clickFn">
+  <view class="void" catch:tap="clickFn">
     <view class="void-box">
       <text class="iconfont icon-shengyin-weibofang void-icon"  wx:if="{{status===1 && ame === 1}}"></text>
       <text class="iconfont icon-shengyin-bofang void-icon"  wx:if="{{status===1 && ame === 2}}"></text>
