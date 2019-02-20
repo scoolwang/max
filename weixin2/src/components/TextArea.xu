@@ -5,8 +5,8 @@
   </view>
 </template>
 <script>
-  import xupy from 'xupy/index'
-  export default class GroupItem extends xupy.component {
+  import wexp from 'wexp/index'
+  export default class GroupItem extends wexp.component {
     config = {
       "component": true
     }
@@ -46,10 +46,15 @@
         this.setData({
           left: data.length
         })
-        this.triggerEvent('test', data)
+        this.triggerEvent('change', data)
         // this.$emit('change', data)
         // this.$apply()
       }
+    }
+    ready () {
+      this.setData({
+        left: this.data.value.length
+      })
     }
   }
 </script>

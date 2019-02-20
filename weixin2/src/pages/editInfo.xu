@@ -1,0 +1,74 @@
+<template>
+<view class="area">
+  <area value="{{value}}" placeholder="个性签名" bind:change="inputChange" limit="30"></area>
+</view>
+<view class="button" bind:tap="save">保存</view>
+</template>
+<style lang="less">
+  page {
+    background: #fafafa;
+  }
+  .area {
+    background: #fff;
+    margin: 20px 0;
+    padding: 20px;
+    position: relative;
+    input {
+      height: 53px;
+      background: #fff;
+      border: 0;
+      padding: 0 20px;
+    }
+  }
+  .button {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    color: #fff;
+    background: #4A90E2;
+    font-family:PingFangSC-Light;
+    font-weight:300;
+    line-height:50px;
+  }
+</style>
+<script>
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "签名",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "area": "../components/TextArea"
+      }
+    }
+    data = {
+      value: ''
+    }
+    methods = {
+      inputChange (e) {
+        console.log(e)
+        this.setData({
+          value: e.detail
+        })
+      },
+      save () {
+        let pages = getCurrentPages()
+        let lastPage = pages[pages.length - 2]
+        lastPage.setData({
+          info: this.data.value
+        })
+        wx.navigateBack()
+      }
+    }
+    onLoad (opt) {
+      this.setData({
+        value: opt.value
+      })
+    }
+  }
+</script>

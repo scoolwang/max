@@ -1,0 +1,422 @@
+<template>
+<view class="page">
+  <view class="cover-top">
+    <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+    <view class="cover-bottom">
+      <text>今晚 8:30</text>
+      <text class="city">杭州</text>
+    </view>
+  </view>
+  <view class="user">
+    <view class="user-header">
+      <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+    </view>
+    <view class="user-info">
+      <view class="user-nick">
+        <!-- <view class="level">
+          <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+        </view> -->
+        <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+      </view>
+      <view class="user-other">
+        <sex sex="1" age="12"></sex>
+        <view class="create-time">下午 4:30</view>
+      </view>
+    </view>
+  </view>
+  <view class="detail">今晚勇士联赛 4=1</view>
+
+  <view class="tab-list">
+    <k-tab id="tab" bindselect="tabSwitch"></k-tab>
+  </view>
+  <view class="user-list" wx:if="{{tabData.selectedId===0}}">
+    <view class="bus-info">
+      <view>
+        <text class="iconfont icon-user"></text>
+        <text> 15</text>
+      </view>
+      <view>
+        <text class="iconfont icon-bus"></text>
+        <text> 3/5</text>
+      </view>
+    </view>
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+            <view class="status">
+              <text class="iconfont icon-gou"></text>
+              <text>已通过</text>
+            </view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+            <view class="create-time">ID: 467890987</view>
+          </view>
+        </view>
+      </view>
+      <view class="user-msg">小哥哥带带我，我很萌</view>
+    </view>
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+            <view class="status fail-status">
+              <text class="iconfont icon-close"></text>
+              <text>未通过</text>
+            </view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+            <view class="create-time">ID: 467890987</view>
+          </view>
+        </view>
+      </view>
+      <view class="user-msg">小哥哥带带我，我很萌</view>
+    </view>
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+          </view>
+        </view>
+        <view class="button-box">
+          <view class="button">同意上车</view>
+        </view>
+      </view>
+      <view class="user-msg">小哥哥带带我，我很萌</view>
+    </view>
+  </view>
+  <view class="comment-list" wx:if="{{tabData.selectedId===1}}">
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+            <view class="create-time">2018-10-1 8:00</view>
+          </view>
+        </view>
+      </view>
+      <view class="user-msg">小哥哥真大腿</view>
+    </view>
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+            <view class="create-time">2018-10-1 8:00</view>
+          </view>
+        </view>
+      </view>
+      <view class="user-msg">小姐姐人美声甜技术好</view>
+    </view>
+  </view>
+</view>
+
+</template>
+<style lang="less">
+  page {
+    background: #fafafa;
+  }
+  .tab-list {
+    margin: 15px 0;
+  }
+  .bus-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 0 10px;
+    text {
+      font-size:14px;
+      color:rgba(155,155,155,1)
+    }
+  }
+  .user-item {
+    display: flex;
+    padding: 15px 10px;
+    background: #fff;
+    border-bottom: 1px solid rgba(237,237,237,1);
+    .user-header {
+      height: 40px;
+      width: 40px;
+
+      image {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+      }
+    }
+    .user-info {
+      flex: 1;
+      overflow:hidden;
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+    }
+    .level {
+      height: 24px;
+      width: 30px;
+      image {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .user-other {
+      display: flex;
+      justify-content: space-between;
+      .create-time {
+        font-size:12px;
+        font-family:PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(155,155,155,1);
+      }
+    }
+    .user-nick {
+      display: flex;
+      .nick-txt {
+        flex: 1;
+        font-size:13px;
+        font-family:PingFangSC-Medium;
+        font-weight:500;
+        color:rgba(0,0,0,1);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        width:100%;
+
+      }
+    }
+  }
+  .item {
+    background: #fff;
+    margin-bottom: 15px;
+    .button {
+      height:25px;
+      background:rgba(124,201,134,1);
+      border-radius:2px;
+      font-size:12px;
+      font-family:PingFangSC-Light;
+      font-weight:300;
+      color:rgba(255,255,255,1);
+      text-align: center;
+      line-height: 25px;
+      padding: 0 10px;
+
+    }
+    .button-box {
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+    }
+    .status {
+      display: flex;
+      align-items: flex-start;
+      padding-left: 10px;
+      text {
+        font-size:12px;
+        font-family:PingFangSC-Medium;
+        color:rgba(74,144,226,1);
+      }
+      .iconfont {
+        font-size: 14px;
+        position: relative;
+        top: 2px;
+        margin-right: 5px;
+      }
+    }
+    .fail-status text {
+      color: #9B9B9B;
+    }
+    .user-msg {
+      padding: 10px;
+      font-size:12px;
+      font-family:PingFangSC-Light;
+      font-weight:300;
+      color:rgba(155,155,155,1);
+    }
+  }
+  .cover-top {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    image {
+      width: 100%;
+      height: 100%;
+    }
+    .cover-bottom {
+      position: absolute;
+      bottom: 0;
+      height: 40px;
+      padding: 0 15px;
+      left: 0;
+      right: 0;
+      background:rgba(0,0,0,0.39);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text {
+        font-size:14px;
+        font-family:PingFangSC-Medium;
+        font-weight:500;
+        color:rgba(255,255,255,1);
+      }
+    }
+  }
+  .detail {
+    font-size:12px;
+    font-family:PingFangSC-Light;
+    font-weight:300;
+    color:rgba(0,0,0,1);
+    padding: 15px 10px;
+    background: #fff;
+  }
+  .user {
+    display: flex;
+    padding: 15px 10px;
+    border:1px solid rgba(237,237,237,1);
+    background: #fff;
+    .user-header {
+      height: 40px;
+      width: 40px;
+
+      image {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+      }
+    }
+    .user-info {
+      flex: 1;
+      overflow:hidden;
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+    }
+    .level {
+      height: 24px;
+      width: 30px;
+      image {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .user-other {
+      display: flex;
+      justify-content: space-between;
+      .create-time {
+        font-size:12px;
+        font-family:PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(155,155,155,1);
+      }
+    }
+    .user-nick {
+      display: flex;
+      .nick-txt {
+        flex: 1;
+        font-size:13px;
+        font-family:PingFangSC-Medium;
+        font-weight:500;
+        color:rgba(0,0,0,1);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        width:100%;
+
+      }
+    }
+  }
+
+</style>
+<script>
+  import Tab from 'kai-ui/tab/index'
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "活动",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "sex": "../components/sex",
+        "k-tab": "kai-ui/tab/index"
+      }
+    }
+    data = {
+      tabData: {
+        selectedId: 0,
+        scroll: false,
+        class: 'tab-success',
+        list: [
+          {
+            id: 0,
+            title: '成员'
+          },
+          {
+            id: 1,
+            title: '评价'
+          }
+        ]
+      }
+    }
+    methods = {
+      tabSwitch (arg) {
+        this.setData({
+          'tabData.selectedId': arg.detail
+        })
+        console.log('tab', arg)
+      }
+    }
+
+    onLoad () {
+      Tab._init('#tab', this.data.tabData)
+    }
+  }
+</script>

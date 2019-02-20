@@ -1,0 +1,122 @@
+<template>
+  <view class="avatar">
+    <view class="label">头像</view>
+    <view class="image">
+      <view class="image-inner">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+    </view>
+  </view>
+  <view class="link" bind:tap="linkList" data-name="editNick" data-val="{{nick}}">
+    <view class="label">昵称</view>
+    <view class="text">{{nick}}</view>
+    <text class="iconfont icon-arrow-right"></text>
+  </view>
+  <view class="link" bind:tap="linkList" data-name="editAge" data-val="{{age}}">
+    <view class="label">年龄</view>
+    <view class="text">{{age}}</view>
+    <text class="iconfont icon-arrow-right"></text>
+  </view>
+  <view class="link" bind:tap="linkList" data-name="editInfo" data-val="{{info}}">
+    <view class="label">签名</view>
+    <view class="text">{{info}}</view>
+    <text class="iconfont icon-arrow-right"></text>
+  </view>
+</template>
+<style lang="less">
+  page {
+    background: #fafafa;
+  }
+  .avatar {
+    padding: 20px;
+    background: #fff;
+    margin: 20px 0;
+    .label {
+      font-size:16px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(184,184,184,1);
+    }
+    .image-inner {
+      width: 150px;
+      height: 150px;
+      image {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+      }
+    }
+    .image {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .link {
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    border-bottom: 1px solid #f3f3f3;
+    height: 40px;
+    padding: 0 20px;
+    line-height: 40px;
+    view {
+      font-size:14px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(0,0,0,1);
+    }
+    .text {
+      flex: 1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      width:100%;
+      text-align: left;
+    }
+    .label {
+      font-size:16px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(184,184,184,1);
+      padding-right: 30px;
+    }
+    text {
+      font-size:12px;
+      font-family:FontAwesome;
+      color:rgba(191,191,191,1);
+    }
+  }
+</style>
+<script>
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "编辑个人资料",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "sex": "../components/sex",
+        "void": "../components/void"
+      }
+    }
+    data = {
+      nick: '九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹',
+      age: 22,
+      info: '签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名'
+    }
+    methods = {
+      linkList (e) {
+        let name = e.currentTarget.dataset.name
+        let val = e.currentTarget.dataset.val
+        console.log(e)
+        this.$route('navigate', './' + name, {value: val})
+      }
+    }
+    onLoad () {
+    }
+  }
+</script>

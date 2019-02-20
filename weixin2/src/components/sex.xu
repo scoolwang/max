@@ -1,0 +1,66 @@
+<template>
+  <view class="tag {{sex===1? 'tag-girl' : 'tag-boy'}}">
+    <text class="iconfont icon-sex {{sex===1? 'icon-girl' : 'icon-boy'}}"></text>
+    <text class="age">{{age}}</text>
+  </view>
+</template>
+<script>
+  import wexp from 'wexp/index'
+  export default class VoidItem extends wexp.component {
+    config = {
+      "component": true
+    }
+    properties = {
+      sex: {
+        type: Number,
+        default: 1 // 1 女孩 0 男孩
+      },
+      age: {
+        type: Number,
+        default: 15
+      }
+    }
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+    data = {
+      showModal: true
+    }
+    methods = {
+      play () {}
+    }
+    ready () {
+      console.log(this.data)
+      console.error('ready')
+    }
+    created () {
+      console.log('created')
+    }
+  }
+</script>
+<style lang="less">
+  @import '../font/css/home.wxss';
+  .icon-sex {
+    font-size: 10px;
+    margin-left: -2px;
+  }
+  .tag-girl {
+    background: #EC909B;
+  }
+  .tag-boy {
+    background: #63A9FA;
+  }
+  .tag {
+    border-radius: 2px;
+    color: #fff;
+    height: 15px;
+    padding: 0 5px;
+    font-size: 10px;
+  }
+  .age {
+    font-size: 10px;
+    /*font-weight: lighter;*/
+  }
+</style>

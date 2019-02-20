@@ -1,0 +1,261 @@
+<template>
+<view class="page">
+  <view class="cover-top">
+    <view class="edit-btn"  bind:tap="linkInfo">
+      <text class="iconfont icon-edit"></text>
+    </view>
+    <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+    <view class="cover-bottom">
+      <view class="user">
+        <view class="user-info">
+          <view class="user-nick">
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+          </view>
+        </view>
+      </view>
+      <view class="other-info">
+        <sex sex="1" age="12"></sex>
+        <text class="city">杭州</text>
+      </view>
+      <text class="desc">签名描述签名描述</text>
+    </view>
+  </view>
+
+  <view class="auth-module">
+    <view class="title">游戏认证</view>
+    <view class="auth-list">
+
+      <view class="type-box" bind:tap="linkGame">
+        <view class="type">
+          <text class="iconfont icon-dota dota-type type-icon"></text>
+        </view>
+        <text class="type-name">已认证</text>
+      </view>
+      <view class="type-box unauth" bind:tap="linkAuth">
+        <view class="type">
+          <text class="iconfont icon-dota dota-type type-icon"></text>
+        </view>
+        <text class="type-name">未认证</text>
+      </view>
+    </view>
+  </view>
+  <view class="link" bind:tap="linkList">
+    <view>我的帖子</view>
+    <text class="iconfont icon-arrow-right"></text>
+  </view>
+  <view class="link" bind:tap="linkList">
+    <view>我的申请</view>
+    <text class="iconfont icon-arrow-right"></text>
+  </view>
+</view>
+
+</template>
+<style lang="less">
+  page {
+    background: #fafafa;
+  }
+  .auth-list {
+    background: #fff;
+    display: flex;
+    margin-bottom: 20px;
+  }
+  .auth-module {
+    background: #fff;
+  }
+  .type {
+    background: #C63939;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+  }
+  .type-name {
+    font-size:9px;
+    font-family:PingFangSC-Light;
+    font-weight:300;
+    color:rgba(255,255,255,1);
+    background: #5AA3F9;
+    border-radius: 2px;
+    padding: 0 5px;
+    margin-top: 10px;
+  }
+  .unauth .type-name {
+    background: #D3D3D3;
+  }
+  .type-box {
+    padding: 10px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .active-type-box {
+    background: #f7f7f7;
+  }
+  .type-icon {
+    color: #fff;
+  }
+  .link {
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    height: 40px;
+    padding: 0 20px;
+    line-height: 40px;
+    border-bottom: 1px solid #f3f3f3;
+    view {
+      font-size:14px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(0,0,0,1);
+    }
+    text {
+      font-size:12px;
+      font-family:FontAwesome;
+      color:rgba(191,191,191,1);
+    }
+  }
+  .title {
+    font-size:14px;
+    font-family:PingFangSC-Medium;
+    font-weight:500;
+    color:rgba(0,0,0,1);
+    padding: 10px 20px;
+  }
+
+  .cover-top {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    .edit-btn {
+      color: #fff;
+      font-size: 20px;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      text {
+        font-size: 20px;
+        font-weight: bold;
+      }
+    }
+    .other-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .desc {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(255,255,255,1);
+      margin-top: 15px;
+      padding: 0 20px;
+    }
+    image {
+      width: 100%;
+      height: 100%;
+    }
+    .cover-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 0;
+      .city {
+        font-size:12px;
+        font-family:PingFangSC-Medium;
+        font-weight:500;
+        color:rgba(255,255,255,1);
+      }
+    }
+  }
+  .user {
+    display: flex;
+    padding: 15px 20px;
+    .user-header {
+      height: 40px;
+      width: 40px;
+
+      image {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+      }
+    }
+    .user-info {
+      flex: 1;
+      overflow:hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+    }
+    .level {
+      height: 24px;
+      width: 30px;
+      image {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .user-other {
+      display: flex;
+      justify-content: space-between;
+      .create-time {
+        font-size:12px;
+        font-family:PingFangSC-Regular;
+        font-weight:400;
+        color:rgba(155,155,155,1);
+      }
+    }
+    .user-nick {
+      display: flex;
+      .nick-txt {
+        flex: 1;
+        font-size:13px;
+        font-family:PingFangSC-Medium;
+        font-weight:500;
+        color: #fff;
+        width:100%;
+
+      }
+    }
+  }
+
+
+</style>
+<script>
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "认证结果",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "sex": "../components/sex",
+        "void": "../components/void"
+      }
+    }
+    data = {
+      nick: '九妹'
+    }
+    methods = {
+      linkAuth () {
+        this.$route('navigate', './auth')
+      },
+      linkGame () {
+        this.$route('navigate', './game')
+
+      },
+      linkInfo () {
+        this.$route('navigate', './editUser')
+      }
+    }
+    onLoad () {
+    }
+  }
+</script>

@@ -1,0 +1,121 @@
+<template>
+  <view class="cover" catchtouchmove="coverTouch" wx:if="{{show}}">
+      <view class="modal">
+        <view class="modal-close"  bindtap="close">
+          <text class="iconfont icon-close close-icon"></text>
+        </view>
+        <view class="modal-content">
+          <slot></slot>
+        </view>
+        <view class="modal-foot">
+            <view class="cancel" bindtap="close">取消</view>
+            <view class="confirm" bindtap="ok">确认</view>
+        </view>
+      </view>
+  </view>
+</template>
+<script>
+  import wexp from 'wexp/index'
+  export default class GroupItem extends wexp.component {
+    config = {
+      "component": true
+    }
+    properties = {
+      show: {
+        type: Boolean,
+        default: true
+      }
+    }
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+    data = {
+      showModal: true
+    }
+    methods = {
+      close () {
+        this.setData({
+          show: false
+        })
+        this.triggerEvent('close')
+      },
+      ok () {
+        this.triggerEvent('ok')
+      }
+    }
+    ready () {
+      console.log(this.data)
+      console.error('ready')
+    }
+    created () {
+      console.log('created')
+    }
+  }
+</script>
+<style>
+  @import '../font/css/home.wxss';
+  .cover {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .modal {
+    margin:0 25px;
+    background: #fff;
+    padding-top: 35px;
+    opacity: 1;
+    border-radius: 3px;
+    position: relative;
+    margin-top: -80px;
+  }
+  .modal-close {
+    width: 0;
+    height: 0;
+    border: 15px solid #1D7EEF;
+    border-left: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-top-right-radius: 3px;
+  }
+  .close-icon {
+    color:#fff;
+    position:absolute;
+    top:-13px;
+    right:-13px;
+    font-size:12px;
+    font-weight:bold;
+  }
+  .modal-foot {
+    display: flex;
+    border-top: 1px solid #F3F3F3;
+    justify-content: space-between;
+    align-items: center;
+    height: 37px;
+    margin-top: 20px;
+  }
+  .modal-foot view {
+    flex: 1;
+    text-align: center;
+    line-height: 37px;
+    font-size:14px;
+    font-family:PingFangSC-Regular;
+    font-weight:400;
+    color:rgba(166,166,166,1);
+  }
+  .modal-foot .confirm {
+    color: #4A90E2;
+  }
+  .modal-foot .confirm {
+    border-left: 1px solid #F3F3F3;
+  }
+</style>

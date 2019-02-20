@@ -10,7 +10,16 @@
         </view>
       </view>
     </picker>
-    <picker class="picker" bindchange="ageChange" mode="date">
+    <picker mode="selector" range="{{levellist}}" range-key="name" value="" bindchange="levelChange">
+      <view  class="cell">
+        <text class="cell-label">段位</text>
+        <view class="cell-right">
+          <text class="cell-value {{!sex ? 'empty-value': ''}}">{{level || '请设置'}}</text>
+          <text class="iconfont icon-arrow-right icon"></text>
+        </view>
+      </view>
+    </picker>
+    <!-- <picker class="picker" bindchange="ageChange" mode="date">
       <view class="cell">
         <text class="cell-label">年龄</text>
         <view class="cell-right">
@@ -18,7 +27,7 @@
           <text class="iconfont icon-arrow-right icon"></text>
         </view>
       </view>
-    </picker>
+    </picker> -->
     <view class="upload-cell">
       <view class="header">
         <text>资质图</text>
@@ -61,6 +70,14 @@
               <text class="iconfont icon-close icon-close-item"></text>
           </view>
         </view>
+      </view>
+    </view>
+    <view class="upload-cell">
+      <view class="header">
+        <text>自我介绍</text>
+      </view>
+      <view class="body">
+        <area limit="30" placeholder="技能描述"></area>
       </view>
     </view>
   </scroll-view>
@@ -389,6 +406,7 @@ export default class extends wexp.page {
     imgSrc: '',
     sex: '',
     age: '',
+    level: '',
     endAge: '',
     playInfo: {
       status: 0,
@@ -404,7 +422,25 @@ export default class extends wexp.page {
         name: '男',
         key: '2'
       }
-    ]
+    ],
+    levellist: [
+      {
+        name: '卫士',
+        key: '1'
+      },
+      {
+        name: '先锋',
+        key: '2'
+      },
+      {
+        name: '传奇',
+        key: '3'
+      },
+      {
+        name: '万古',
+        key: '4'
+      }
+    ],
   }
   initPlayer () {
     palyVoidContext.onPlay((res) => {
@@ -527,6 +563,13 @@ export default class extends wexp.page {
       let sexObj = this.data.sexlist[res.detail.value]
       this.setData({
         sex: sexObj.name
+      })
+    },
+    /** 性别 */
+    levelChange (res) {
+      let sexObj = this.data.levellist[res.detail.value]
+      this.setData({
+        level: sexObj.name
       })
     },
     /** 年龄 */

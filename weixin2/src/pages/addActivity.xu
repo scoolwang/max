@@ -54,7 +54,7 @@
       <view class="title">描述</view>
       <view class="item">
         <!-- <area value="{{params.desc}}" ></area> -->
-        <area value="{{desc}}" placeholder="说点什么" bind:test="descChange" limit="{{limit}}"></area>
+        <area value="{{desc}}" placeholder="说点什么" bind:change="descChange" limit="{{limit}}"></area>
         <!-- <textarea value="{{}}" maxlength=10 class="input desc-area" placeholder="说点什么" placeholder-class="holder-text" /> -->
       </view>
     </view>

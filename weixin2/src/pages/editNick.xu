@@ -1,0 +1,73 @@
+<template>
+<view class="area">
+  <input class="send-input" maxlength="15" value="{{value}}" placeholder-class="input-placeholder" placeholder="昵称" bindinput="inputChange" />
+</view>
+<view class="button" bind:tap="save">保存</view>
+</template>
+<style lang="less">
+  page {
+    background: #fafafa;
+  }
+  .area {
+    background: #fff;
+    margin: 20px 0;
+    input {
+      height: 53px;
+      background: #fff;
+      border: 0;
+      padding: 0 20px;
+    }
+  }
+  .button {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    color: #fff;
+    background: #4A90E2;
+    font-family:PingFangSC-Light;
+    font-weight:300;
+    line-height:50px;
+  }
+</style>
+<script>
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "昵称",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "sex": "../components/sex",
+        "void": "../components/void"
+      }
+    }
+    data = {
+      value: ''
+    }
+    methods = {
+      inputChange (e) {
+        console.log(e)
+        this.setData({
+          value: e.detail.value
+        })
+      },
+      save () {
+        let pages = getCurrentPages()
+        let lastPage = pages[pages.length - 2]
+        lastPage.setData({
+          nick: this.data.value
+        })
+        wx.navigateBack()
+      }
+    }
+    onLoad (opt) {
+      this.setData({
+        value: opt.value
+      })
+    }
+  }
+</script>

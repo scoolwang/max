@@ -1,0 +1,163 @@
+<template>
+  <view class="void" bindtap="clickFn">
+    <view class="void-box">
+      <text class="iconfont icon-shengyin-weibofang void-icon"  wx:if="{{status===1 && ame === 1}}"></text>
+      <text class="iconfont icon-shengyin-bofang void-icon"  wx:if="{{status===1 && ame === 2}}"></text>
+      <text class="iconfont icon-shengyin-zuida void-icon" wx:if="{{(status===1 && ame === 3) || status === 0}}"></text>
+    </view>
+
+    <text>{{voidTime}}</text>
+  </view>
+</template>
+<script>
+  import wexp from 'wexp/index'
+  const palyVoidContext = wx.createInnerAudioContext()
+  export default class VoidItem extends wexp.component {
+    config = {
+      "component": true
+    }
+    properties = {
+      src: {
+        type: String,
+        default: true
+      },
+      time: {
+        type: Number,
+        default: 15
+      },
+      stop: {
+        type: Boolean,
+        default: true
+      },
+      isame: {
+        type: Boolean,
+        default: false
+      }
+    }
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+    data = {
+      showModal: true,
+      ame: 3,
+      voidTime: 0,
+      timer: '',
+      playTimer: '',
+      status: 0 // 0 暂停 1 开始
+    }
+    methods = {
+      stop () {
+        palyVoidContext.stop()
+        this.triggerEvent('stop')
+        console.log('执行stop')
+        clearInterval(this.data.timer)
+        clearInterval(this.data.playTimer)
+        this.setData({
+          status: 0,
+          ame: 3,
+          voidTime: this.data.time
+        })
+      },
+      play () {
+        let src = this.data.src
+        let that = this
+        palyVoidContext.stop()
+        palyVoidContext.src = src
+        palyVoidContext.play()
+        // palyVoidContext.offStop()
+        // palyVoidContext.onStop(() => {
+        //   that.stop()
+        //   console.log('stop')
+        // })
+        console.log(palyVoidContext)
+        this.triggerEvent('play')
+        if (!this.data.isame) {
+          return
+        }
+        this.setData({
+          status: 1
+        })
+        let t1 = setInterval(() => {
+          if (this.data.voidTime <= 1) {
+            clearInterval(this.data.playTimer)
+            this.stop()
+          } else {
+            this.setData({
+              voidTime: this.data.voidTime - 1
+            })
+          }
+
+        }, 1000)
+        let ame = 3
+        let d = -1
+        let t2 = setInterval(() => {
+          if (ame >= 3) {
+            d = -1
+          }
+          if (ame <= 1) {
+            d = 1
+          }
+          ame = ame + d
+          this.setData({
+            ame: ame
+          })
+        }, 500)
+        this.setData({
+          timer: t2,
+          playTimer: t1
+        })
+      },
+      clickFn (e) {
+        let src = this.data.src
+        if (!this.data.ame) {
+          this.play()
+        } else {
+          if (this.data.status === 0) {
+            this.play()
+          } else {
+            this.stop()
+            return
+          }
+        }
+        this.triggerEvent('click')
+      }
+    }
+    ready () {
+      console.log(this.data)
+      this.setData({
+        voidTime: this.data.time
+      })
+      console.error('ready')
+    }
+    created () {
+      console.log('created')
+    }
+  }
+</script>
+<style lang="less">
+  @import '../font/css/home.wxss';
+  .void {
+    height: 18px;
+    width: 50px;
+    background: #EDFFD9;
+    border: 1px solid #A4E45A;
+    border-radius: 10px;
+    line-height: 12px;
+    padding: 0 10px;
+    display: flex;
+    .void-box {
+      width: 20px;
+    }
+  }
+
+  .void text {
+    font-size: 10px;
+    line-height: 18px;
+  }
+  .void .void-icon {
+    font-size: 10px;
+    color: #417505;
+  }
+</style>
