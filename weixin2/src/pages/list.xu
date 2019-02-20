@@ -277,8 +277,14 @@
         }],
         'message': ''
       }
+      let list = res.data
+      for (let item of list) {
+        item.startTime = this.formatTime(item.startTime)
+        item.createTime = this.formatCreateTime(item.createTime)
+        item.level = this.formatLevel(item.level)
+      }
       this.setData({
-        list: res.data
+        list: list
       })
       // getActivityList().then((res) => {
       //   let list = res.data
