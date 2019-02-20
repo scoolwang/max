@@ -12,7 +12,11 @@ import {login} from './mixins/login.js'
 export default class extends wepy.app {
   config = {
     'pages': [
+      'pages/list',
+      'pages/mySend',
       'pages/myHome',
+      'pages/myActivity',
+      'pages/editCmt',
       'pages/editUser',
       'pages/editNick',
       'pages/editInfo',
@@ -21,7 +25,6 @@ export default class extends wepy.app {
       'pages/userHome',
       'pages/userActivity',
       'pages/activity',
-      'pages/list',
       'pages/addActivity',
       'pages/auth',
       'pages/msg',

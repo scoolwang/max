@@ -106,7 +106,7 @@
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
-      "navigationBarTitleText": "认证结果",
+      "navigationBarTitleText": "聊天",
       "enablePullDownRefresh": false,
       "backgroundTextStyle": "#333",
       "backgroundColor": "#f8f8f8",
@@ -409,6 +409,9 @@
         console.log('聊天对象', res)
         this.setData({
           toUserInfo: res.data
+        })
+        wx.setNavigationBarTitle({
+          title: res.data.name
         })
       })
 

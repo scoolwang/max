@@ -1,0 +1,139 @@
+<template>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>剩余位置：0</view>
+          <view>2017-3-12</view>
+        </view>
+        <view class="inner">
+          <view>今晚 8:30</view>
+          <view class="bus-info">
+            <view class="user-num">
+              <text class="iconfont icon-user"></text>
+              <text>120</text>
+            </view>
+            <view class="bus-num">
+              <text class="iconfont icon-bus"></text>
+              <text>5/10</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>剩余位置：0</view>
+          <view>2017-3-12</view>
+        </view>
+        <view class="inner">
+          <view>今晚 8:30</view>
+          <view class="bus-info">
+            <view class="user-num">
+              <text class="iconfont icon-user"></text>
+              <text>120</text>
+            </view>
+            <view class="bus-num">
+              <text class="iconfont icon-bus"></text>
+              <text>5/10</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+</template>
+<script>
+  import Tab from 'kai-ui/tab/index'
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "活动列表",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "sex": "../components/sex",
+        "k-tab": "kai-ui/tab/index"
+      }
+    }
+    data = {
+    }
+    methods = {
+      linkDetail () {
+        this.$route('navigate', './activity')
+      }
+    }
+
+    onLoad () {
+    }
+  }
+</script>
+<style lang="less">
+page {
+  background: #fafafa;
+}
+.item {
+  background: #fff;
+  margin: 20px 0;
+}
+.user-info {
+  display: flex;
+  padding: 13px 20px;
+  border-bottom: 1px solid #F3F3F3;
+  .header image {
+    width: 45px;
+    height: 45px;
+    border-radius: 5px;
+  }
+  .header {
+    width: 45px;
+    height: 45px;
+    margin-right: 18px;
+  }
+  .item-info {
+    flex: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    view {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(155,155,155,1);
+    }
+  }
+  .bus-info {
+    display: flex;
+    .iconfont {
+      font-size: 12px;
+    }
+    .user-num {
+      margin-right: 25px;
+    }
+  }
+}
+.desc {
+  padding: 13px 20px;
+  font-size:12px;
+  font-family:PingFangSC-Medium;
+  font-weight:500;
+  color:rgba(155,155,155,1);
+}
+</style>

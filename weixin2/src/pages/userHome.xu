@@ -20,7 +20,7 @@
   <view class="title">游戏认证</view>
   <view class="game-list">
     <view class="item">
-      <view class="img-box">
+      <view class="img-box" catch:tap="previewImg" data-src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
         <image mode="aspectFill" src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
       </view>
       <view class="game-info">
@@ -37,7 +37,7 @@
       </view>
     </view>
     <view class="item">
-      <view class="img-box">
+      <view class="img-box" catch:tap="previewImg" data-src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
         <image mode="aspectFill" src="http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg">
       </view>
       <view class="game-info">
@@ -59,12 +59,27 @@
     <view>已发布</view>
     <text class="iconfont icon-arrow-right"></text>
   </view>
+
+  <view class="button">聊天</view>
 </view>
 
 </template>
 <style lang="less">
   page {
     background: #fafafa;
+    padding-bottom: 70px;
+  }
+  .button {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    height: 50px;
+    line-height: 50px;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    background: #7CC986;
+    font-weight: 300;
   }
   .link {
     background: #fff;
@@ -259,6 +274,13 @@
     methods = {
       linkList () {
         this.$route('navigate', './userActivity')
+      },
+      previewImg (e) {
+        let src = e.currentTarget.dataset.src
+        wx.previewImage({
+          current: src, // 当前显示图片的http链接
+          urls: [src] // 需要预览的图片http链接列表
+        })
       }
     }
     onLoad () {

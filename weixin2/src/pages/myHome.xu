@@ -39,11 +39,11 @@
       </view>
     </view>
   </view>
-  <view class="link" bind:tap="linkList">
+  <view class="link" bind:tap="linkActy">
     <view>我的帖子</view>
     <text class="iconfont icon-arrow-right"></text>
   </view>
-  <view class="link" bind:tap="linkList">
+  <view class="link" bind:tap="linkSend">
     <view>我的申请</view>
     <text class="iconfont icon-arrow-right"></text>
   </view>
@@ -253,6 +253,12 @@
       },
       linkInfo () {
         this.$route('navigate', './editUser')
+      },
+      linkActy () {
+        this.$route('navigate', './myActivity')
+      },
+      linkSend () {
+        this.$route('navigate', './mySend')
       }
     }
     onLoad () {

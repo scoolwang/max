@@ -1,0 +1,343 @@
+<template>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>空位：0</view>
+          <view class="unagree">未同意</view>
+        </view>
+        <view class="inner">
+          <view class="left-inner">
+            <view>今晚 8:30</view>
+
+
+            <view class="bus-info">
+              <!-- <view class="user-num">
+                <text class="iconfont icon-user"></text>
+                <text>120</text>
+              </view> -->
+              <view class="bus-num">
+                <text class="iconfont icon-bus"></text>
+                <text>5/10</text>
+              </view>
+            </view>
+          </view>
+          <view>
+            <view class="button" data-status="1" catch:tap="cancel">取消</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>空位：0</view>
+          <view class="agree">已同意</view>
+        </view>
+        <view class="inner">
+          <view class="left-inner">
+            <view>今晚 8:30</view>
+
+
+            <view class="bus-info">
+              <!-- <view class="user-num">
+                <text class="iconfont icon-user"></text>
+                <text>120</text>
+              </view> -->
+              <view class="bus-num">
+                <text class="iconfont icon-bus"></text>
+                <text>5/10</text>
+              </view>
+            </view>
+          </view>
+          <view>
+            <view class="button" data-status="2" catch:tap="cancel">取消</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>空位：0</view>
+          <view >已拒绝</view>
+        </view>
+        <view class="inner">
+          <view class="left-inner">
+            <view>今晚 8:30</view>
+
+
+            <view class="bus-info">
+              <!-- <view class="user-num">
+                <text class="iconfont icon-user"></text>
+                <text>120</text>
+              </view> -->
+              <view class="bus-num">
+                <text class="iconfont icon-bus"></text>
+                <text>5/10</text>
+              </view>
+            </view>
+          </view>
+          <!-- <view>
+            <view class="button">取消</view>
+          </view> -->
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>空位：0</view>
+          <view >已过期</view>
+        </view>
+        <view class="inner">
+          <view class="left-inner">
+            <view>今晚 8:30</view>
+
+
+            <view class="bus-info">
+              <!-- <view class="user-num">
+                <text class="iconfont icon-user"></text>
+                <text>120</text>
+              </view> -->
+              <view class="bus-num">
+                <text class="iconfont icon-bus"></text>
+                <text>5/10</text>
+              </view>
+            </view>
+          </view>
+          <!-- <view>
+            <view class="button">取消</view>
+          </view> -->
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <view class="item" bind:tap="linkDetail">
+    <view class="user-info">
+      <view class="header">
+        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      </view>
+      <view class="item-info">
+        <view class="inner">
+          <view>空位：0</view>
+          <view >已结束</view>
+        </view>
+        <view class="inner">
+          <view class="left-inner">
+            <view>今晚 8:30</view>
+
+
+            <view class="bus-info">
+              <!-- <view class="user-num">
+                <text class="iconfont icon-user"></text>
+                <text>120</text>
+              </view> -->
+              <view class="bus-num">
+                <text class="iconfont icon-bus"></text>
+                <text>5/10</text>
+              </view>
+            </view>
+          </view>
+          <view>
+            <view class="button comment-btn" catch:tap="comment">评价</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">5人车，4缺1</view>
+  </view>
+  <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
+    <view class="confirm-view">
+      <input class="send-input" maxlength="20" placeholder-class="input-placeholder" placeholder="留言" bindinput="inputChange" />
+    </view>
+  </confirm>
+</template>
+<script>
+  import Tab from 'kai-ui/tab/index'
+  import wexp from 'wexp/index'
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "我的申请",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#FAFAFA",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "confirm": "../components/confirm"
+      }
+    }
+    data = {
+      modalShow: false,
+      comment: ''
+    }
+    methods = {
+      linkDetail () {
+        this.$route('navigate', './activity')
+      },
+      send () {
+        wx.showToast({
+          icon: 'none',
+          title: '已申请'
+        })
+        this.setData({
+          modalShow: false
+        })
+      },
+      closeConfirm () {
+        this.setData({
+          comment: ''
+        })
+      },
+      inputChange (e) {
+        let val = e.detail.value
+        this.setData({
+          'comment': val
+        })
+      },
+      cancel (e) {
+        let status = e.currentTarget.dataset.status
+        if (status === '1') {
+          wx.showToast({
+            icon: 'none',
+            title: '已取消'
+          })
+        } else {
+          this.setData({
+            modalShow: true
+          })
+        }
+      },
+      comment () {
+        this.$route('navigate', './editCmt')
+      }
+    }
+
+    onLoad () {
+    }
+  }
+</script>
+<style lang="less">
+page {
+  background: #fafafa;
+}
+.item {
+  background: #fff;
+  margin: 20px 0;
+}
+.user-info {
+  display: flex;
+  padding: 13px 20px;
+  border-bottom: 1px solid #F3F3F3;
+  .header image {
+    width: 45px;
+    height: 45px;
+    border-radius: 5px;
+  }
+  .header {
+    width: 45px;
+    height: 45px;
+    margin-right: 18px;
+  }
+  .item-info {
+    flex: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .button {
+      height:20px;
+      background:rgba(74,144,226,1);
+      border-radius:2px;
+      line-height: 20px;
+      color: #fff;
+      padding: 0 10px;
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(255,255,255,1);
+    }
+    .comment-btn {
+      background: #6EBC14;
+    }
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    line-height: 20px;
+    .left-inner {
+      display: flex;
+    }
+    .bus-info {
+      margin-left: 25px;
+    }
+    view {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(155,155,155,1);
+    }
+    .unagree {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(139,87,42,1);
+    }
+    .agree {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(65,117,5,1);
+    }
+  }
+  .bus-info {
+    display: flex;
+    .iconfont {
+      font-size: 12px;
+    }
+    .user-num {
+      margin-right: 25px;
+    }
+  }
+}
+.desc {
+  padding: 13px 20px;
+  font-size:12px;
+  font-family:PingFangSC-Medium;
+  font-weight:500;
+  color:rgba(155,155,155,1);
+}
+  .send-input {
+    height:33px;
+    font-size:14px;
+    background:rgba(242,242,242,1);
+    border-radius:3px;
+    padding: 0 10px;
+    line-height: 33px;
+  }
+  .confirm-view {
+    padding: 20px 20px;
+    width: 250px;
+  }
+</style>

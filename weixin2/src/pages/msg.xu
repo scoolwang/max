@@ -1,6 +1,6 @@
 <template>
 <view class="page">
-  <view wx:for="{{chatList}}" class="msg-row" bindtap="toChat" data-id="{{item.msg.chatId}}" catchtap="link">
+<!--   <view wx:for="{{chatList}}" class="msg-row" bindtap="toChat" data-id="{{item.msg.chatId}}" catchtap="link">
     <view class="header">
       <view class="msg-num" wx:if="{{item.len > 0}}">{{item.len }}</view>
       <image class="avatar" src="{{item.msg.img}}" />
@@ -14,10 +14,57 @@
         <view class="msg">{{item.msg.msg}}</view>
       </view>
     </view>
+  </view> -->
+  <view class="msg-row" bindtap="toChat" data-id="1" catchtap="link">
+    <view class="header">
+      <view class="msg-num">123</view>
+      <image class="avatar" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" />
+    </view>
+    <view class="content">
+      <view class="row top-row">
+        <view class="nick">九妹九妹</view>
+        <view class="time">2018-1-2 4:00</view>
+      </view>
+      <view class="row">
+        <view class="msg">在吗，美女</view>
+      </view>
+    </view>
   </view>
-  <view wx:if="{{chatList.length <= 0}}" class="empty">
+  <view class="msg-row" bindtap="toChat" data-id="1" catchtap="link">
+    <view class="header">
+      <view class="msg-num">123</view>
+      <image class="avatar" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" />
+    </view>
+    <view class="content">
+      <view class="row top-row">
+        <view class="nick">九妹九妹</view>
+        <view class="time">2018-1-2 4:00</view>
+      </view>
+      <view class="row">
+        <view class="msg">小哥哥，带我上车</view>
+        <view class="button">同意上车</view>
+      </view>
+    </view>
+  </view>
+  <view class="msg-row" bindtap="toChat" data-id="1" catchtap="link">
+    <view class="header">
+      <view class="msg-num">123</view>
+      <image class="avatar" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" />
+    </view>
+    <view class="content">
+      <view class="row top-row">
+        <view class="nick">九妹九妹</view>
+        <view class="time">2018-1-2 4:00</view>
+      </view>
+      <view class="row">
+        <view class="msg">突然有事突然有事突然有事突然有事突然有事突然有事突然有事突然有事突然有事</view>
+        <view class="button blue-btn">同意下车</view>
+      </view>
+    </view>
+  </view>
+  <!-- <view wx:if="{{chatList.length <= 0}}" class="empty">
     <text>暂无消息</text>
-  </view>
+  </view> -->
 </view>
 
 </template>
@@ -57,7 +104,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
+    flex: 1;
+    /*width: 100%;*/
   }
   .top-row {
     margin-bottom: 10px;
@@ -65,6 +113,19 @@
   .content {
     flex: 1;
     overflow: hidden;
+  }
+  .button {
+    height: 25px;
+    line-height: 25px;
+    padding: 0 10px;
+    font-size:12px;
+    font-family:PingFangSC-Medium;
+    font-weight:500;
+    color:rgba(255,255,255,1);
+    background:rgba(124,201,134,1);
+  }
+  .blue-btn {
+    background:#4A90E2;
   }
   .msg-num {
     color: #fff;
@@ -95,7 +156,7 @@
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
-      "navigationBarTitleText": "认证结果",
+      "navigationBarTitleText": "消息",
       "enablePullDownRefresh": false,
       "backgroundTextStyle": "#333",
       "backgroundColor": "#f8f8f8",

@@ -110,6 +110,28 @@
       </view>
       <view class="user-msg">小哥哥带带我，我很萌</view>
     </view>
+    <view class="item">
+      <view class="user-item">
+        <view class="user-header">
+          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+        </view>
+        <view class="user-info">
+          <view class="user-nick">
+            <!-- <view class="level">
+              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
+            </view> -->
+            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+          </view>
+          <view class="user-other">
+            <sex sex="1" age="12"></sex>
+          </view>
+        </view>
+        <view class="button-box">
+          <view class="button reject-btn">拒绝上车</view>
+        </view>
+      </view>
+      <view class="user-msg">小哥哥带带我，我很萌</view>
+    </view>
   </view>
   <view class="comment-list" wx:if="{{tabData.selectedId===1}}">
     <view class="item">
@@ -246,6 +268,9 @@
       line-height: 25px;
       padding: 0 10px;
 
+    }
+    .reject-btn {
+      background: #4A90E2;
     }
     .button-box {
       display: flex;
