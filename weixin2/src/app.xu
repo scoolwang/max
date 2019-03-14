@@ -12,6 +12,8 @@ import {login} from './mixins/login.js'
 export default class extends wepy.app {
   config = {
     'pages': [
+      'pages/index',
+      'pages/chat',
       'pages/list',
       'pages/mySend',
       'pages/myHome',
@@ -28,7 +30,6 @@ export default class extends wepy.app {
       'pages/addActivity',
       'pages/auth',
       'pages/msg',
-      'pages/chat',
       'pages/authResult'
     ],
     'permission': {
@@ -48,7 +49,7 @@ export default class extends wepy.app {
       'borderStyle': 'white',
       'selectedColor': '#417505',
       'list': [{
-        'pagePath': 'pages/list',
+        'pagePath': 'pages/index',
         'iconPath': 'image/home.png',
         'selectedIconPath': 'image/home-active.png',
         'text': '首页'

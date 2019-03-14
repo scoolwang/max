@@ -1,0 +1,269 @@
+<template>
+  <view class="module" wx:key="id" bindtap="goActivity">
+    <view class="info">
+      <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
+      <view class="detail">
+        <view class="row" catch:tap="goHome" data-id="{{item.id}}">
+          <view class="user-info">
+            <view class="level-box">
+              <image class="level-img" src="{{item.level}}" />
+              <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
+            </view>
+
+            <text class="username">{{item.userName}}</text>
+          </view>
+
+        </view>
+        <view class="row">
+          <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+            <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+            <text class="age">{{item.age}}</text>
+          </view>
+          <view class="time right">{{item.createTime}}</view>
+          <!-- <view class="right voice-box">
+            <view class="void-box">
+              <void time="12" src="{{item.voidSrc}}"></void>
+            </view>
+            <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+              <text class="iconfont icon-voice2"></text>
+            </view>
+          </view> -->
+        </view>
+        <view class="row">
+          <view class="start-time">发车时间：{{item.startTime}}</view>
+          <view class="right">{{item.city}}</view>
+        </view>
+        <view class="row">
+          <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
+          <view class="right">
+            <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">
+      {{item.t_desc}}
+    </view>
+  </view>
+  <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
+    <view class="confirm-view">
+      <input class="send-input" maxlength="20" placeholder-class="input-placeholder" placeholder="留言" bindinput="inputChange" />
+    </view>
+  </confirm>
+</template>
+<script>
+  import wexp from 'wexp/index'
+  import {joinActivity} from '../mixins/api'
+  export default class Card extends wexp.component {
+    config = {
+      "component": true,
+      "usingComponents": {
+        "confirm": "./confirm"
+      }
+    }
+    properties = {
+      item: {
+        type: Object,
+        default: {}
+      }
+    }
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+    data = {
+      modalShow: false,
+      detail: ''
+    }
+    methods = {
+      goActivity () {
+        this.$route('navigate', './activity')
+      },
+      openModal (arg) {
+        let id = arg.target.dataset.id
+        this.setData({
+          'modalShow': true
+        })
+      },
+      closeConfirm () {
+        console.log('关闭')
+        this.setData({
+          modalShow: false,
+          send: {
+            txt: ''
+          }
+        })
+      },
+      send () {
+        console.log(this.data.item)
+        this.setData({
+          modalShow: false,
+          send: {
+            txt: ''
+          }
+        })
+        joinActivity({
+          id: this.data.item.id,
+          detail: this.data.detail
+        })
+      },
+      inputChange (e) {
+        let val = e.detail.value
+        this.setData({
+          'detail': val
+        })
+      }
+    }
+    ready () {
+      console.log(this.data)
+      console.error('ready')
+    }
+    created () {
+      console.log('created')
+    }
+  }
+</script>
+<style lang="less">
+  .module {
+    background: #fff;
+    box-shadow: 0 2px 4px 0 rgba(233,231,231,0.5);
+    margin: 20px 10px;
+  }
+  .confirm-view {
+    padding: 20px 20px;
+    width: 250px;
+  }
+  .input-placeholder {
+    font-size:14px;
+    font-family:PingFangSC-Regular;
+    font-weight:400;
+    color:rgba(211,211,211,1);
+  }
+  .send-input {
+    height:33px;
+    font-size:14px;
+    background:rgba(242,242,242,1);
+    border-radius:3px;
+    padding: 0 10px;
+    line-height: 33px;
+  }
+  .cover-img {
+    width: 100%;
+    height: 100%;
+  }
+  .level-img {
+    width: 21px;
+    height: 24px;
+  }
+  .info {
+    display: flex;
+    flex-direction: row;
+    height: 123px;
+  }
+  .cover {
+    width: 123px;
+    height: 123px;
+  }
+  .detail {
+    flex: 1;
+    padding: 10px 15px;
+  }
+  .row {
+    display: flex;
+    font-size: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+  }
+  .right {
+    flex: 1;
+    text-align: right;
+    font-size: 10px;
+    justify-content: flex-end;
+    display: flex;
+  }
+  .username {
+    font-size: 14px;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+  }
+  .level-box {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+  }
+  .rank {
+    font-size: 10px;
+    color: #8B572A;
+    padding-left: 3px;
+  }
+  .icon-sex {
+    font-size: 10px;
+    margin-left: -2px;
+  }
+  .tag-girl {
+    background: #EC909B;
+  }
+  .tag-boy {
+    background: #63A9FA;
+  }
+  .tag {
+    border-radius: 2px;
+    color: #fff;
+    height: 15px;
+    padding: 0 3px;
+    font-size: 10px;
+  }
+  .age {
+    font-size: 10px;
+    /*font-weight: lighter;*/
+  }
+  .voice {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px 0 rgba(206,206,206,0.5);
+    background:#fff;
+    line-height:20px;
+    text-align:center;
+  }
+  .voice text {
+    font-size: 14px;
+    color: #7CC986;
+
+  }
+  .voice-box {
+    display: flex;
+    justify-content: flex-end;
+
+
+  }
+  .void-box {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 20px;
+    border-radius: 10px;
+    padding: 0 10px;
+  }
+  .desc {
+    padding: 10px;
+    border-top: 1px solid #F3F3F3;
+    font-size: 12px;
+    color: #666;
+    line-height: 18px;
+    letter-spacing: 1px;
+  }
+  .button {
+    background: #7CC986;
+    border-radius: 2px;
+    width: 45px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-size: 10px;
+    color: #fff;
+  }
+</style>

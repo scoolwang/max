@@ -1,0 +1,424 @@
+<template>
+<view class="type-module-wrap">
+<swiper class="type-module" display-multiple-items="4">
+  <block wx:for="{{gameList}}" wx:key="id">
+    <swiper-item class="dota type-box" catch:tap="goGameList" data-id="{{item.id}}"  data-name="{{item.name}}">
+      <view class="type">
+        <text class="iconfont icon-dota dota-type type-icon"></text>
+      </view>
+      <text class="type-name">{{item.name}}</text>
+    </swiper-item>
+  </block>
+</swiper>
+</view>
+<view  wx:for="{{list}}" wx:key="id">
+  <card class="module" item="{{item}}" bindtap="goActivity">
+    <view class="info">
+      <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
+      <view class="detail">
+        <view class="row" catch:tap="goHome" data-id="{{item.id}}">
+          <view class="user-info">
+            <view class="level-box">
+              <image class="level-img" src="{{item.level}}" />
+              <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
+            </view>
+
+            <text class="username">{{item.userName}}</text>
+          </view>
+
+        </view>
+        <view class="row">
+          <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+            <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+            <text class="age">{{item.age}}</text>
+          </view>
+          <view class="time right">{{item.createTime}}</view>
+          <!-- <view class="right voice-box">
+            <view class="void-box">
+              <void time="12" src="{{item.voidSrc}}"></void>
+            </view>
+            <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+              <text class="iconfont icon-voice2"></text>
+            </view>
+          </view> -->
+        </view>
+        <view class="row">
+          <view class="start-time">发车时间：{{item.startTime}}</view>
+          <view class="right">{{item.city}}</view>
+        </view>
+        <view class="row">
+          <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
+          <view class="right">
+            <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="desc">
+      {{item.t_desc}}
+    </view>
+  </card>
+</view>
+<k-loadmore wx:if="{{loadMore}}" more="{{more1}}"/>
+<view class="edit" bindtap="editActivity">
+  <text class="iconfont icon-edit"></text>
+</view>
+</template>
+
+<script>
+  import wexp from 'wexp/index'
+  import {getActivityList, getToken, reg2, getUser2} from '../mixins/api.js'
+  const palyVoidContext = wx.createInnerAudioContext()
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "首页",
+      "enablePullDownRefresh": true,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#f7f7f7",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "confirm": "../components/confirm",
+        "card": "../components/card",
+        "k-loadmore": "kai-ui/loadmore/index",
+        "k-tab": "kai-ui/tab/index",
+        "void": "../components/void"
+      }
+    }
+    data = {
+      list: [],
+      gameList: [
+        {
+          id: 1,
+          name: 'DOTA2',
+          logo: ''
+        },
+        {
+          id: 2,
+          name: '英雄联盟',
+          logo: ''
+        },
+        {
+          id: 3,
+          name: '绝地求生',
+          logo: ''
+        },
+        {
+          id: 4,
+          name: '王者荣耀',
+          logo: ''
+        },
+        {
+          id: 5,
+          name: 'DOTA自走棋',
+          logo: ''
+        }
+      ],
+      loadMore: false,
+      modalShow: false,
+      send: {
+        txt: '',
+        id: ''
+      },
+      more1: {
+        type: true,
+        loading: '加载中...',
+        loaded: '加载完成'
+      },
+      more2: {
+        type: false,
+        loading: '加载中',
+        loaded: '我们是有底线的'
+      }
+    }
+    methods = {
+      goGameList (e) {
+        console.log('shuju')
+        this.$route('navigate', './list', {gameId: e.currentTarget.dataset.id, name: e.currentTarget.dataset.name})
+      },
+      editActivity () {
+        this.$route('navigate', './addActivity')
+      },
+      goChat (e) {
+        let id = e.currentTarget.dataset.id
+        this.$route('navigate', './chat', {id: id})
+      },
+      goHome (e) {
+        let id = e.currentTarget.dataset.id
+        this.$route('navigate', './userHome', {id: id})
+      },
+      format (time) {
+        this.formatTime(time)
+      },
+      playVoice (item) {
+        let src = item.currentTarget.dataset.hi
+        palyVoidContext.stop()
+        palyVoidContext.src = src
+        palyVoidContext.play()
+      }
+    }
+    onPullDownRefresh() {
+      setTimeout(() => {
+        console.log('stoprefresh')
+        wx.stopPullDownRefresh()
+      }, 3000)
+    }
+    onReachBottom() {
+     console.log('触底')
+     this.setData({
+      loadMore: true
+     })
+     setTimeout(() => {
+       this.setData({
+        loadMore: false
+       })
+     }, 3000)
+    }
+    onLoad () {
+      // getToken()
+      // this.getData()
+      reg2({
+        openId: 'oKhZK5PFF_UHnlXSE-erZLx_N3jk',
+        nickName: '九妹',
+        photoUrl: 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg'
+      })
+      getUser2({
+        openId: 'oKhZK5PFF_UHnlXSE-erZLx_N3jk'
+      })
+    }
+    formatTime (time) {
+      let dateTime = new Date(time)
+      let year = dateTime.getFullYear()
+      let month = dateTime.getMonth() + 1
+      let day = dateTime.getDate()
+      let hour = dateTime.getHours()
+      let minute = dateTime.getMinutes()
+      let second = dateTime.getSeconds()
+      let nowDate = new Date().getTime()
+      let str = hour + ':' + (minute < 10 ? '0' + minute : minute)
+      if (nowDate - time <= 60 * 60 * 12) {
+        return str
+      } else {
+        return year + '-' + month + '-' + day + ' ' + str
+      }
+    }
+    formatCreateTime (time) {
+      let dateTime = new Date(time)
+      let year = dateTime.getFullYear()
+      let month = dateTime.getMonth() + 1
+      let day = dateTime.getDate()
+      let hour = dateTime.getHours()
+      let minute = dateTime.getMinutes()
+      let second = dateTime.getSeconds()
+      let now = new Date()
+      let nowDate = new Date().getTime() / 1000
+      let spaceTime = nowDate - time
+      let timeSpanStr = ''
+      if (spaceTime <= 60) {
+        timeSpanStr = '刚刚'
+      } else if (60 * 1 < spaceTime && spaceTime <= 60 * 60) {
+        timeSpanStr = Math.round((spaceTime / (60))) + '分钟前'
+      } else if (60 * 60 * 1 < spaceTime && spaceTime <=  60 * 60 * 24) {
+        timeSpanStr = Math.round(spaceTime / ( 60 * 60)) + '小时前';
+      }
+      else if (60 * 60 * 24 < spaceTime && spaceTime <=  60 * 60 * 24 * 15) {
+        timeSpanStr = Math.round(spaceTime / ( 60 * 60 * 24)) + '天前';
+      }
+      else if (spaceTime > 60 * 60 * 24 * 15 && year == now.getFullYear()) {
+        timeSpanStr = month + '-' + day + ' ' + hour + ':' + minute;
+      } else {
+        timeSpanStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
+      }
+      return timeSpanStr
+    }
+    formatLevel (level, rank, levelStart) {
+      // let map = {
+      //   '1': 'guardian',
+      //   '2': 'crusader',
+      //   '3': 'archon',
+      //   '1': 'legend',
+      //   '1': 'ancient',
+      //   '1': 'divine',
+      //   '1': 'immortal_elite',
+      //   '1': 'immortal_top100',
+      //   '1': 'immortal_top10',
+      // }
+      let immortal = ['immortal_elite', 'immortal_top10', 'immortal_top100']
+      let src = 'https://cdn.max-c.com/app/dota2/leaderboard/'
+      if (immortal.indexOf(level) > -1) {
+        src = src + level + '.png'
+      } else {
+        src = src + level + (levelStart === 0 ? '' : '_' + levelStart) + '.png'
+      }
+      console.log(level)
+      return src
+    }
+    getData () {
+      let res = {
+        'code': '200',
+        'data': [{
+          'id': '1',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '九妹'
+        }, {
+          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '十三姐'
+        }, {
+          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '九妹'
+        }, {
+          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '十三姐'
+        }],
+        'message': ''
+      }
+      let list = res.data
+      for (let item of list) {
+        item.startTime = this.formatTime(item.startTime)
+        item.createTime = this.formatCreateTime(item.createTime)
+        item.level = item.level
+      }
+      this.setData({
+        list: list
+      })
+      getActivityList({
+        page: 1,
+        pageSize: 2
+      }).then((res) => {
+        // let list = res.data
+        // for (let item of list) {
+        //   item.startTime = this.formatTime(item.startTime)
+        //   item.createTime = this.formatCreateTime(item.createTime)
+        //   item.level = this.formatLevel(item.level)
+        // }
+        // this.setData({
+        //   list: list
+        // })
+      })
+    }
+  }
+</script>
+<style lang="less">
+  page {
+    background: #f7f7f7;
+  }
+  .edit {
+    position: fixed;
+    right: 20px;
+    bottom: 30px;
+    width:35px;
+    height:35px;
+    background:rgba(113,140,82,1);
+    box-shadow:0px 2px 4px 0px rgba(91,91,91,0.5);
+    border:1px solid rgba(255,255,255,1);
+    text-align: center;
+    line-height: 35px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 50%;
+  }
+  .type-module-wrap {
+    height: 70px;
+    width: 100%;
+  }
+  .type-module {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background: #fff;
+    border-top: 1px solid #f3f3f3;
+    border-bottom: 1px solid #f3f3f3;
+    height: 70px;
+    .type-box {
+      height: 70px;
+    }
+    /*padding: 10px 30px;*/
+    /*margin-top: 10px;*/
+  }
+  .type-name {
+    font-size:10px;
+    font-family:PingFangSC-Regular;
+    font-weight:400;
+    color:rgba(0,0,0,1);
+  }
+  .type {
+    background: #C63939;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+  }
+  .type-box {
+    text-align: center;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .active-type-box {
+    background: #f7f7f7;
+  }
+  .type-icon {
+    color: #fff;
+  }
+
+</style>

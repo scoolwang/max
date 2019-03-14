@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+max/max/__pycache__
+max/wx/env
+max/wx/venv
+max/wx/__pycache__/
+weixin
+max/max/_pycache_/

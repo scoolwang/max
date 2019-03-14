@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.urls import path
 from wx import views as max_views
 urlpatterns = [
-    path('api/getUser', max_views.getUser, name="getUser"),
+    path('server/app/user/detail', max_views.getUser, name="getUser"), # 获取用户信息详情
     path('api/login', max_views.login, name="login"),
-    path('api/register', max_views.register, name="register"),
+    path('server/app/reg/register', max_views.register, name="register"), # 注册
     path('api/activityList', max_views.activityList, name="activityList"),
     path('api/upload/token', max_views.uploadToken, name="uploadToken"),
     path('api/upload/void/token', max_views.uploadToken, name="voidToken"),
@@ -30,7 +30,8 @@ urlpatterns = [
     path('api/read/msg', max_views.readMsg, name="readMsg"),
     path('api/unread/msg', max_views.getUnReadMsg, name="getUnReadMsg"),
     path('api/add/msg', max_views.addMsg, name="addMsg"),
+    path('api/join/activity', max_views.joinActivity, name="joinActivity"),
     path('index', max_views.index, name="index"),
     path('index1', max_views.index1, name="index1"),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls)
 ]

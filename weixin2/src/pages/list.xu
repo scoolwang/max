@@ -1,80 +1,65 @@
 <template>
-<view class="type-module">
-  <view class="dota type-box">
-    <view class="type">
-      <text class="iconfont icon-dota dota-type type-icon"></text>
+<!-- <swiper class="type-module" display-multiple-items="4">
+  <block wx:for="{{seachList}}" wx:key="id">
+    <swiper-item class="dota type-box" catch:tap="goGameList" data-id="{{item.id}}"  data-name="{{item.name}}">
+      <text class="type-name">{{item.name}}</text>
+    </swiper-item>
+  </block>
+</swiper> -->
+  <view class="type-module-wrap">
+    <view class="type-module">
+      <k-tab id="tab" custom-class="header-tab" />
     </view>
-    <text class="type-name">最新</text>
   </view>
-  <view class="dota type-box active-type-box">
-    <view class="type">
-      <text class="iconfont icon-dota dota-type type-icon"></text>
-    </view>
-    <text class="type-name">最早</text>
-  </view>
-  <view class="dota type-box">
-    <view class="type">
-      <text class="iconfont icon-dota dota-type type-icon"></text>
-    </view>
-    <text class="type-name">萌妹</text>
-  </view>
-  <view class="dota type-box">
-    <view class="type">
-      <text class="iconfont icon-dota dota-type type-icon"></text>
-    </view>
-    <text class="type-name">有位</text>
-  </view>
-</view>
-<scroll-view class="page">
-  <view class="module" wx:for="{{list}}" wx:key="id" bindtap="goActivity">
-  <!-- <button open-type="getUserInfo">获取用户信息</button> -->
-    <view class="info">
-      <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
-      <view class="detail">
-        <view class="row" catch:tap="goHome" data-id="{{item.id}}">
-          <view class="user-info">
-            <view class="level-box">
-              <image class="level-img" src="{{item.level}}" />
-              <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
+  <view  wx:for="{{list}}" wx:key="id">
+    <card class="module" item="{{item}}">
+      <view class="info">
+        <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
+        <view class="detail">
+          <view class="row" catch:tap="goHome" data-id="{{item.id}}">
+            <view class="user-info">
+              <view class="level-box">
+                <image class="level-img" src="{{item.level}}" />
+                <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
+              </view>
+
+              <text class="username">{{item.userName}}</text>
             </view>
 
-            <text class="username">{{item.userName}}</text>
           </view>
-
-        </view>
-        <view class="row">
-          <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
-            <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
-            <text class="age">{{item.age}}</text>
+          <view class="row">
+            <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+              <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+              <text class="age">{{item.age}}</text>
+            </view>
+            <view class="time right">{{item.createTime}}</view>
+            <!-- <view class="right voice-box">
+              <view class="void-box">
+                <void time="12" src="{{item.voidSrc}}"></void>
+              </view>
+              <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+                <text class="iconfont icon-voice2"></text>
+              </view>
+            </view> -->
           </view>
-          <view class="time right">{{item.createTime}}</view>
-          <!-- <view class="right voice-box">
-            <view class="void-box">
-              <void time="12" src="{{item.voidSrc}}"></void>
+          <view class="row">
+            <view class="start-time">发车时间：{{item.startTime}}</view>
+            <view class="right">{{item.city}}</view>
+          </view>
+          <view class="row">
+            <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
+            <view class="right">
+              <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
             </view>
-            <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
-              <text class="iconfont icon-voice2"></text>
-            </view>
-          </view> -->
-        </view>
-        <view class="row">
-          <view class="start-time">发车时间：{{item.startTime}}</view>
-          <view class="right">{{item.city}}</view>
-        </view>
-        <view class="row">
-          <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
-          <view class="right">
-            <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
           </view>
         </view>
       </view>
-    </view>
-    <view class="desc">
-      {{item.t_desc}}
-    </view>
+      <view class="desc">
+        {{item.t_desc}}
+      </view>
+    </card>
   </view>
 
-</scroll-view>
 <view class="edit" bindtap="editActivity">
   <text class="iconfont icon-edit"></text>
 </view>
@@ -86,6 +71,7 @@
 </template>
 
 <script>
+  import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
   import {getActivityList} from '../mixins/api.js'
   const palyVoidContext = wx.createInnerAudioContext()
@@ -98,11 +84,44 @@
       "onReachBottomDistance": 50,
       "usingComponents": {
         "confirm": "../components/confirm",
-        "void": "../components/void"
+        "card": "../components/card",
+        "void": "../components/void",
+        "k-tab": "kai-ui/tab/index"
       }
     }
     data = {
       list: [],
+      tabData: {
+        list: [
+          {
+            id: 1,
+            title: '萌妹'
+          },
+          {
+            id: 2,
+            title: '大神'
+          },
+          {
+            id: 3,
+            title: '有位'
+          },
+          {
+            id: 4,
+            title: '最新发布'
+          },
+          {
+            id: 5,
+            title: '最早发车'
+          },
+          {
+            id: 6,
+            title: '附近的人'
+          }
+        ],
+        scroll: true,
+        selectedId: 4,
+        class: 'tab-success'
+      },
       modalShow: false,
       send: {
         txt: '',
@@ -127,47 +146,19 @@
       format (time) {
         this.formatTime(time)
       },
-      openModal (arg) {
-        let id = arg.target.dataset.id
-        this.setData({
-          'modalShow': true,
-          'send.id': id
-        })
-      },
-      closeConfirm () {
-        console.log('关闭')
-        this.setData({
-          modalShow: false,
-          send: {
-            txt: '',
-            id: ''
-          }
-        })
-      },
-      send () {
-        console.log(this.data.send)
-        this.setData({
-          modalShow: false,
-          send: {
-            txt: '',
-            id: ''
-          }
-        })
-      },
       playVoice (item) {
         let src = item.currentTarget.dataset.hi
         palyVoidContext.stop()
         palyVoidContext.src = src
         palyVoidContext.play()
-      },
-      inputChange (e) {
-        let val = e.detail.value
-        this.setData({
-          'send.txt': val
-        })
       }
     }
-    onLoad () {
+    onLoad (opt) {
+      wx.setNavigationBarTitle({
+        title: opt.name
+      })
+      Tab._init('#tab', this.data.tabData)
+      console.log(wx.getSystemInfoSync())
       this.getData()
     }
     formatTime (time) {
@@ -274,6 +265,40 @@
           'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
           'city': '杭州',
           'userName': '十三姐'
+        }, {
+          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '九妹'
+        }, {
+          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
+          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
+          'createTime': 1537949161,
+          'startTime': 1538168400,
+          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
+          't_limit': 1,
+          't_left': 0,
+          'gameId': 1,
+          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+          'age': '18',
+          'sex': '女',
+          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
+          'rank': 10,
+          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+          'city': '杭州',
+          'userName': '十三姐'
         }],
         'message': ''
       }
@@ -281,28 +306,44 @@
       for (let item of list) {
         item.startTime = this.formatTime(item.startTime)
         item.createTime = this.formatCreateTime(item.createTime)
-        item.level = this.formatLevel(item.level)
       }
       this.setData({
         list: list
       })
-      // getActivityList().then((res) => {
-      //   let list = res.data
-      //   for (let item of list) {
-      //     item.startTime = this.formatTime(item.startTime)
-      //     item.createTime = this.formatCreateTime(item.createTime)
-      //     item.level = this.formatLevel(item.level)
-      //   }
-      //   this.setData({
-      //     list: list
-      //   })
-      // })
+      getActivityList({
+        page: 1,
+        pageSize: 2
+      }).then((res) => {
+        // let list = res.data
+        // for (let item of list) {
+        //   item.startTime = this.formatTime(item.startTime)
+        //   item.createTime = this.formatCreateTime(item.createTime)
+        //   item.level = this.formatLevel(item.level)
+        // }
+        // this.setData({
+        //   list: list
+        // })
+      })
     }
   }
 </script>
 <style>
   page {
     background: #f7f7f7;
+  }
+  .type-module-wrap {
+    height: 50px;
+    width: 100%;
+  }
+  .type-module {
+    position: fixed;
+    width: 100%;
+    height: 50px;
+    border-top: 1px solid #f3f3f3;
+    top: 0;
+  }
+  .header-tab {
+    border-bottom: 1px solid #f3f3f3;
   }
   .edit {
     position: fixed;
@@ -320,181 +361,6 @@
     color: #fff;
     border-radius: 50%;
   }
-  .confirm-view {
-    padding: 20px 20px;
-    width: 250px;
-  }
-  .input-placeholder {
-    font-size:14px;
-    font-family:PingFangSC-Regular;
-    font-weight:400;
-    color:rgba(211,211,211,1);
-  }
-  .send-input {
-    height:33px;
-    font-size:14px;
-    background:rgba(242,242,242,1);
-    border-radius:3px;
-    padding: 0 10px;
-    line-height: 33px;
-  }
-  .type-module {
-    display: flex;
-    justify-content: space-between;
-    background: #fff;
-    /*padding: 10px 30px;*/
-    /*margin-top: 10px;*/
-  }
-  .type {
-    background: #C63939;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    text-align: center;
-    line-height: 32px;
-  }
-  .type-box {
-    padding: 10px 0;
-    text-align: center;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .active-type-box {
-    background: #f7f7f7;
-  }
-  .type-icon {
-    color: #fff;
-  }
-  .module {
-    background: #fff;
-    box-shadow: 0 2px 4px 0 rgba(233,231,231,0.5);
-    margin: 20px 0px;
-  }
-  .type-name {
-    font-size:10px;
-    font-family:PingFangSC-Regular;
-    font-weight:400;
-    color:rgba(0,0,0,1);
-  }
-  .cover-img {
-    width: 100%;
-    height: 100%;
-  }
-  .level-img {
-    width: 21px;
-    height: 24px;
-  }
-  .info {
-    display: flex;
-    flex-direction: row;
-    height: 123px;
-  }
-  .cover {
-    width: 123px;
-    height: 123px;
-  }
-  .detail {
-    flex: 1;
-    padding: 10px 15px;
-  }
-  .row {
-    display: flex;
-    font-size: 10px;
-    margin-bottom: 10px;
-    align-items: center;
-  }
-  .right {
-    flex: 1;
-    text-align: right;
-    font-size: 10px;
-    justify-content: flex-end;
-    display: flex;
-  }
-  .username {
-    font-size: 14px;
-  }
-  .user-info {
-    display: flex;
-    align-items: center;
-  }
-  .level-box {
-    display: flex;
-    align-items: center;
-    margin-right: 5px;
-  }
-  .rank {
-    font-size: 10px;
-    color: #8B572A;
-    padding-left: 3px;
-  }
-  .icon-sex {
-    font-size: 10px;
-    margin-left: -2px;
-  }
-  .tag-girl {
-    background: #EC909B;
-  }
-  .tag-boy {
-    background: #63A9FA;
-  }
-  .tag {
-    border-radius: 2px;
-    color: #fff;
-    height: 15px;
-    padding: 0 3px;
-    font-size: 10px;
-  }
-  .age {
-    font-size: 10px;
-    /*font-weight: lighter;*/
-  }
-  .voice {
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px 0 rgba(206,206,206,0.5);
-    background:#fff;
-    line-height:20px;
-    text-align:center;
-  }
-  .voice text {
-    font-size: 14px;
-    color: #7CC986;
-
-  }
-  .voice-box {
-    display: flex;
-    justify-content: flex-end;
 
 
-  }
-  .void-box {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    height: 20px;
-    border-radius: 10px;
-    padding: 0 10px;
-  }
-  .desc {
-    padding: 10px;
-    border-top: 1px solid #F3F3F3;
-    font-size: 12px;
-    color: #666;
-    line-height: 18px;
-    letter-spacing: 1px;
-  }
-  .button {
-    background: #7CC986;
-    border-radius: 2px;
-    width: 45px;
-    height: 18px;
-    line-height: 18px;
-    text-align: center;
-    font-size: 10px;
-    color: #fff;
-  }
 </style>

@@ -1,0 +1,466 @@
+<template>
+<scroll-view scroll-y style="height: {{height}}px;" class="scroll-page" scroll-top="{{scrollTop}}">
+<!-- <scroll-view > -->
+  <view id="page">
+    <view wx:for="{{chatList}}" class="item-wrap" wx:key="index">
+      <view wx:if="{{item.type==0}}" class="item {{item.from === userInfo.userId? 'user-item':'to-item'}}">
+        <view class="avatar" wx:if="{{item.from === userInfo.userId}}"><image class="avatar-img" src="{{userInfo.avatarUrl}}" /></view>
+        <view class="avatar" wx:else><image class="avatar-img" src="{{toUserInfo.avatarUrl}}" /></view>
+        <view class="msg">{{item.data}}</view>
+      </view>
+      <view wx:if="{{item.type==1}}">
+        <view class="time-tip">{{item.data}}</view>
+      </view>
+    </view>
+    <view class="bottom"></view>
+  </view>
+</scroll-view>
+<!-- </scroll-view> -->
+
+  <view class="send-input" id="bottom"><input placeholder="请输入聊天内容" bindinput="change" value="{{content}}" confirm-type="send" bindconfirm="send" /></view>
+  <!-- <view>{{chatList.length}}</view>
+  <view wx:key="index">
+    <view>时间{{item.timeStr}}</view>
+    <view>内容{{item.data}}</view>
+    <view>id:{{item.from}}</view>
+  </view> -->
+</template>
+<style>
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+  .avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+  }
+  .msg {
+    margin: 0 15px;
+  }
+  .item-wrap {
+
+    padding: 0 15px;
+  }
+  .item {
+    display: flex;
+    margin-bottom: 25px;
+  }
+  .user-item {
+    flex-direction: row-reverse;
+  }
+  .item .msg {
+    background: #eeeeee;
+    border-radius: 5px;
+    font-size: 16px;
+    padding: 10px 15px;
+    color: #333;
+    margin-right:
+  }
+  .user-item .msg {
+    background: #1177EF;
+    border-radius: 5px;
+    font-size: 16px;
+    padding: 10px 15px;
+    color: #fff;
+    margin-left: 50px;
+  }
+  .to-item .msg {
+    margin-right: 50px;
+  }
+  .avatar {
+    height: 40px;
+  }
+  .time-tip {
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    margin: 25px 0;
+  }
+  .send-input {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background: #FFFFFF;
+    box-shadow: 0 0 7px 0 rgba(65,65,65,0.14);
+    height: 50px;
+  }
+  .send-input input {
+    height: 50px;
+    font-size: 14px;
+    color: #999;
+    line-height: 50px;
+    padding: 0 15px;
+  }
+  .bottom {
+    height: 60px;
+  }
+</style>
+<script>
+  import wexp from 'wexp/index'
+  import {getUserInfo} from '../mixins/common.js'
+  import {getUserById, getUnreadMsg, addMsg} from '../mixins/api.js'
+  let fileSystemManager = wx.getFileSystemManager()
+  export default class extends wexp.page {
+    config = {
+      "navigationBarTitleText": "聊天",
+      "enablePullDownRefresh": false,
+      "backgroundTextStyle": "#333",
+      "backgroundColor": "#f8f8f8",
+      "onReachBottomDistance": 50,
+      "usingComponents": {
+        "area": "../components/TextArea"
+      }
+    }
+    data = {
+      userInfo: {},
+      toUserInfo: {},
+      content: '',
+      socketTask: '',
+      chatList: [],
+      chatList1: [],
+      toId: '',
+      timeTag: '',
+      height: '',
+      scrollTop: 10000
+    }
+    methods = {
+      change (b) {
+        this.setData({
+          'content': b.detail.value
+        })
+      },
+      send (e) {
+        this.data.socketTask.send({
+          data: this.data.content,
+          fail () {},
+          success: res => {
+            let time = new Date().getTime()
+            let data = {
+              time: time,
+              from: this.data.userInfo.userId,
+              data: this.data.content,
+              type: 0, // 用户聊天内容
+              toAvatarUrl: this.data.toUserInfo.avatarUrl,
+              toNick: this.data.toUserInfo.name
+            }
+            this.msgHandle(data)
+            this.setData({
+              content: ''
+            })
+          }
+        })
+      }
+    }
+    /** data
+     *  data.time 时间戳
+     *  data.from 聊天对象用户id
+     *  data.data 聊天消息
+     *  data.type 消息类型 0：用户聊天 1：时间戳
+     *  data.avatarUrl 消息主体头像
+     *  data.nick 消息主体昵称
+     *  data.toAvatarUrl 消息接受者头像
+     *  data.toNick 消息接受者昵称
+     */
+    msgHandle (data) {
+      let time = data.time
+      let innserTag = false
+      let arry = this.data.chatList
+      let timeTag = this.formateTime(time)
+      if (!this.data.timeTag) {
+        innserTag = true
+      } else {
+        if (time - this.data.timeTag > 5 * 60 * 1000) {
+          innserTag = true
+        }
+      }
+      if (innserTag) {
+        let obj = {
+          type: '1',
+          time: time,
+          timeStr: timeTag[0] + '年' + timeTag[1] + '月' + timeTag[2] + '日 ' + (timeTag[3] < 10 ? '0' + timeTag[3] : timeTag[3]) + ':' + (timeTag[4] < 10 ? '0' + timeTag[4] : timeTag[4]),
+          data: timeTag[3] + ':' + timeTag[4]
+        }
+        arry.push(obj)
+        this.setData({
+          timeTag: time
+        })
+        this.writeChatFile(obj)
+      }
+      arry.push(data)
+      this.writeChatFile(data)
+      this.setData({
+        chatList: arry
+      })
+      setTimeout(() => {
+        this.scrollBottom()
+      })
+    }
+    formateTime (time) {
+      let d = time ? new Date(time) : new Date()
+      let y = d.getFullYear()
+      let m = d.getMonth() - 1
+      let day = d.getDay()
+      let hh = d.getHours()
+      let mm = d.getMinutes()
+      let ss = d.getSeconds()
+
+      return [y, m, day, hh, mm, ss]
+    }
+    createFile (userId) {
+      // let that = this
+      fileSystemManager.stat({
+        path: wx.env.USER_DATA_PATH + '/chat' + userId,
+        success: res => {
+          console.log('目录存在', res)
+          // this.writeChatFile(userId)
+        },
+        fail: res => {
+          console.log('目录不存在', res)
+          this.mkDir(userId)
+        }
+      })
+    }
+    // 创建聊天记录存储目录
+    mkDir (userId) {
+      fileSystemManager.mkdir({
+        dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+        success (res) {
+          console.log('创建目录成功')
+          console.log(res)
+          // that.writeChatFile(userId)
+        },
+        fail (res) {
+          console.log('创建目录失败')
+          console.log(res)
+        }
+      })
+    }
+    // 把聊天记录写入到本地文件
+    writeChatFile (str) {
+      let data = JSON.stringify(str) + '\r\n\r\n'
+      let userId = this.data.userInfo.userId
+      let chatUserId = this.data.toId
+      fileSystemManager.stat({
+        path: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+        success: res => {
+          console.log('文件存在', res)
+          fileSystemManager.appendFile({
+            // filePath: res.savedFilePath,
+            filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+            data: data,
+            encoding: 'utf8',
+            success (res) {
+              console.log('追加1', res)
+            },
+            fail (res) {
+              console.log('追加2', res)
+            }
+          })
+        },
+        fail: res => {
+          console.log('文件不存在', res)
+          /*
+           * writeFile第一天消息无法写入，所以先新建文件，再appFile追加新消息
+           *
+           *
+           */
+          fileSystemManager.writeFile({
+            // filePath: res.savedFilePath,
+            filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+            data: '',
+            encoding: 'utf8',
+            success (res) {
+              fileSystemManager.appendFile({
+                // filePath: res.savedFilePath,
+                filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+                data: data,
+                encoding: 'utf8',
+                success (res) {
+                  console.log('追加1', res)
+                },
+                fail (res) {
+                  console.log('追加2', res)
+                }
+              })
+            },
+            fail (res) {
+              console.log('写入失败', res)
+            }
+          })
+        }
+      })
+    }
+    // 获取聊天记录
+    getChatList (path) {
+      fileSystemManager.readFile({
+        filePath: path,
+        encoding: 'utf8',
+        success: res => {
+          let content = res.data
+          let list = content.split('\r\n\r\n')
+          let arry = []
+          for (let chat of list) {
+            if (chat) {
+              let obj = JSON.parse(chat)
+              arry.push(obj)
+            }
+          }
+          this.setData({
+            chatList: arry,
+            timeTag: arry[arry.length - 1].time
+          })
+          console.log('读取文件内容', arry)
+          wx.getSystemInfo({
+            success: res => {
+              console.log(res)
+            }
+          })
+          this.scrollBottom()
+          // wx.pageScrollTo({
+          //   scrollTop: rect.bottom
+          // })
+          // wx.createSelectorQuery().select('page').boundingClientRect(function(rect){
+          //   // 使页面滚动到底部
+          //   wx.pageScrollTo({
+          //     scrollTop: rect.bottom
+          //   })
+          // }).exec()
+        }
+      })
+    }
+    // 获取历史聊天记录
+    readChatList () {
+      let userId = this.data.userInfo.userId
+      let path = this.data.toId + '.json'
+      this.getChatList(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path)
+      // fileSystemManager.readdir({
+      //   dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+      //   success: res => {
+      //     console.log('递归', res)
+      //     for (let path of res.files) {
+      //       let chatId = path.split('.')[0]
+      //       if (chatId === this.data.toId) {
+      //         this.getChatList(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path)
+      //       }
+      //     }
+      //   }
+      // })
+    }
+    scrollBottom () {
+      let that = this
+      // setTimeout(() => {
+      //   console.log('滚动')
+      //   that.setData({
+      //     scrollTop: 10000
+      //   })
+      // }, 3000)
+      wx.createSelectorQuery().select('#page').boundingClientRect(function(rect){
+        console.log(rect)
+        // 使页面滚动到底部
+        that.setData({
+          scrollTop: rect.height + rect.bottom + 80
+        })
+        console.log('滚动', that.data.scrollTop)
+      }).exec()
+    }
+    init () {
+      let userId = this.data.userInfo.userId
+      let url = 'ws://47.94.244.143:6666/send?from='+userId+'&to=' + this.data.toId
+      console.log(url)
+      let socketTask = wx.connectSocket({
+        url: url,
+        fail () {
+          console.log('webscoket链接失败')
+        },
+        success () {
+          console.log('链接成功')
+        }
+      })
+      this.setData({
+        socketTask: socketTask
+      })
+      // 穿件聊天记录存储本地文件
+      this.createFile(userId)
+      // 接受消息
+      wx.onSocketMessage((data) => {
+        let str = JSON.parse(data.data)
+        /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
+        if (str.from !== this.data.toId) {
+          addMsg({
+            sendId: str.from,
+            receiveId: userId,
+            msg: str.data,
+            time: str.time,
+            type: str.type
+          })
+          return
+        }
+        str.avatarUrl = this.data.toUserInfo.avatarUrl
+        str.name = this.data.toUserInfo.name
+        str.toAvatarUrl = this.data.userInfo.avatarUrl
+        str.toNick = this.data.userInfo.nickName
+        this.msgHandle(str)
+      })
+      getUserById({userId: this.data.toId}).then(res => {
+        console.log('聊天对象', res)
+        this.setData({
+          toUserInfo: res.data
+        })
+        wx.setNavigationBarTitle({
+          title: res.data.name
+        })
+      })
+
+      let info = wx.getSystemInfoSync()
+      this.setData({
+        height: info.windowHeight
+      })
+      this.getUnreadMsg()
+    }
+    getUnreadMsg () {
+      getUnreadMsg({
+        id: this.data.toId
+      }).then(res => {
+        let msg = res.data
+        for (let item of msg) {
+          debugger
+          /** 将未读消息存储到本地 */
+          this.msgHandle({
+            data: item.msg,
+            time: item.time,
+            type: item.type,
+            from: this.data.toId,
+            to: this.data.userInfo.userId,
+            avatarUrl: this.data.toUserInfo.avatarUrl,
+            nick: this.data.toUserInfo.name,
+            toAvatarUrl: this.data.userInfo.avatarUrl,
+            toNick: this.data.userInfo.nickName
+          })
+        }
+        /** 获取未读消息 */
+        this.readChatList()
+        console.log('获取用户未读消息')
+        console.log(res)
+      })
+    }
+    onLoad (opt) {
+      this.setData({
+        toId: opt.id
+      })
+      // let that = this
+      getUserInfo().then((res) => {
+        console.log('ceshi')
+        console.log(res)
+        this.setData({
+          userInfo: res
+        })
+        this.init()
+      })
+
+    }
+  }
+</script>

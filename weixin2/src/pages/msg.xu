@@ -152,7 +152,7 @@
 <script>
   import wexp from 'wexp/index'
   import {getUserInfo, formatTime} from '../mixins/common.js'
-  import {getMsg} from '../mixins/api.js'
+  import {getMsg, getUnreadMsg, readMsg} from '../mixins/api.js'
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
@@ -259,6 +259,10 @@
     onLoad () {
       let pms = this.getAll()
       let that = this
+      getUnreadMsg()
+      readMsg({
+        ids: [3]
+      })
       getMsg().then((res) => {
         let sort = []
         let map = {}

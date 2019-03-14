@@ -134,8 +134,15 @@
         })
       },
       send (e) {
+        let msgObj = {
+          sender: 'yue',
+          receiver: 'ioio',
+          content: this.data.content,
+          type: '1'
+        }
+        msgObj = JSON.stringify(msgObj)
         this.data.socketTask.send({
-          data: this.data.content,
+          data: msgObj,
           fail () {},
           success: res => {
             let time = new Date().getTime()
@@ -369,17 +376,18 @@
     }
     init () {
       let userId = this.data.userInfo.userId
-      let url = 'ws://192.168.21.37:9000/send?from='+userId+'&to=' + this.data.toId
+      let url = 'ws://47.94.244.143:8899/demo/websck?sender=yue&receiver=ioio'
       console.log(url)
       let socketTask = wx.connectSocket({
         url: url,
-        fail () {
-          console.log('webscoket链接失败')
+        fail (res) {
+          console.log('webscoket链接失败', res)
         },
-        success () {
-          console.log('链接成功')
+        success (res) {
+          console.log('链接成功', res)
         }
       })
+      console.log(socketTask)
       this.setData({
         socketTask: socketTask
       })
@@ -387,39 +395,41 @@
       this.createFile(userId)
       // 接受消息
       wx.onSocketMessage((data) => {
-        let str = JSON.parse(data.data)
-        /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
-        if (str.from !== this.data.toId) {
-          addMsg({
-            sendId: str.from,
-            receiveId: userId,
-            msg: str.data,
-            time: str.time,
-            type: str.type
-          })
-          return
-        }
-        str.avatarUrl = this.data.toUserInfo.avatarUrl
-        str.name = this.data.toUserInfo.name
-        str.toAvatarUrl = this.data.userInfo.avatarUrl
-        str.toNick = this.data.userInfo.nickName
-        this.msgHandle(str)
+        console.log(data)
+        // let str = JSON.parse(data.data)
+        // /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
+        // if (str.from !== this.data.toId) {
+        //   addMsg({
+        //     sendId: str.from,
+        //     receiveId: userId,
+        //     msg: str.data,
+        //     time: str.time,
+        //     type: str.type
+        //   })
+        //   return
+        // }
+        // str.avatarUrl = this.data.toUserInfo.avatarUrl
+        // str.name = this.data.toUserInfo.name
+        // str.toAvatarUrl = this.data.userInfo.avatarUrl
+        // str.toNick = this.data.userInfo.nickName
+        // this.msgHandle(str)
       })
-      getUserById({userId: this.data.toId}).then(res => {
-        console.log('聊天对象', res)
-        this.setData({
-          toUserInfo: res.data
-        })
-        wx.setNavigationBarTitle({
-          title: res.data.name
-        })
-      })
+      // getUserById({userId: this.data.toId}).then(res => {
+      //   console.log('聊天对象', res)
+      //   this.setData({
+      //     toUserInfo: res.data
+      //   })
+      //   wx.setNavigationBarTitle({
+      //     // title: res.data.name
+      //     title: '九妹'
+      //   })
+      // })
 
       let info = wx.getSystemInfoSync()
       this.setData({
         height: info.windowHeight
       })
-      this.getUnreadMsg()
+      // this.getUnreadMsg()
     }
     getUnreadMsg () {
       getUnreadMsg({

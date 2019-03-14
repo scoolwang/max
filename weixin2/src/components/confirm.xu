@@ -8,8 +8,8 @@
           <slot></slot>
         </view>
         <view class="modal-foot">
-            <view class="cancel" bindtap="close">取消</view>
-            <view class="confirm" bindtap="ok">确认</view>
+            <view class="cancel" catch:tap="close">取消</view>
+            <view class="confirm" catch:tap="ok">确认</view>
         </view>
       </view>
   </view>
@@ -35,6 +35,7 @@
       showModal: true
     }
     methods = {
+      coverTouch () {},
       close () {
         this.setData({
           show: false
@@ -57,12 +58,13 @@
 <style>
   @import '../font/css/home.wxss';
   .cover {
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     display: flex;
+    overflow: hidden;
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.5);

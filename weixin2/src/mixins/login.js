@@ -3,24 +3,10 @@ import * as config from './config.js'
 import * as api from './api.js'
 import {getUserInfo} from './common.js'
 function login () {
-  wx.login({
-    success (res) {
-      const code = res.code
-      wx.request({
-        url: 'https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code',
-        _unintercept: true,
-        data: {
-          appid: config.appid,
-          secret: config.secret,
-          js_code: code,
-          grant_type: 'authorization_code'
-        },
-        success (res) {
-          loginValid(res)
-        },
-        complete (res) {
-        }
-      })
+  wx.cloud.callFunction({
+    name: 'getUser',
+    complete (res) {
+      loginValid(res)
     }
   })
 }
@@ -30,12 +16,10 @@ function loginValid (res) {
   let openid = 'abcdef'
   wx.setStorageSync('openid', res.openid)
   /** 打开小程序，系统登录 */
-  let pms = api.login({
-    // openId: res.openid
-    openId: openid
-  })
+  let pms = api.getToken()
 
   pms.then((res) => {
+    console.log(res)
       /** 登录成功 */
       if (res.code === '200') {
         /** 更新缓存信息 */
