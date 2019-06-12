@@ -67,7 +67,7 @@
 
 <script>
   import wexp from 'wexp/index'
-  import {getActivityList, getToken, reg2, getUser2} from '../mixins/api.js'
+  import {getActivityList, getToken, reg2, getUser2, addMsg, delActivity} from '../mixins/api.js'
   const palyVoidContext = wx.createInnerAudioContext()
   export default class extends wexp.page {
     config = {
@@ -175,7 +175,7 @@
     }
     onLoad () {
       // getToken()
-      // this.getData()
+      this.getData()
       reg2({
         openId: 'oKhZK5PFF_UHnlXSE-erZLx_N3jk',
         nickName: '九妹',
@@ -184,6 +184,9 @@
       getUser2({
         openId: 'oKhZK5PFF_UHnlXSE-erZLx_N3jk'
       })
+      // addMsg({
+      //   sender: '慰问'
+      // })
     }
     formatTime (time) {
       let dateTime = new Date(time)
@@ -335,9 +338,14 @@
       this.setData({
         list: list
       })
+      delActivity({
+        id: '00000000697ed71c016981719bd70000'
+      })
       getActivityList({
-        page: 1,
-        pageSize: 2
+        page: 0,
+        size: 2,
+        gameId: '01',
+        condition: '05'
       }).then((res) => {
         // let list = res.data
         // for (let item of list) {

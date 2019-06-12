@@ -288,9 +288,10 @@ export default class Index extends wexp.page {
       this.setData({
         params: {
           startTime: startTime,
+          createrId: '00000000694904aa0169490d61630000',
           // city: this.data.region[1] || '',
-          cover: this.data.cover,
-          desc: this.data.params.desc,
+          imgs: this.data.cover,
+          content: this.data.params.desc,
           seat: this.data.params.seat,
           gameId: this.data.params.gameId
         }

@@ -1,6 +1,6 @@
 import {base64_encode} from './decode'
 import {rootUrl} from './config'
-function request (url, data, method="GET", unintercept) {
+function request (url, data, method="POST", unintercept) {
   let params = data || {}
   let userInfo = wx.getStorageSync('userInfo')
   let token1 = userInfo ? userInfo.token : ''
