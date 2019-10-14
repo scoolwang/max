@@ -61,7 +61,6 @@
     config = {
       "navigationBarTitleText": "活动列表",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {

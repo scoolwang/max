@@ -73,7 +73,7 @@
     config = {
       "navigationBarTitleText": "首页",
       "enablePullDownRefresh": true,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#f7f7f7",
       "onReachBottomDistance": 50,
       "usingComponents": {

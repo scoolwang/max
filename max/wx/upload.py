@@ -13,13 +13,16 @@ q = Auth(access_key, secret_key)
 
 #要上传的空间
 #图片上传空间名
-bucket_name = 'ppupload'
+bucket_name = 'ppgame'
 #音频上传空间名
-void_name = 'ppupload'
+void_name = 'ppgame'
 
 
 def upload (localfile):
-
+  # putolicy = {
+  #   "callbackUrl": "http://t2.kaistart.net/ecommerce/mall/page/get",
+  #   "callbackBody": "name=$(fname)&hash=$(etag)&location=$(x:location)&price=$(x:price)"
+  # }
   token = q.upload_token(bucket_name, None, 3600)
 
   return {'uptoken': token}
@@ -29,3 +32,6 @@ def uploadVoid (localfile):
   token = q.upload_token(void_name, None, 3600)
 
   return {'uptoken': token}
+
+def load (arg):
+  return {'a': '你好'}

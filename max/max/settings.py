@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'max.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'max',
+        'NAME': 'pp',
         'USER': 'root',
         'PASSWORD': 'wts123456',
         'HOST': '127.0.0.1',
@@ -111,6 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+#TIME_ZONE = 'Asia/Shanghai'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True

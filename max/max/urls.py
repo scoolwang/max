@@ -19,7 +19,7 @@ from wx import views as max_views
 urlpatterns = [
     path('server/app/user/detail', max_views.getUser, name="getUser"), # 获取用户信息详情
     path('api/login', max_views.login, name="login"),
-    path('server/app/reg/register', max_views.register, name="register"), # 注册
+    path('api/register', max_views.register, name="register"), # 注册
     path('api/activityList', max_views.activityList, name="activityList"),
     path('api/upload/token', max_views.uploadToken, name="uploadToken"),
     path('api/upload/void/token', max_views.uploadToken, name="voidToken"),
@@ -29,9 +29,21 @@ urlpatterns = [
     path('api/getMsg', max_views.getMsg, name="getMsg"),
     path('api/read/msg', max_views.readMsg, name="readMsg"),
     path('api/unread/msg', max_views.getUnReadMsg, name="getUnReadMsg"),
+    path('api/sys/msg', max_views.getSysMsg, name="getSysMsg"),
+    path('api/unread/chat/msg', max_views.getChatUnreadMsg, name="getChatUnreadMsg"),
     path('api/add/msg', max_views.addMsg, name="addMsg"),
     path('api/join/activity', max_views.joinActivity, name="joinActivity"),
+    path('api/get/activity', max_views.activityDetail, name="activityDetail"),
+    path('api/get/activity/users', max_views.getActivityUsers, name="getActivityUsers"),
+    path('api/get/activity/status', max_views.editStatus, name="editStatus"),
+    path('api/add/comment', max_views.addComment, name="addComment"),
+    path('api/get/comment', max_views.getComment, name="getComment"),
+    path('api/get/load', max_views.load, name="load"),
     path('index', max_views.index, name="index"),
     path('index1', max_views.index1, name="index1"),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('api/get/reply', max_views.getReply, name="getReply"),
+
+
+
 ]

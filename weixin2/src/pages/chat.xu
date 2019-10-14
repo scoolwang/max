@@ -3,12 +3,12 @@
 <!-- <scroll-view > -->
   <view id="page">
     <view wx:for="{{chatList}}" class="item-wrap" wx:key="index">
-      <view wx:if="{{item.type==0}}" class="item {{item.from === userInfo.userId? 'user-item':'to-item'}}">
-        <view class="avatar" wx:if="{{item.from === userInfo.userId}}"><image class="avatar-img" src="{{userInfo.avatarUrl}}" /></view>
+      <view wx:if="{{item.type==1}}" class="item {{item.sendId === userInfo.userId? 'user-item':'to-item'}}">
+        <view class="avatar" wx:if="{{item.sendId === userInfo.userId}}"><image class="avatar-img" src="{{userInfo.avatarUrl}}" /></view>
         <view class="avatar" wx:else><image class="avatar-img" src="{{toUserInfo.avatarUrl}}" /></view>
-        <view class="msg">{{item.data}}</view>
+        <view class="msg">{{item.data.content}}</view>
       </view>
-      <view wx:if="{{item.type==1}}">
+      <view wx:if="{{item.type==0}}">
         <view class="time-tip">{{item.data}}</view>
       </view>
     </view>
@@ -27,11 +27,11 @@
 </template>
 <style>
 
-::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  color: transparent;
-}
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    color: transparent;
+  }
   .avatar-img {
     width: 40px;
     height: 40px;
@@ -42,7 +42,6 @@
   }
   .item-wrap {
 
-    padding: 0 15px;
   }
   .item {
     display: flex;
@@ -108,7 +107,7 @@
     config = {
       "navigationBarTitleText": "聊天",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#f8f8f8",
       "onReachBottomDistance": 50,
       "usingComponents": {
@@ -116,6 +115,7 @@
       }
     }
     data = {
+      unreadMsg: [],
       userInfo: {},
       toUserInfo: {},
       content: '',
@@ -135,25 +135,29 @@
       },
       send (e) {
         let msgObj = {
-          sender: 'yue',
-          receiver: 'ioio',
+          sendId: this.data.userInfo.userId,
+          receiveId: this.data.toId,
           content: this.data.content,
-          type: '1'
+          type: 1
         }
-        msgObj = JSON.stringify(msgObj)
+
+        // msgObj = JSON.stringify(msgObj)
         this.data.socketTask.send({
-          data: msgObj,
+          data: JSON.stringify(msgObj),
           fail () {},
           success: res => {
             let time = new Date().getTime()
             let data = {
               time: time,
-              from: this.data.userInfo.userId,
-              data: this.data.content,
-              type: 0, // 用户聊天内容
-              toAvatarUrl: this.data.toUserInfo.avatarUrl,
-              toNick: this.data.toUserInfo.name
+              sendId: this.data.userInfo.userId,
+              data: msgObj,
+              type: 1, // 用户聊天内容
             }
+            msgObj.sendAvatar = this.data.toUserInfo.avatarUrl
+            msgObj.sendName = this.data.toUserInfo.name
+            msgObj.receiveAvatar = this.data.userInfo.avatarUrl
+            msgObj.receiveName = this.data.userInfo.name
+            console.log(data, '聊天发送串')
             this.msgHandle(data)
             this.setData({
               content: ''
@@ -161,6 +165,16 @@
           }
         })
       }
+    }
+
+    fileDir () {
+      let chatDir = getApp().globalData.chatDir
+      return chatDir
+    }
+
+    fileChat () {
+      let chatDir = getApp().globalData.chatDir
+      return chatDir + this.data.toId + '.json'
     }
     /** data
      *  data.time 时间戳
@@ -186,7 +200,7 @@
       }
       if (innserTag) {
         let obj = {
-          type: '1',
+          type: 0,
           time: time,
           timeStr: timeTag[0] + '年' + timeTag[1] + '月' + timeTag[2] + '日 ' + (timeTag[3] < 10 ? '0' + timeTag[3] : timeTag[3]) + ':' + (timeTag[4] < 10 ? '0' + timeTag[4] : timeTag[4]),
           data: timeTag[3] + ':' + timeTag[4]
@@ -199,6 +213,7 @@
       }
       arry.push(data)
       this.writeChatFile(data)
+      console.log(data, '新增聊天对象')
       this.setData({
         chatList: arry
       })
@@ -217,24 +232,32 @@
 
       return [y, m, day, hh, mm, ss]
     }
-    createFile (userId) {
+    createFile () {
+      console.log(this.fileDir())
       // let that = this
       fileSystemManager.stat({
-        path: wx.env.USER_DATA_PATH + '/chat' + userId,
+        path: this.fileDir(),
         success: res => {
-          console.log('目录存在', res)
+          console.log('目录存在', this.fileDir())
+          // fileSystemManager.rmdir({
+          //   dirPath: this.fileDir(),
+          //   success: function () {
+          //     console.log('删除目录成功')
+          //   }
+          // })
+          // this.mkDir(userId)
           // this.writeChatFile(userId)
         },
         fail: res => {
-          console.log('目录不存在', res)
-          this.mkDir(userId)
+          console.log('目录不存在', this.fileDir(), res)
+          this.mkDir()
         }
       })
     }
     // 创建聊天记录存储目录
-    mkDir (userId) {
+    mkDir () {
       fileSystemManager.mkdir({
-        dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+        dirPath: this.fileDir(),
         success (res) {
           console.log('创建目录成功')
           console.log(res)
@@ -251,13 +274,16 @@
       let data = JSON.stringify(str) + '\r\n\r\n'
       let userId = this.data.userInfo.userId
       let chatUserId = this.data.toId
+      let fileDir = this.fileChat()
+      // let fileDir = wx.env.USER_DATA_PATH +  '/test.txt'
+      console.log('文件目录')
       fileSystemManager.stat({
-        path: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+        path: fileDir,
         success: res => {
           console.log('文件存在', res)
           fileSystemManager.appendFile({
             // filePath: res.savedFilePath,
-            filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+            filePath: fileDir,
             data: data,
             encoding: 'utf8',
             success (res) {
@@ -269,7 +295,7 @@
           })
         },
         fail: res => {
-          console.log('文件不存在', res)
+          console.log('文件不存在', fileDir, res)
           /*
            * writeFile第一天消息无法写入，所以先新建文件，再appFile追加新消息
            *
@@ -277,20 +303,20 @@
            */
           fileSystemManager.writeFile({
             // filePath: res.savedFilePath,
-            filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
-            data: '',
+            filePath: fileDir,
+            data: '\r\n\r\n',
             encoding: 'utf8',
             success (res) {
               fileSystemManager.appendFile({
                 // filePath: res.savedFilePath,
-                filePath: wx.env.USER_DATA_PATH + '/chat' + userId + '/' + chatUserId + '.json',
+                filePath: fileDir,
                 data: data,
                 encoding: 'utf8',
                 success (res) {
-                  console.log('追加1', res)
+                  console.log('追加3', res)
                 },
                 fail (res) {
-                  console.log('追加2', res)
+                  console.log('追加4', res)
                 }
               })
             },
@@ -343,15 +369,15 @@
     readChatList () {
       let userId = this.data.userInfo.userId
       let path = this.data.toId + '.json'
-      this.getChatList(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path)
+      this.getChatList(this.fileDir() + '/' + path)
       // fileSystemManager.readdir({
-      //   dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+      //   dirPath: this.fileDir(),
       //   success: res => {
       //     console.log('递归', res)
       //     for (let path of res.files) {
       //       let chatId = path.split('.')[0]
       //       if (chatId === this.data.toId) {
-      //         this.getChatList(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path)
+      //         this.getChatList(this.fileDir() + '/' + path)
       //       }
       //     }
       //   }
@@ -376,7 +402,8 @@
     }
     init () {
       let userId = this.data.userInfo.userId
-      let url = 'ws://47.94.244.143:8899/demo/websck?sender=yue&receiver=ioio'
+      // let url = 'ws://47.94.244.143:8899/demo/websck?sender=yue&receiver=ioio'
+      let url = 'ws://192.168.21.37:9000?sendId=' + userId +'&receiveId=' + this.data.toId
       console.log(url)
       let socketTask = wx.connectSocket({
         url: url,
@@ -394,42 +421,55 @@
       // 穿件聊天记录存储本地文件
       this.createFile(userId)
       // 接受消息
-      wx.onSocketMessage((data) => {
+      socketTask.onMessage((data) => {
         console.log(data)
-        // let str = JSON.parse(data.data)
-        // /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
-        // if (str.from !== this.data.toId) {
-        //   addMsg({
-        //     sendId: str.from,
-        //     receiveId: userId,
-        //     msg: str.data,
-        //     time: str.time,
-        //     type: str.type
-        //   })
-        //   return
-        // }
-        // str.avatarUrl = this.data.toUserInfo.avatarUrl
-        // str.name = this.data.toUserInfo.name
-        // str.toAvatarUrl = this.data.userInfo.avatarUrl
-        // str.toNick = this.data.userInfo.nickName
-        // this.msgHandle(str)
+        let item = JSON.parse(data.data)
+        console.log(data, '接收到的消息')
+        let msg = {
+          data: item,
+          sendId: item.sendId,
+          receiveId: userId,
+          data: item,
+          time: item.time,
+          type: item.type
+        }
+        /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
+        if (item.sendId !== this.data.toId) {
+          // addMsg({
+          //   sendId: str.sendId,
+          //   receiveId: userId,
+          //   data: str,
+          //   time: str.time,
+          //   type: str.type
+          // })
+          return
+        }
+        msg.data.sendAvatar = this.data.toUserInfo.avatarUrl
+        msg.data.sendName = this.data.toUserInfo.name
+        msg.data.receiveAvatar = this.data.userInfo.avatarUrl
+        msg.data.receiveName = this.data.userInfo.name
+        this.msgHandle(msg)
       })
-      // getUserById({userId: this.data.toId}).then(res => {
-      //   console.log('聊天对象', res)
-      //   this.setData({
-      //     toUserInfo: res.data
-      //   })
-      //   wx.setNavigationBarTitle({
-      //     // title: res.data.name
-      //     title: '九妹'
-      //   })
-      // })
+      socketTask.onClose((data) => {
+        console.log('连接已关闭')
+      })
+      getUserById({userId: this.data.toId}).then(res => {
+        console.log('聊天对象', res)
+        this.setData({
+          toUserInfo: res.data
+        })
+        wx.setNavigationBarTitle({
+          // title: res.data.name
+          title: '九妹'
+        })
+      })
 
       let info = wx.getSystemInfoSync()
       this.setData({
         height: info.windowHeight
       })
-      // this.getUnreadMsg()
+      this.readChatList()
+      this.getUnreadMsg()
     }
     getUnreadMsg () {
       getUnreadMsg({
@@ -437,22 +477,21 @@
       }).then(res => {
         let msg = res.data
         for (let item of msg) {
-          debugger
+          item.data = JSON.parse(item.data)
           /** 将未读消息存储到本地 */
+          item.data.sendAvatar = this.data.toUserInfo.avatarUrl
+          item.data.sendName = this.data.toUserInfo.name
+          item.data.receiveAvatar = this.data.userInfo.avatarUrl
+          item.data.receiveName = this.data.userInfo.name
           this.msgHandle({
-            data: item.msg,
+            data: item.data,
             time: item.time,
             type: item.type,
-            from: this.data.toId,
-            to: this.data.userInfo.userId,
-            avatarUrl: this.data.toUserInfo.avatarUrl,
-            nick: this.data.toUserInfo.name,
-            toAvatarUrl: this.data.userInfo.avatarUrl,
-            toNick: this.data.userInfo.nickName
+            sendId: this.data.toId,
+            receiveId: this.data.userInfo.userId
           })
         }
         /** 获取未读消息 */
-        this.readChatList()
         console.log('获取用户未读消息')
         console.log(res)
       })
@@ -461,6 +500,18 @@
       this.setData({
         toId: opt.id
       })
+    }
+    onShow () {
+      let str = new Date(1563274550444.4082)
+      wx.showToast({
+        title: str.getFullYear() + '',
+        icon:'none'
+      })
+      // this.setData({
+      //   toId: opt.id
+      // })
+      console.log('show')
+      console.log(this.data)
       // let that = this
       getUserInfo().then((res) => {
         console.log('ceshi')
@@ -471,6 +522,14 @@
         this.init()
       })
 
+    }
+    onHide () {
+      console.log('hide')
+      this.data.socketTask.close()
+    }
+    onUnload () {
+      console.log('onUnload')
+      this.data.socketTask.close()
     }
   }
 </script>

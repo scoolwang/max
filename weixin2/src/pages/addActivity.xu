@@ -59,10 +59,14 @@
       </view>
     </view>
     <view>
-      <view class="title">活动封面</view>
+      <view class="title">图片</view>
       <view class="item cover-item">
-        <view class="upload-box" catchtap="upLoad">
-          <image class="upload-img" mode="scaleToFil" src="{{cover + '?imageView2/2/w/100/h/120'}}"></image>
+        <view class="img-show" wx:for="{{imgs}}">
+          <image bindload="imgLoad" data-idx="{{index}}" mode="aspectFill" src="{{item}}" />
+          <view class="del" catchtap="delImg" data-idx="{{index}}"><view class="iconfont icon-del-circle"></view></view>
+        </view>
+        <view class="select-area img-show" catchtap="upLoad" wx:if="{{imgs.length < 3}}">
+          <view class="iconfont icon-add"></view>
         </view>
       </view>
     </view>
@@ -75,12 +79,13 @@ import wexp from 'wexp/index'
 import { getUserInfo } from '../mixins/common'
 import {rootUrl} from '../mixins/config.js'
 import {addActivity} from '../mixins/api.js'
+import { uploadImg } from '../mixins/common'
 const qiniuUploader = require('../mixins/qiniuUploader')
 export default class Index extends wexp.page {
   config = {
     "navigationBarTitleText": "发布活动",
     "enablePullDownRefresh": false,
-    "backgroundTextStyle": "#333",
+    "backgroundTextStyle": "dark",
     "backgroundColor": "#eeeeee",
     "onReachBottomDistance": 50,
     "usingComponents": {
@@ -99,6 +104,8 @@ export default class Index extends wexp.page {
     limit: 200,
     desc: '',
     startTime: '',
+    imgs: [],
+    imgsList: [],
     params: {
       gameId: 1,
       startTime: '',
@@ -179,6 +186,26 @@ export default class Index extends wexp.page {
   }
 
   methods = {
+    /** 删除图片 */
+    delImg (e) {
+      let idx = e.currentTarget.dataset.idx
+      let imgs = this.data.imgs
+      imgs.splice(idx, 1)
+      this.setData({
+        imgs: imgs
+      })
+      console.log(imgs)
+    },
+    imgLoad (e) {
+      var width = e.detail.width,//图片宽度
+      height = e.detail.height
+      let idx = e.target.dataset.idx
+      let data = this.data.imgs
+      data[idx] += '?wh=' + width + ':' + height
+      this.setData({
+        imgsList: data
+      })
+    },
     descChange (b) {
       console.log(b)
       this.setData({
@@ -219,33 +246,44 @@ export default class Index extends wexp.page {
     },
     upLoad () {
       var that = this
-      // 初始化
-      var options = {
-        region: 'ECN', // 华东区
-        uptokenURL: rootUrl + '/api/upload/token',
-        domain: 'http://peqep4fsa.bkt.clouddn.com/',
-        shouldUseQiniuFileName: false
-      }
-      qiniuUploader.init(options)
-      // 选择图片
       wx.chooseImage({
-        count: 1,
+        count: 3 - this.data.imgs.length,
         success: function (res) {
           console.log(res)
-          var filePath = res.tempFilePaths[0]
-          console.log(res.tempFilePath)
+          var filePath = res.tempFilePaths
           // 交给七牛上传
           wx.showLoading({
             mask: true
           })
-          qiniuUploader.upload(filePath, (res) => {
-            that.setData({
-              cover: res.imageURL
-            })
+          let pmsList = []
+          for (let url of filePath) {
+            let pms = uploadImg(url)
+            pmsList.push(pms)
+          }
+          Promise.all(pmsList).then(function (e)  {
+            console.log(e, '参数')
+            let urls = []
+            for (let imgObj of e) {
+              console.log(imgObj)
+              urls.push(imgObj.imageUrl.imageURL)
+            }
             wx.hideLoading()
-          }, (error) => {
-            console.log('error: ' + error)
+            let imgs = that.data.imgs.concat(urls)
+            that.setData({
+              imgs: imgs
+            })
+
+            wx.hideLoading()
           })
+          // pms.then((resUp) => {
+          //   that.setData({
+          //     imgSrc: resUp.imageURL + '?imageView2/2/w/80/h/80'
+          //   })
+          //   wx.hideLoading()
+          //   console.log(res)
+          // }).catch(() => {
+          //   wx.hideLoading()
+          // })
         }
       })
     },
@@ -274,8 +312,8 @@ export default class Index extends wexp.page {
           return
         } else {
           startTime = this.data.date + ' ' + this.data.time
-          startTime = new Date(startTime).getTime() / 1000
-          const nowTime = new Date().getTime() / 1000
+          startTime = new Date(startTime).getTime()
+          const nowTime = new Date().getTime()
           if (nowTime > startTime) {
             wx.showToast({
               title: '发车时间不能早于当前时间',
@@ -289,7 +327,7 @@ export default class Index extends wexp.page {
         params: {
           startTime: startTime,
           // city: this.data.region[1] || '',
-          cover: this.data.cover,
+          cover: this.data.imgsList.join(','),
           desc: this.data.params.desc,
           seat: this.data.params.seat,
           gameId: this.data.params.gameId
@@ -305,9 +343,34 @@ export default class Index extends wexp.page {
   }
 }
 </script>
-<style >
+<style lang="less" >
   page {
     background: #f8f8f8;
+  }
+  .del {
+    position: absolute;
+    right: -8px;
+    top: -12px;
+
+    width: 20px;
+    height: 20px;
+    view {
+      font-size: 20px;
+      color: red;
+    }
+  }
+  .img-show {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin-right: 15px;
+    background: #fff;
+
+    image {
+      width: 100%;
+      height: 100%;
+
+    }
   }
   .title {
     margin: 15px 0;
@@ -356,8 +419,7 @@ export default class Index extends wexp.page {
     height: 120px;
   }
   .cover-item {
-    padding: 0;
-    justify-content: center;
+    padding: 20px 20px;
     align-items: center;
   }
   .primary-button {
@@ -427,4 +489,10 @@ export default class Index extends wexp.page {
     /*background-color: red;*/
     flex: none;
   }
+    .select-area {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f3f3f3;
+    }
 </style>

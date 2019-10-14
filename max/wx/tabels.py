@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sqlalchemy import Column, String, Float, create_engine, Integer, ForeignKey, Time
+from sqlalchemy import Column, String, Float, create_engine, Integer, ForeignKey, Time, BigInteger, Text,DateTime, TIMESTAMP
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -21,6 +21,7 @@ class User(Base):
     phone = Column(String(255), comment="手机号")
     city = Column(String(30), comment="所在城市")
     auth = Column(Integer, comment="认证状态")
+    age = Column(Integer, comment="年龄")
     account = Column(String(11), comment="账号，预留字段")
     avatarUrl = Column(String(30), comment="用户头像")
 
@@ -61,6 +62,7 @@ class Auth(Base):
     levelId = Column(Integer, ForeignKey("level.id"), comment="段位id")
     detail = Column(String(35), comment="技能介绍")
     ugameId = Column(String(35), comment="认证的游戏id")
+    createTime = Column(TIMESTAMP, comment="创建时间")
 
 # activity 发帖列表:
 class Activity(Base):
@@ -70,12 +72,12 @@ class Activity(Base):
     # 表的结构:
     id = Column(String(255), primary_key=True)
     userId = Column(String(255), ForeignKey("user.id"), comment="发贴人")
-    createTime = Column(Integer, comment="创建时间")
-    startTime = Column(Integer, comment="发车时间")
+    createTime = Column(TIMESTAMP, comment="创建时间")
+    startTime = Column(TIMESTAMP, comment="发车时间")
     detail = Column(String(200), comment="描述")
     seat = Column(Integer, comment="座位数")
     vacancy = Column(Integer, comment="空位")
-    cover = Column(String(200), comment="活动海报")
+    cover = Column(Text, comment="活动海报")
     gameId = Column(Integer, ForeignKey("game.id"), comment="游戏分类")
     user = relationship("User", backref="activity")
 
@@ -87,8 +89,8 @@ class Passenger(Base):
     # 表的结构:
     id = Column(String(255), primary_key=True)
     userId = Column(String(255), ForeignKey("user.id"), comment="乘客id")
-    createTime = Column(Float, comment="申请时间")
-    status = Column(Float, comment="状态: 1: 未同意；2: 已同意；3: 已拒绝")
+    createTime = Column(TIMESTAMP, comment="申请时间")
+    status = Column(Integer, comment="状态: 1: 未同意；2: 已同意；3: 已拒绝")
     activityId = Column(String(255), ForeignKey("activity.id"), comment="活动id")
     detail = Column(String(200), comment="留言")
 
@@ -102,9 +104,44 @@ class Message(Base):
     sendId = Column(String(255), ForeignKey("user.id"), comment="消息发送者ID")
     receiveId = Column(String(255), ForeignKey("user.id"), comment="消息接收者Id")
     msg = Column(String(255), comment="消息内容")
-    time = Column(Integer, comment="消息发送时间")
-    msgType = Column(Integer, comment="消息类型")
+    time = Column(TIMESTAMP, comment="消息发送时间")
+    msgType = Column(Integer, comment="消息类型 [1聊天；2系统；3上车消息]")
     status = Column(Integer, comment="消息状态: 1:未读；2:已读")
+
+# 评论:
+class Comment(Base):
+    # 表的名字:
+    __tablename__ = 'comment'
+
+    # 表的结构:
+    id = Column(String(255), primary_key=True)
+    activityId = Column(String(255),  comment="活动id")
+    userId = Column(String(255), comment="用户id")
+    content = Column(Text, comment="评论内容")
+    time = Column(TIMESTAMP, comment="评论时间")
+    userAvatarUrl = Column(String(255), comment="用户头像")
+    userName = Column(String(255), comment="用户昵称")
+    imgs = Column(Text, comment="上传图片")
+
+# 回复表:
+class Reply(Base):
+    # 表的名字:
+    __tablename__ = 'reply'
+
+    # 表的结构:
+    id = Column(String(255), primary_key=True)
+    activityId = Column(String(255),  comment="活动id")
+    userId = Column(String(255), comment="用户id")
+    userAvatarUrl = Column(String(255), comment="用户头像")
+    userName = Column(String(255), comment="用户昵称")
+    parentId = Column(String(255), comment="父级id")
+    replyCmtId = Column(String(255), comment="回复的子评论id")
+    content = Column(Text, comment="评论内容")
+    time = Column(TIMESTAMP, comment="评论时间")
+    toId = Column(String(255), comment="回复id")
+    toAvatarUrl = Column(String(255), comment="回复头像")
+    toName = Column(String(255), comment="回复昵称")
+
 engine = create_engine('mysql+mysqlconnector://root:wts123456@127.0.0.1:3306/pp')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)

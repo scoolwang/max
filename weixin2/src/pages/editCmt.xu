@@ -39,7 +39,7 @@
     config = {
       "navigationBarTitleText": "评论",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {

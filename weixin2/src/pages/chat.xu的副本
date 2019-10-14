@@ -108,7 +108,7 @@
     config = {
       "navigationBarTitleText": "聊天",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#f8f8f8",
       "onReachBottomDistance": 50,
       "usingComponents": {

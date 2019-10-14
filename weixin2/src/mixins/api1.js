@@ -1,4 +1,4 @@
-import {request} from './resource'
+import request from './resource'
 module.exports = {
   reg: (data) => {return request('api/register', data, 'POST')},
   login: (data) => {return request('api/login', data, 'POST')},
@@ -20,22 +20,8 @@ module.exports = {
   /** 获取用户token */
   getToken: (data) => {return request('server/authentication/app', data, 'POST')},
   /** 获取未读消息 */
-  // getUnreadMsg: (data) => {return request('demo/msg/findUnReadMsg', data, 'POST')},
-  getUnreadMsg: (data) => {return request('api/unread/msg', data, 'POST')},
+  getUnreadMsg: (data) => {return request('demo/msg/findUnReadMsg', data, 'POST')},
   /** 读消息 */
-  readMsg: (data) => {return request('demo/msg/setMsgReaded', data, 'POST')},
-  /** 获取系统消息 */
-  getSysMsg: (data) => {return request('api/sys/msg', data)},
-  getChatUnreadMsg: (data) => {return request('api/unread/chat/msg', data)},
-  /** 获取活动详情 */
-  getActivity: (data) => {return request('api/get/activity', data)},
-  /** 获取活动申请列表 */
-  getActivityUsers: (data) => {return request('api/get/activity/users', data)},
-  /** 修改乘客状态 */
-  editStatus: (data) => {return request('api/get/activity/status', data)},
-  addComment: (data) => {return request('api/add/comment', data, 'POST')},
-  getMsgToken: (data) => {return request('api/upload/token', data)},
-  getComment: (data) => {return request('api/get/comment', data)},
-  getReply: (data) => {return request('api/get/reply', data)}
+  readMsg: (data) => {return request('demo/msg/setMsgReaded', data, 'POST')}
 }
 

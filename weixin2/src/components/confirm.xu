@@ -48,7 +48,6 @@
     }
     ready () {
       console.log(this.data)
-      console.error('ready')
     }
     created () {
       console.log('created')

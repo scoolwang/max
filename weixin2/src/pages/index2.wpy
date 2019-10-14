@@ -81,7 +81,7 @@ export default class Index extends wexp.page {
   config = {
     "navigationBarTitleText": "发布活动",
     "enablePullDownRefresh": false,
-    "backgroundTextStyle": "#333",
+    "backgroundTextStyle": "dark",
     "backgroundColor": "#eeeeee",
     "onReachBottomDistance": 50,
     "usingComponents": {

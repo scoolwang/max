@@ -19,7 +19,6 @@
 
   export default class Index extends xupy.page{
     config = {
-      "navigationBarTitleText": "首页",
       "usingComponents": {
         "k-test": "../../components/test/index"
       }

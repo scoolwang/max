@@ -3,167 +3,127 @@
   <view class="cover-top">
     <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
     <view class="cover-bottom">
-      <text>今晚 8:30</text>
-      <text class="city">杭州</text>
+      <text>{{detail.startTime}}</text>
+      <!-- <text class="city">杭州</text> -->
     </view>
   </view>
   <view class="user">
     <view class="user-header">
-      <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      <image mode="aspectFill" src="{{detail.cover}}" alt="">
     </view>
     <view class="user-info">
       <view class="user-nick">
         <!-- <view class="level">
           <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
         </view> -->
-        <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+        <view class="nick-txt">{{detail.userName}}</view>
       </view>
       <view class="user-other">
-        <sex sex="1" age="12"></sex>
-        <view class="create-time">下午 4:30</view>
+        <sex sex="1" age="{{detail.age}}"></sex>
+        <view class="create-time">{{detail.createTime}}</view>
       </view>
     </view>
   </view>
-  <view class="detail">今晚勇士联赛 4=1</view>
+  <view class="detail">{{detail.detail}}{{tabData.selectedId}}</view>
 
   <view class="tab-list">
-    <k-tab id="tab" bindselect="tabSwitch"></k-tab>
+    <!-- <k-tab id="tab" bindselect="tabSwitch"></k-tab> -->
+    <tb  list="{{tabData.list}}" bindchange="tabSwitch" tab-active="{{tabData.selectedId}}"></tb>
   </view>
-  <view class="user-list" wx:if="{{tabData.selectedId===0}}">
+
+  <view class="user-list" wx:if="{{tabData.selectedId==1}}">
     <view class="bus-info">
       <view>
         <text class="iconfont icon-user"></text>
-        <text> 15</text>
+        <text> {{users.length}}</text>
       </view>
       <view>
         <text class="iconfont icon-bus"></text>
-        <text> 3/5</text>
+        <text> {{detail.seat - detail.vacancy}}/{{detail.seat}}</text>
       </view>
     </view>
-    <view class="item">
+    <view class="item"  wx:for="{{users}}" wx:key="{{index}}">
       <view class="user-item">
         <view class="user-header">
-          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+          <image mode="aspectFill" src="{{item.avatarUrl}}" alt="">
         </view>
         <view class="user-info">
           <view class="user-nick">
             <!-- <view class="level">
               <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
             </view> -->
-            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
-            <view class="status">
+            <view class="nick-txt">{{item.userName}}</view>
+            <view class="status" wx:if="{{item.status==2}}">
               <text class="iconfont icon-gou"></text>
               <text>已通过</text>
             </view>
-          </view>
-          <view class="user-other">
-            <sex sex="1" age="12"></sex>
-            <view class="create-time">ID: 467890987</view>
-          </view>
-        </view>
-      </view>
-      <view class="user-msg">小哥哥带带我，我很萌</view>
-    </view>
-    <view class="item">
-      <view class="user-item">
-        <view class="user-header">
-          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-        </view>
-        <view class="user-info">
-          <view class="user-nick">
-            <!-- <view class="level">
-              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
-            </view> -->
-            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
-            <view class="status fail-status">
+            <view class="status fail-status" wx:if="{{item.status==1}}">
               <text class="iconfont icon-close"></text>
               <text>未通过</text>
             </view>
+            <view wx:if="{{item.status==3 && detail.userId!=userId}}" class="status fail-status">
+              <!-- <text class="iconfont icon-close"></text> -->
+              <text>待审核</text>
+            </view>
+
           </view>
           <view class="user-other">
-            <sex sex="1" age="12"></sex>
-            <view class="create-time">ID: 467890987</view>
+            <sex sex="{{item.sex}}" age="{{item.age}}"></sex>
+            <!-- <view class="create-time">ID: 467890987</view> -->
+          </view>
+        </view>
+        <view  wx:if="{{item.status==3 && detail.userId==userId}}" class="button-box">
+          <view class="button-box" bindtap="reject" data-userid="{{item.userId}}"  data-idx="{{index}}">
+            <view class="button reject-btn">拒绝</view>
+          </view>
+          <view class="button-box" bindtap="agree"  data-idx="{{index}}" data-userid="{{item.userId}}">
+            <view class="button">同意</view>
           </view>
         </view>
       </view>
-      <view class="user-msg">小哥哥带带我，我很萌</view>
-    </view>
-    <view class="item">
-      <view class="user-item">
-        <view class="user-header">
-          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-        </view>
-        <view class="user-info">
-          <view class="user-nick">
-            <!-- <view class="level">
-              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
-            </view> -->
-            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
-          </view>
-          <view class="user-other">
-            <sex sex="1" age="12"></sex>
-          </view>
-        </view>
-        <view class="button-box">
-          <view class="button">同意上车</view>
-        </view>
-      </view>
-      <view class="user-msg">小哥哥带带我，我很萌</view>
-    </view>
-    <view class="item">
-      <view class="user-item">
-        <view class="user-header">
-          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-        </view>
-        <view class="user-info">
-          <view class="user-nick">
-            <!-- <view class="level">
-              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
-            </view> -->
-            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
-          </view>
-          <view class="user-other">
-            <sex sex="1" age="12"></sex>
-          </view>
-        </view>
-        <view class="button-box">
-          <view class="button reject-btn">拒绝上车</view>
-        </view>
-      </view>
-      <view class="user-msg">小哥哥带带我，我很萌</view>
+      <view class="user-msg">{{item.detail}}</view>
     </view>
   </view>
-  <view class="comment-list" wx:if="{{tabData.selectedId===1}}">
-    <view class="item">
-      <view class="user-item">
+  <view class="comment-list" wx:if="{{tabData.selectedId==0}}">
+    <view class="item" wx:for="{{comments}}" wx:key="{{index}}">
+      <view class="user-item" bindtap="replyParent" data-obj="{{item}}" data-idx="{{index}}">
         <view class="user-header">
-          <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+          <image mode="scaleToFill" src="{{item.userAvatarUrl}}" alt="">
         </view>
         <view class="user-info">
           <view class="user-nick">
-            <!-- <view class="level">
-              <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
-            </view> -->
-            <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
+            <view class="nick-txt">{{item.userName}}</view>
           </view>
           <view class="user-other">
-            <sex sex="1" age="12"></sex>
-            <view class="create-time">2018-10-1 8:00</view>
+            <!-- <sex sex="1" age="12"></sex> -->
+            <view class="create-time">{{item.time}}</view>
           </view>
         </view>
       </view>
-      <view class="user-msg">小哥哥真大腿</view>
+      <view class="user-msg">
+        <view class="content-txt">{{item.content}}</view>
+        <view class="content-img" wx:for="{{item.imgs}}" wx:key="{{imgsIdx}}" wx:for-item="itemImgs" wx:for-index="imgsIdx">
+          <image bindtap="showImgs" data-imgs="{{item.imgs}}" data-idx="{{imgsIdx}}" mode="widthFix" src="{{itemImgs.url}}" style="width: {{itemImgs.width+'px'}}"   alt="" />
+        </view>
+
+      </view>
+      <view class="reply-list" wx:if="{{item.reply.length > 0}}">
+        <view class="reply-item" bindtap="replyParent" data-obj="{{replyItem}}" data-idx="{{index}}"  wx:for="{{item.reply}}" wx:key="{{index}}" wx:for-item="replyItem" wx:for-index="idx">
+          <text class="nick">{{replyItem.userName}}</text><text wx:if="{{replyItem.toId!=replyItem.userId}}"class="tag">回复</text><text class="nick" wx:if="{{replyItem.toId!=replyItem.userId}}">{{replyItem.toName}}</text><text class="tag">:</text><text class="reply-content">{{replyItem.content}}</text><text class="tag">{{replyItem.time}}</text>
+        </view>
+        <view class="more" wx:if="{{item.replyTotal > 0}}"><text data-id="{{item.id}}" data-idx="{{index}}" bindtap="getReply">查看更多</text></view>
+      </view>
     </view>
-    <view class="item">
+    <!-- <view class="item">
       <view class="user-item">
         <view class="user-header">
           <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
         </view>
         <view class="user-info">
           <view class="user-nick">
-            <!-- <view class="level">
+            <view class="level">
               <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
-            </view> -->
+            </view>
             <view class="nick-txt">九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹</view>
           </view>
           <view class="user-other">
@@ -173,17 +133,185 @@
         </view>
       </view>
       <view class="user-msg">小姐姐人美声甜技术好</view>
+    </view> -->
+    <view class="mask" catchtouchmove="coverTouch" wx:if="{{replyIng}}" bindtap="closeReply"></view>
+    <view catchtap="coverTouch" class="reply-box {{replyIng==true?'reply-open':''}}">
+      <view class="reply-inner" wx:if="{{parentId}}">{{replyMap.content}}</view>
+      <view  class="area" catchtap="reply">
+
+        <input confirm-type="send" value="{{content}}" focus="{{replyIng}}" bindinput="inputChang" show-confirm-bar="{{false}}" cursor-spacing="245" fixed placeholder="{{replyName? '回复 '+replyName : '回复楼主'}}" placeholder-class="textarea-holder" class="reply-area"  />
+        <view class="btn" wx:if="{{replyIng}}" catchtap="commentSubmit">发送</view>
+      </view>
+
+      <scroll-view class="select" wx:if="{{replyIng&&!parentId}}" scroll-x="{{true}}"  scroll-y="{{false}}" previous-margin="20px" next-margin="20px">
+        <view class="scroll-inner" style="width: {{(imgs.length + 1) * 66}}px">
+        <!-- <block> -->
+            <view class="img-show" wx:for="{{imgs}}" wx:key="{{index}}}">
+              <image bindload="imgLoad" data-idx="{{index}}" mode="aspectFill" src="{{item}}" />
+              <view class="del" catchtap="delImg" data-idx="{{index}}"><view class="iconfont icon-del-circle"></view></view>
+            </view>
+
+        <!-- </block> -->
+
+            <view class="select-area img-show" bindtap="uploadImg">
+              <view class="iconfont icon-add"></view>
+            </view>
+
+        </view>
+
+      </scroll-view>
     </view>
+
   </view>
+
 </view>
 
 </template>
 <style lang="less">
   page {
-    background: #fafafa;
+    background: #f8f8f8;
+  }
+  .reply-list {
+    background: #F6F6F6;
+    margin: 0 10px;
+    padding: 10px;
+    border-radius: 5px;
+    .nick {
+      font-size: 12px;
+      color: #4A90E2;
+    }
+    .tag {
+      color: #AAAAAA;
+      font-size: 12px;
+      padding: 0 5px;
+    }
+    .reply-content {
+      font-size: 12px;
+      color: #000;
+
+
+    }
+
+    .reply-item {
+      margin-bottom: 10px;
+      line-height: 18px;
+    }
+    .more {
+      font-size:12px;
+      color: #4A90E2;
+      text-align: right;
+    }
+  }
+  .comment-list {
+    padding-bottom: 100px;
+    background: #F3F3F3;
+    .reply-inner {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      font-size: 12px;
+      padding-bottom: 8px;
+      color: #989898;
+    }
+  }
+  .scroll-inner {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
+  .textarea-holder, .placeholder-text {
+    color: #9B9B9B;
+    font-size: 14px;
+  }
+
+  .mask {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background:rgba(65,63,63,0.3);
+  }
+  .reply-box {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #F4F4F4;
+    padding: 15px 15px;
+    .select {
+      height: 83px;
+      position: relative;
+      margin-right: 20px;
+    }
+    .del {
+      position: absolute;
+      right: -8px;
+      top: -12px;
+
+      width: 20px;
+      height: 20px;
+      view {
+        font-size: 20px;
+        color: red;
+      }
+    }
+    .img-show {
+      width: 45px;
+      height: 45px;
+      position: relative;
+      top: 20px;
+      margin-right: 15px;
+      background: #fff;
+
+      image {
+        width: 100%;
+        height: 100%;
+
+      }
+    }
+    .reply-area {
+      background: #fff;
+      height: 30px;
+      font-size: 16px;
+      width: 100%;
+      line-height: 30px;
+      position: relative;
+      height: 40px;
+      line-height: 40px;
+      margin-right: 10px;
+      margin-left: 10px;
+    }
+    .area {
+      background: #fff;
+      border-radius: 5px;
+      display: flex;
+    }
+    .btn {
+      background: #4A90E2;
+      color: #fff;
+      width: 50px;
+      font-size: 14px;
+      line-height: 40px;
+      text-align: center;
+    }
+    .reply-area {
+
+    }
+    .select-area {
+      width: 45px;
+      height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  .reply-open {
   }
   .tab-list {
     margin: 15px 0;
+    background: #fff;
   }
   .bus-info {
     display: flex;
@@ -195,14 +323,17 @@
       color:rgba(155,155,155,1)
     }
   }
+  .button-box {
+    display: flex;
+  }
   .user-item {
     display: flex;
     padding: 15px 10px;
     background: #fff;
     border-bottom: 1px solid rgba(237,237,237,1);
     .user-header {
-      height: 40px;
-      width: 40px;
+      height: 50px;
+      width: 50px;
 
       image {
         width: 100%;
@@ -256,6 +387,7 @@
   .item {
     background: #fff;
     margin-bottom: 15px;
+    padding-bottom: 15px;
     .button {
       height:25px;
       background:rgba(124,201,134,1);
@@ -298,10 +430,12 @@
     }
     .user-msg {
       padding: 10px;
-      font-size:12px;
+      font-size:14px;
       font-family:PingFangSC-Light;
       font-weight:300;
-      color:rgba(155,155,155,1);
+      .content-txt {
+        margin-bottom: 10px;
+      }
     }
   }
   .cover-top {
@@ -402,19 +536,25 @@
 <script>
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
+  import {formatTime, getUserInfo} from '../mixins/common.js'
+  import {getActivity, getActivityUsers, editStatus, addComment, getComment, getReply} from '../mixins/api.js'
+  import { uploadImg, uploadVoid } from '../mixins/common'
+  let activityId = ''
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "活动",
-      "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "enablePullDownRefresh": true,
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {
         "sex": "../components/sex",
+        "tb": "../components/tab",
         "k-tab": "kai-ui/tab/index"
       }
     }
     data = {
+      userId: '',
       tabData: {
         selectedId: 0,
         scroll: false,
@@ -422,26 +562,381 @@
         list: [
           {
             id: 0,
-            title: '成员'
+            title: '评价'
           },
           {
             id: 1,
-            title: '评价'
+            title: '成员'
           }
         ]
-      }
+      },
+      detail: {},
+      users: [],
+      comments: [],
+      replyIng: false,
+      replyClass: '3333',
+      imgs: [
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
+        // 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg'
+      ],
+      imgsList: [],
+      content: '',
+      focus: false,
+      parentId: '', // 回复某一条评论的id
+      toId: '', // 回复的用户id
+      replyName: '',
+      content: '',
+      replyIdx: 0,
+      userInfo: '',
+      replyMap: '',
+      page: 1,
+      pageSize: 2,
+      hasMore: true, // 是否有更多
+      activityId: '' // 活动id
     }
     methods = {
+      showImgs (e) {
+        let urls = e.target.dataset.imgs
+        let idx = e.target.dataset.idx
+        let arry = []
+        for (let item of urls) {
+          arry.push(item.url)
+        }
+        wx.previewImage({
+          urls: arry,
+          current: arry[idx]
+        })
+      },
+      imgLoad (e) {
+        var width = e.detail.width,//图片宽度
+        height = e.detail.height
+        let idx = e.target.dataset.idx
+        let data = this.data.imgs
+        data[idx] += '?wh=' + width + ':' + height
+        this.setData({
+          imgsList: data
+        })
+      },
+      coverTouch () {
+      },
       tabSwitch (arg) {
+        console.log(arg.detail)
         this.setData({
           'tabData.selectedId': arg.detail
         })
-        console.log('tab', arg)
+      },
+      reply () {
+        this.setData({
+          replyIng: true
+        })
+      },
+      replyParent (e) {
+        let obj = e.currentTarget.dataset.obj
+        this.setData({
+          replyIng: true,
+          parentId: obj.parentId || obj.id,
+          toId: obj.userId,
+          replyName: obj.userName,
+          replyIdx: e.currentTarget.dataset.idx,
+          replyMap: obj
+        })
+      },
+      closeReply () {
+        this.setData({
+          replyIng: false,
+          parentId: '',
+          replyName: ''
+        })
+      },
+      agree (e) {
+        editStatus({
+          userId: e.currentTarget.dataset.userid,
+          activityId: activityId,
+          status: 2
+        }).then(res => {
+          if (res.code !== '200') {
+            wx.showToast({
+              title:  res.message,
+              icon: 'none'
+            })
+            return
+          }
+          let data = this.data.users
+          let idx = e.currentTarget.dataset.idx
+          data[idx].status = 2
+          this.setData({
+            users: data,
+            'detail.vacancy': this.data.detail.vacancy - 1
+          })
+        })
+
+      },
+      reject (e) {
+        editStatus({
+          userId: e.currentTarget.dataset.userid,
+          activityId: activityId,
+          status: 1
+        }).then(res => {
+          if (res.code !== '200') {
+            wx.showToast({
+              title:  res.message,
+              icon: 'none'
+            })
+            return
+          }
+          let data = this.data.users
+          let idx = e.currentTarget.dataset.idx
+          data[idx].status = 1
+          this.setData({
+            users: data
+          })
+        })
+      },
+      /** 上传图片 */
+      uploadImg () {
+        let that = this
+        // 选择图片
+        wx.chooseImage({
+          count: 9,
+          success: function (res) {
+            console.log(res)
+            var filePath = res.tempFilePaths
+            // 交给七牛上传
+            wx.showLoading({
+              mask: true
+            })
+            let pmsList = []
+            for (let url of filePath) {
+              let pms = uploadImg(url)
+              pmsList.push(pms)
+            }
+            Promise.all(pmsList).then(function (e)  {
+              console.log(e, '参数')
+              let urls = []
+              for (let imgObj of e) {
+                console.log(imgObj)
+                urls.push(imgObj.imageUrl.imageURL)
+              }
+              wx.hideLoading()
+              let imgs = that.data.imgs.concat(urls)
+              that.setData({
+                imgs: imgs
+              })
+
+              wx.hideLoading()
+            })
+            // pms.then((resUp) => {
+            //   that.setData({
+            //     imgSrc: resUp.imageURL + '?imageView2/2/w/80/h/80'
+            //   })
+            //   wx.hideLoading()
+            //   console.log(res)
+            // }).catch(() => {
+            //   wx.hideLoading()
+            // })
+          }
+        })
+      },
+      /** 删除图片 */
+      delImg (e) {
+        let idx = e.currentTarget.dataset.idx
+        let imgs = this.data.imgs
+        imgs.splice(idx, 1)
+        this.setData({
+          imgs: imgs,
+          focus: true
+        })
+        console.log(imgs)
+      },
+      inputChang (arg) {
+        let content = arg.detail.value
+        this.setData({
+          content: content
+        })
+      },
+      /** 提交 */
+      commentSubmit () {
+        let imgs = this.data.imgsList
+        let params = {}
+        let parentId = this.data.parentId
+        let toId = this.data.toId
+        if (this.data.content.length <=0 && imgs.length <= 0) {
+          this.setData({
+            replyIng: false,
+            parentId: '',
+            replyName: ''
+          })
+          return
+        }
+        wx.showLoading({
+          mask: true
+        })
+        imgs = imgs.join(';')
+        console.log(imgs)
+        if (!parentId) {
+          params = {
+            content: this.data.content,
+            imgs: imgs,
+            activityId: activityId,
+            parentId: '',
+            replyCmtId: this.data.replyMap.id
+          }
+        } else {
+          params = {
+            content: this.data.content,
+            imgs: imgs,
+            activityId: activityId,
+            parentId: parentId,
+            toId: toId
+          }
+        }
+        addComment(params).then((res) => {
+          let comments = this.data.comments
+          params.userName = this.data.userInfo.nickName
+          params.userId = this.data.userInfo.userId
+          params.userAvatarUrl = this.data.userInfo.avatarUrl
+          params.time = new Date().getTime()
+          if (parentId) {
+            let replyIdx = this.data.replyIdx
+            params.toName = this.data.replyName
+            params = this.formatData([params])[0]
+            params.time = '1秒前'
+            comments[replyIdx].reply.push(params)
+          } else {
+            params = this.formatData([params])[0]
+            params.time = '1秒前'
+            comments.push(params)
+          }
+          this.setData({
+            comments: comments,
+            replyIng: false,
+            parentId: '',
+            replyName: '',
+            content: ''
+          })
+          wx.hideLoading()
+        })
+
+      },
+      getReply (e) {
+        let id = e.currentTarget.dataset.id
+        let idx = e.currentTarget.dataset.idx
+        getReply({
+          commentId: id
+        }).then(res => {
+          let reply = this.formatData(res.data)
+          let list = this.data.comments
+          list[idx].reply = reply
+          list[idx].replyTotal = 0
+          this.setData({
+            comments: list
+          })
+        })
       }
     }
+    onPullDownRefresh () {
+      console.log('下拉刷新')
+      this.refresh(true)
+    }
+    onReachBottom () {
+      console.log('上拉加载')
+      this.setData({
+        loadMore: true
+      })
+      if (this.data.hasMore) {
+        this.refresh()
+      }
+    }
+    formatData (data) {
+      for (let item of data) {
+        item.time = formatTime(item.time)
 
-    onLoad () {
-      Tab._init('#tab', this.data.tabData)
+        console.log(params)
+        let imgs = item.imgs ? item.imgs.split(';') : []
+        for (let idx in imgs) {
+          let url = imgs[idx]
+          var params = {}
+          url.replace(/([^?&]+)=([^&]+)/g, (_,k,v) => params[k]=v)
+          let wh = params.wh ? params.wh.split(':') : []
+          let width = wh[0]
+          let screen = wx.getSystemInfoSync().windowWidth - 20
+          width = width > screen ? screen : width
+          imgs[idx] = {
+            url: url,
+            width: width
+          }
+        }
+        item.imgs = imgs
+      }
+      return data
+    }
+    refresh (isReload) {
+      let page = this.data.page
+      if (isReload) {
+        this.setData({
+          page: 1
+        })
+        page = 1
+      } else {
+        page +=1
+      }
+
+      getComment({
+        activityId: this.data.activityId,
+        page: this.data.page,
+        pageSize: this.data.pageSize
+      }).then((res) => {
+        let data = res.data
+        for (let item of data) {
+          item.reply = this.formatData(item.reply)
+        }
+        data = this.formatData(data)
+        this.setData({
+          comments: this.data.comments.concat(data),
+          loadMore: false
+        })
+        this.setData({
+          page: page,
+          hasMore: this.data.comments.length < res.total
+        })
+      })
+    }
+    onLoad (opt) {
+      // Tab._init('#tab', this.data.tabData)
+      activityId = opt.id
+      // activityId = 'bbe83a64-d82b-11e9-b1bf-dca9047ef1f4'
+      this.setData({
+        activityId: activityId
+      })
+      this.refresh()
+      getActivity({
+        id: activityId
+      }).then((res) => {
+        let data = res.data
+        data.startTime = formatTime(data.startTime)
+        data.createTime = formatTime(data.createTime)
+        this.setData({
+          detail: data
+        })
+      })
+      getActivityUsers({
+        id: activityId
+      }).then((res) => {
+        this.setData({
+          users: res.data
+        })
+      })
+      getUserInfo().then(res => {
+        console.log(res)
+        this.setData({
+          userId: res.userId,
+          userInfo: res
+        })
+      })
     }
   }
 </script>

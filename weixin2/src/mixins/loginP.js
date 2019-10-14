@@ -2,6 +2,7 @@
 import * as config from './config.js'
 import * as api from './api.js'
 import {getUserInfo} from './common.js'
+console.log('api方法', api)
 function login () {
   let pms = new Promise((resolve, reject) => {
     wx.cloud.callFunction({
@@ -37,10 +38,8 @@ function loginValid (res) {
        /** 登录用户未注册，进行注册 */
       if (res.code === '901') {
         getUserInfo().then((userInfo) => {
-          console.log('用户信息', userInfo)
           api.reg({
             name: userInfo.nickName,
-            avatarUrl: userInfo.avatarUrl,
             openId: openid
           }).then((res) => {
             /** 注册成功更新用户信息 */

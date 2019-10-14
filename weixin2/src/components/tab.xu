@@ -1,0 +1,123 @@
+<template>
+  <view class="tab" id="tabs">
+    <view wx:for="{{list}}">
+      <text bindtap="tabChang"  data-key="{{item.id}}" id="{{'tab'+item.id}}" class="dog-tab {{tabActive==item.id?'active' : ''}}">{{item.title}}</text>
+    </view>
+
+    <!-- <text bindtap="tabChang" data-key="cat" class="mall-tab {{tabActive=='cat'?'active' : ''}}">猫猫</text> -->
+    <view animation="{{animationData}}" style="left: {{intLeft}}px" class="border"></view>
+    <!-- <k-tab custom-class="tab-box" custom-tab-active-class="tab-select"  custom-border-class="tab-border" id="tab"/> -->
+  </view>
+</template>
+<script>
+  import wexp from 'wexp/index'
+  export default class VoidItem extends wexp.component {
+    config = {
+      "component": true
+    }
+    properties = {
+      list: {
+        type: Array,
+        default: [{
+          id: 1,
+          title: '评价'
+        }, {
+          id: 2,
+          title: '评价评价评价'
+        }]
+      },
+      tabActive: {
+        default: 1,
+        type: Number | String
+      }
+    }
+    externalClasses = ['custom-class']
+
+    options = {
+      multipleSlots: true
+    }
+    data = {
+      showModal: true,
+      tabs: [],
+
+      animationData: {},
+
+      intLeft: 0
+    }
+    methods = {
+      tabChang (event) {
+        let tab = event.target.dataset.key
+        let ary = []
+        let that = this
+        that.createSelectorQuery().in(this).select('#tab' + tab).boundingClientRect(function(rect){
+          let w =  rect.width
+          let left = rect.left + ((w - 30) / 2)
+          that.animation.left(left).step()
+          that.setData({
+            animationData:  that.animation.export()
+          })
+        }).exec()
+        this.setData({
+          tabActive: tab
+        })
+        this.triggerEvent('change', tab)
+      }
+    }
+    ready () {
+      let that = this
+      that.createSelectorQuery().in(this).select('.active').boundingClientRect(function(rect){
+        let w =  rect.width
+        let left = rect.left + ((w - 30) / 2)
+        that.setData({
+          intLeft: left
+        })
+      }).exec()
+      console.log('ready')
+    }
+    attached () {
+      console.log('attached')
+    }
+    created () {
+      let animation = wx.createAnimation({
+        duration: 500,
+        timingFunction: 'ease-in-out'
+      })
+      this.animation = animation
+
+    }
+  }
+</script>
+<style lang="less">
+  .tab {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    display: flex;
+
+    .border {
+      position: absolute;
+      height: 2px;
+      background-color:#EA6828;
+      width: 30px;
+      transition: all 0.3s;
+      bottom: 0;
+      left: 0;
+    }
+    >view {
+      flex:  1;
+      text-align: center;
+    }
+    text {
+      width: 30px;
+      text-align: center;
+      line-height: 53px;
+      font-size:14px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(85,83,83,1);
+    }
+    .active {
+      color: #EA6828;
+    }
+  }
+</style>

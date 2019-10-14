@@ -3,30 +3,43 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.core import serializers
-from wx import models, upload, loginReg, sqlUser, sqlActivity, sqlAuth
+from wx import models, upload, loginReg, sqlUser, sqlActivity, sqlAuth, sqlMsg
 from wx import socket1
 from wx.sqlCommon import getUserByToken, returnFormat
+from wx.sqlConnect import session
 # from wx import upload
 import json
 socket1.on()
 def action (request, sqlFn, isValidAuth=1):
-  print('签名')
-  print(request.META.get("HTTP_AUTH"))
+  # print('签名', request.META.get("HTTP_ACCESS_TOKEN"))
+  # print('签名2', request.META.get("HTTP_CLIENT"))
+  # print(request.META.get("HTTP_ACCESS_TOKEN"))
   if request.method == 'GET' :
     params = request.GET.dict()
   else:
     params = json.loads(request.body)
 
+  # print('签名2', params)
   if isValidAuth == 1:
-      auth = request.META.get("HTTP_AUTH")
-      sqlReuslt = getUserByToken(auth)
-      if sqlReuslt == 1 or sqlReuslt == 3:
+      auth = request.META.get("HTTP_ACCESS_TOKEN")
+      print('获取token', auth)
+      sqlReuslt = getUserByToken(auth, params['openId'])
+      if sqlReuslt == '1' or sqlReuslt == '2':
         sqlReuslt = returnFormat('', 'token无效', '701')
       else:
+        # print(sqlReuslt['id'], '用户id')
+        # try:
         sqlReuslt = sqlFn(params, sqlReuslt)
+        # except Exception as e:
+        # print('mysql异常', e)
+        # session.rollback()
+
   else:
     sqlReuslt = sqlFn(params)
 
+  # print('***********返回数据start***************')
+  # print(json.dumps(sqlReuslt, ensure_ascii=False))
+  # print('***********返回数据end***************')
   return HttpResponse(json.dumps(sqlReuslt, ensure_ascii=False), content_type='application/json; charset=utf-8')
   # return HttpResponse(sqlReuslt, content_type='application/json; charset=utf-8')
 
@@ -46,7 +59,7 @@ def joinActivity(request):
   return action(request, sqlActivity.joinActivity)
 
 def uploadToken(request):
-  return action(request, upload.upload)
+  return action(request, upload.upload, 0)
 
 def addActivity(request):
   return action(request, sqlActivity.addActivity)
@@ -67,13 +80,40 @@ def index1(request):
     return render(request, 'index1.html')
 
 def getMsg(request):
-  return action(request, models.getMsg)
+  return action(request, sqlMsg.getMsg)
 
 def readMsg(request):
   return action(request, models.readChatMsg)
 
 def getUnReadMsg(request):
-  return action(request, models.getUnReadMsgByUser)
+  return action(request, sqlMsg.getUnReadMsgByUser)
 
 def addMsg(request):
   return action(request, models.addMsg)
+
+def getSysMsg(request):
+  return action(request, sqlMsg.getSysMsg)
+
+def getChatUnreadMsg(request):
+  return action(request, sqlMsg.getChatUnreadMsg)
+
+def activityDetail(request):
+  return action(request, sqlActivity.activityDetail)
+
+def getActivityUsers(request):
+  return action(request, sqlActivity.getActivityUsers)
+
+def editStatus(request):
+  return action(request, sqlActivity.editStatus)
+
+def addComment(request):
+  return action(request, sqlActivity.addComment)
+
+def getComment(request):
+  return action(request, sqlActivity.getComment)
+
+def load(request):
+  return action(request, upload.load, 0)
+
+def getReply(request):
+  return action(request, sqlActivity.getReply)

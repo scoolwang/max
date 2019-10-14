@@ -18,9 +18,10 @@ import time
 import base64
 import hmac
 import uuid
-from wx.sqlConnect import session
+from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
-
+db = sqlConnect.DbMgr()
+session = db.session
 def sql_result_to_json(result):
   if type(result) is dict:
       return result.to_dict()
@@ -45,11 +46,12 @@ def auth (arg, userInfo):
   sex = int(arg['sex'])
   authId = str(uuid.uuid1())
   print('用户信息', userInfo)
-  userId = userInfo.id
+  userId = userInfo['id']
+  createTime = datetime.datetime.now()
   # sql = 'insert into auth (id, userId, gameId, voidSrc, gameImg, sex, age) values ("%s", "%s", "%d", "%s", "%s", "%s", "%s")' % (authId, userId, gameId, voidSrc, gameImg, sex, age)
   # print(sql)
   # results = runSql(sql)
-  row = t_auth(id=authId, gameId=gameId, voidSrc=voidSrc, detail=detail, gameImg=gameImg, sex=sex, status=0, levelId=levelId, userId=userId)
+  row = t_auth(id=authId, gameId=gameId, voidSrc=voidSrc, detail=detail, gameImg=gameImg, sex=sex, status=0, levelId=levelId, userId=userId, createTime=createTime)
   session.add(row)
   session.commit()
   session.close()

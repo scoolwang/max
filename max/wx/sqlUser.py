@@ -15,15 +15,18 @@ import time
 import base64
 import hmac
 import uuid
-from wx.sqlConnect import session
+# from wx.sqlConnect import session
+from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
-
+db = sqlConnect.DbMgr()
+session = db.session
 
 # 获取用户信息
 def getUser (arg):
   openId = arg['openId']
   tokenGet = arg['token']
   results = session.query(t_user).filter(t_user.openId==openId).all()
+  session.close()
   if len(results) == 0 :
     results = False
   else:
@@ -50,30 +53,40 @@ def getUser (arg):
 
 # 根据id获取用户信息
 def getUserById (arg, userInfo):
-  tokenGet = arg['token']
+  print('用户信心token', userInfo)
   userId = arg['userId']
-  userInfo = getUserByToken(tokenGet)
   # sql2 = 'select * from user where id="%s"' % (userId)
   results = session.query(t_user).filter(t_user.id==userId).all()
-  session.close()
+  print('用户信息', results)
   if userInfo == '1' or userInfo == '2':
     return returnFormat('', 'token无效', '701')
 
-  if len(results2) == 0 :
-    results2 = False
+  if len(results) == 0 :
+    results = False
   else:
-    results2 = results2[0]
-
-  if not results2 :
+    arry = []
+    dic = {
+      'id': fields.String,
+      'name': fields.String,
+      'openId': fields.String,
+      'token': fields.String,
+      'phone': fields.String,
+      'city': fields.String,
+      'auth': fields.String,
+      'avatarUrl': fields.String,
+      'age': fields.String
+    }
+    for item in results:
+      print('用户信息', item.id)
+      arry.append(item)
+    results =  marshal(arry, dic)
+    results = results[0]
+    print('用户信息', results)
+  session.close()
+  if not results :
     return returnFormat('', '用户不存在', '901')
-  return returnFormat(results2)
+  return returnFormat(results)
 
-
-
-
-
-
-
-
-
-
+# 获取游戏认证状态
+def gameStatus (arg, userInfo):
+  userId = userInfo['id']

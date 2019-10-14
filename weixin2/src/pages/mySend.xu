@@ -182,7 +182,7 @@
     config = {
       "navigationBarTitleText": "我的申请",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {

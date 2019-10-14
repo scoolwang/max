@@ -25,33 +25,36 @@ exports.main = async (event, context) => {
   if (mint < 10) {
     mint = '0' + mint
   }
-  iv = year + '-' + month + '-' + date + '-' + hour + ':' + hour
+  // iv = year + '-' + month + '-' + date + '-' + hour + ':' + hour
+  iv = 'abcdefg123456789'
   // var key = new Buffer(se, 'base64').toString('hex')
-  console.log('便宜量',iv)
-  // var data = wxContext.OPENID + iv + key
-  var data = '123456'
+  console.log('便宜量', event.token)
+  var data = wxContext.OPENID + event.token
+  console.log(data, '加密字符串')
+  // var data = '123456'
   var client = 'wxe37b540617a53b3a:' + '30bb58edaaa9f9ab979c8e7d121d4bbe'
-  var cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
+  var cipher = crypto.createCipheriv('aes-128-cbc', key, iv)
   cipher.setAutoPadding(true)
   var crypted = cipher.update(data, 'utf8', 'hex')
-  var clientStr = cipher.update(client, 'utf8', 'hex')
   var up = crypted
+  // var tt = cipher.final('hex')
+  console.log('final')
   crypted += cipher.final('hex')
-  clientStr += cipher.final('hex')
 
   var md5 = crypto.createHash('md5')
 
   var ss = md5.update('openid' + iv + key)
   var sign = ss.digest('hex')
+  console.log('token', crypted)
+  console.log('clientStr', crypted)
   // crypted = new Buffer(crypted, 'hex').toString('base64');
   return {
-    str: crypted,
     data: data,
     key: key,
     iv: iv,
     token: crypted,
     sign: sign,
-    clientStr: clientStr,
+    // clientStr: clientStr,
     openid: wxContext.OPENID
   }
 }

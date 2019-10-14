@@ -388,7 +388,7 @@ export default class extends wexp.page {
   config = {
     "navigationBarTitleText": "发布活动",
     "enablePullDownRefresh": false,
-    "backgroundTextStyle": "#333",
+    "backgroundTextStyle": "dark",
     "backgroundColor": "#f8f8f8",
     "onReachBottomDistance": 50,
     "usingComponents": {
@@ -404,8 +404,10 @@ export default class extends wexp.page {
     voidStatus: 0,
     showModal: false,
     imgSrc: 'http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg',
-    sex: 1,
-    level: 1,
+    sex: '男',
+    sexId: 1,
+    level: '卫士',
+    levelId: 1,
     desc: '很好啊', // 技能描述
     playInfo: {
       status: 0,
@@ -544,8 +546,8 @@ export default class extends wexp.page {
         gameId: 1,
         voidSrc: this.data.voidSrc,
         gameImg: this.data.imgSrc,
-        sex: this.data.sex,
-        levelId: this.data.level,
+        sex: this.data.sexId,
+        levelId: this.data.levelId,
         desc: this.data.desc
       }).then((res) => {
         if (res.code === '200') {
@@ -588,14 +590,16 @@ export default class extends wexp.page {
     sexChange (res) {
       let sexObj = this.data.sexlist[res.detail.value]
       this.setData({
-        sex: sexObj.name
+        sex: sexObj.name,
+        sexId: sexObj.key
       })
     },
     /** 性别 */
     levelChange (res) {
       let level = this.data.levellist[res.detail.value]
       this.setData({
-        level: level.name
+        level: level.name,
+        levelId: level.key
       })
     },
     /** 年龄 */

@@ -65,7 +65,7 @@
     config = {
       "navigationBarTitleText": "年龄",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
+      "backgroundTextStyle": "dark",
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {

@@ -1,7 +1,7 @@
 <template>
   <view class="tag {{sex===1? 'tag-girl' : 'tag-boy'}}">
-    <text class="iconfont icon-sex {{sex===1? 'icon-girl' : 'icon-boy'}}"></text>
-    <text class="age">{{age}}</text>
+    <text class="iconfont icon-sex {{sex==2? 'icon-girl' : 'icon-boy'}}"></text>
+    <text class="age" wx:if="{{age > 0}}">{{age}}</text>
   </view>
 </template>
 <script>
@@ -33,7 +33,6 @@
     }
     ready () {
       console.log(this.data)
-      console.error('ready')
     }
     created () {
       console.log('created')

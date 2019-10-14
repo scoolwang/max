@@ -15,7 +15,22 @@
       </view>
     </view>
   </view> -->
-  <view class="msg-row" bindtap="toChat" data-id="1" catchtap="link">
+   <view class="msg-row" wx:for="{{list}}" wx:key="time" bindtap="toChat" data-id="{{item.sendId}}" catchtap="link">
+    <view class="header">
+      <view class="msg-num" wx:if="{{item.status==0}}"></view>
+      <image class="avatar" src="{{item.data.sendAvatar}}" />
+    </view>
+    <view class="content">
+      <view class="row top-row">
+        <view class="nick">{{item.data.sendName}}</view>
+        <view class="time">{{item.timeStr}}</view>
+      </view>
+      <view class="row">
+        <view class="msg">{{item.data.content}}</view>
+      </view>
+    </view>
+  </view>
+  <!-- <view class="msg-row" bindtap="toChat" data-id="615a7cc6-9721-11e9-b832-dca9047ef1f4" catchtap="link">
     <view class="header">
       <view class="msg-num">123</view>
       <image class="avatar" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" />
@@ -30,7 +45,7 @@
       </view>
     </view>
   </view>
-  <view class="msg-row" bindtap="toChat" data-id="1" catchtap="link">
+  <view class="msg-row" bindtap="toChat" data-id="48b2dcde-9721-11e9-b5e9-dca9047ef1f4" catchtap="link">
     <view class="header">
       <view class="msg-num">123</view>
       <image class="avatar" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" />
@@ -61,7 +76,7 @@
         <view class="button blue-btn">同意下车</view>
       </view>
     </view>
-  </view>
+  </view> -->
   <!-- <view wx:if="{{chatList.length <= 0}}" class="empty">
     <text>暂无消息</text>
   </view> -->
@@ -130,7 +145,8 @@
   .msg-num {
     color: #fff;
     font-size: 12px;
-    height: 16px;
+    /*height: 16px;*/
+    height: 10px;
     background: #FD0000;
     position: absolute;
     top: -8px;
@@ -152,13 +168,12 @@
 <script>
   import wexp from 'wexp/index'
   import {getUserInfo, formatTime} from '../mixins/common.js'
-  import {getMsg, getUnreadMsg, readMsg} from '../mixins/api.js'
+  import {getMsg, getChatUnreadMsg, getSysMsg} from '../mixins/api.js'
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "消息",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
       "backgroundColor": "#f8f8f8",
       "onReachBottomDistance": 50,
       "usingComponents": {
@@ -166,12 +181,15 @@
       }
     }
     data = {
+      list: [],
       unReadUserIds: [], // 未读消息用户id
       sort: [],
       msg: [],
       map: {},
       userInfo: {},
       chatList: [],
+      sysList: [],
+      applyList: [],
       historyMsg: []
     }
     methods = {
@@ -204,21 +222,12 @@
             let lastMsg = arry[arry.length - 1]
             let historyMsg = this.data.historyMsg
             let timeStr = formatTime(lastMsg.time)
-            lastMsg.chatId = id
-            historyMsg.push({
-              tt: lastMsg,
-              msg: {
-                img: lastMsg.avatarUrl,
-                name: lastMsg.nick,
-                msg: lastMsg.data,
-                type: lastMsg.type,
-                sendId: lastMsg.from,
-                chatId: lastMsg.to === this.data.userInfo.userId ? lastMsg.from : lastMsg.to
-              },
-              time: lastMsg.time,
-              timeStr: timeStr,
-              len: 0,
-              isHistory: true
+            lastMsg.len = 0
+            lastMsg.isHistory = true
+            lastMsg.timeStr = timeStr
+            historyMsg.push(lastMsg)
+            this.setData({
+              historyMsg: historyMsg
             })
             console.log('组装历史消息', historyMsg)
             resolve(historyMsg)
@@ -228,6 +237,7 @@
       return pms
     }
     getAll () {
+      let chatDir = getApp().globalData.chatDir
       let pms = new Promise((resolve, reject) => {
         getUserInfo().then((res) => {
           let userId = res.userId
@@ -236,12 +246,12 @@
           })
           // 获取历史聊天记录
           fileSystemManager.readdir({
-            dirPath: wx.env.USER_DATA_PATH + '/chat' + userId,
+            dirPath: chatDir,
             success: res => {
               let pms = []
               for (let path of res.files) {
                 let id = path.split('.')[0]
-                let chatPms = this.getChat(wx.env.USER_DATA_PATH + '/chat' + userId + '/' + path, id)
+                let chatPms = this.getChat(chatDir + path, id)
                 pms.push(chatPms)
               }
               Promise.all(pms).then(() => {
@@ -252,6 +262,7 @@
               resolve()
             }
           })
+          // this.connectSocket()
         })
       })
       return pms
@@ -259,71 +270,121 @@
     onLoad () {
       let pms = this.getAll()
       let that = this
-      getUnreadMsg()
-      readMsg({
-        ids: [3]
-      })
-      getMsg().then((res) => {
-        let sort = []
-        let map = {}
-        let msg = []
-        let list = res.data
-        for (let item of list) {
-          let sendId = item.sendId
-          item.timeStr = formatTime(item.time)
-          if (map[sendId]) {
-            map[sendId].list.push(item)
-          } else {
-            map[sendId] = {
-              list: [item],
-              avatarUrl: item.avatarUrl,
-              name: item.name,
-              time: item.time
-            }
-            sort.push(sendId)
-          }
-          console.log(map)
-        }
-        for (let val of sort) {
-          let item = map[val]
-          let itemList = item.list
-          let lastList = itemList[itemList.length - 1]
-          let timeStr = formatTime(item.time)
-          // let msgObj = {
-          //   msg: lastList,
-          //   avatarUrl: item.avatarUrl,
-          //   name: item.name
-          // }
-          msg.push({
-            msg: {
-              img: lastList.avatarUrl,
-              name: lastList.name,
-              msg: lastList.msg,
-              type: lastList.type,
-              sendId: lastList.sendId,
-              chatId: lastList.sendId === this.data.userInfo.userId ? lastList.receiveId : lastList.sendId
-            },
-            time: item.time,
-            timeStr: timeStr,
-            isHistory: false,
-            len: itemList.length
-          })
-        }
-        this.setData({
-          unReadUserIds: sort
-        })
-        console.log('组装未读消息', msg)
-        pms.then(() => {
-          msg = msg.concat(that.data.historyMsg)
-          msg.sort((a, b) => {
-            return b.time - a.time
-          })
-          console.log('全套消息', msg)
+      pms.then(res => {
+        getMsg().then(res => {
           this.setData({
-            chatList: msg
+            applyList: res.data.apply,
+            sysList: res.data.sys
           })
+          let chatIds =  []
+          let chatList = res.data.chat
+          let applyList = res.data.apply
+          let sysList = res.data.sys
+          let msgs =  []
+          let historyMsg = this.data.historyMsg
+          for (let i  = 0; i < chatList.length; i++) {
+            let sendId =  chatList[i].sendId
+            let chat = chatList[i]
+            let isExit = false
+            chat.timeStr = formatTime(chat.time)
+            for (let a = 0; a < historyMsg.length; a++) {
+              let item = historyMsg[a]
+              if (sendId === item.sendId) {
+                historyMsg.splice(a, 1)
+                historyMsg.push(chat)
+                isExit = true
+                break
+              }
+            }
+            if (!isExit) {
+              historyMsg.push(chat)
+            }
+          }
+
+          msgs = historyMsg.concat(applyList).concat(sysList)
+          msgs.sort(function(a, b) {
+            a.timeStr = formatTime(a.time)
+            b.timeStr = formatTime(b.time)
+            return b.time -  a.time
+          })
+          this.setData({
+            list: msgs
+          })
+          console.log(msgs, '组装消息页数据')
         })
       })
+      wx.onSocketMessage(res => {
+        let str = JSON.parse(res.data)
+        let list = this.data.list
+
+        console.log(str, '监听系统消息')
+      })
+
+      // getUnreadMsg()
+      // readMsg({
+      //   ids: [3]
+      // })
+      // getMsg().then((res) => {
+      //   let sort = []
+      //   let map = {}
+      //   let msg = []
+      //   let list = res.data
+      //   for (let item of list) {
+      //     let sendId = item.sendId
+      //     item.timeStr = formatTime(item.time)
+      //     if (map[sendId]) {
+      //       map[sendId].list.push(item)
+      //     } else {
+      //       map[sendId] = {
+      //         list: [item],
+      //         avatarUrl: item.avatarUrl,
+      //         name: item.name,
+      //         time: item.time
+      //       }
+      //       sort.push(sendId)
+      //     }
+      //     console.log(map)
+      //   }
+      //   for (let val of sort) {
+      //     let item = map[val]
+      //     let itemList = item.list
+      //     let lastList = itemList[itemList.length - 1]
+      //     let timeStr = formatTime(item.time)
+      //     // let msgObj = {
+      //     //   msg: lastList,
+      //     //   avatarUrl: item.avatarUrl,
+      //     //   name: item.name
+      //     // }
+      //     msg.push({
+      //       msg: {
+      //         img: lastList.avatarUrl,
+      //         name: lastList.name,
+      //         msg: lastList.msg,
+      //         type: lastList.type,
+      //         sendId: lastList.sendId,
+      //         chatId: lastList.sendId === this.data.userInfo.userId ? lastList.receiveId : lastList.sendId
+      //       },
+      //       time: item.time,
+      //       timeStr: timeStr,
+      //       isHistory: false,
+      //       len: itemList.length
+      //     })
+      //   }
+      //   this.setData({
+      //     unReadUserIds: sort
+      //   })
+      //   console.log('组装未读消息', msg)
+      //   pms.then(() => {
+      //     msg = msg.concat(that.data.historyMsg)
+      //     msg.sort((a, b) => {
+      //       return b.time - a.time
+      //     })
+      //     console.log('全套消息', msg)
+      //     this.setData({
+      //       chatList: msg
+      //     })
+      //   })
+      // })
     }
   }
 </script>

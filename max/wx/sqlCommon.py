@@ -13,23 +13,30 @@ import time
 import base64
 import hmac
 import uuid
-from wx.sqlConnect import session
-
-
-
-def returnFormat (data, message='', code='200'):
+from wx import sqlConnect
+from Crypto.Cipher import AES
+from binascii import b2a_hex, a2b_hex
+from wx.aescrypt import EncryptAES
+db = sqlConnect.DbMgr()
+session = db.session
+aes = EncryptAES()
+def returnFormat (data, message='', code='200', total=''):
   return {
     'code': code,
     'data': data,
-    'message': message
+    'message': message,
+    'total': total
   }
 
 # 生成token
 def generate_token(key, expire=3600):
-    ts_str = str(int(time.time()) + expire)
+    ts_str = str((int(time.time()) + expire)* 1000)
     ts_byte = str(ts_str)
     sha1_tshexstr  = hmac.new(bytes(str(key), 'utf-8'), bytes(ts_byte, 'utf-8')).hexdigest()
     token = ts_str+':'+sha1_tshexstr
+    print('存储加密钱', token)
+    token = aes.encrypt(token)
+    print('存储加密后', token)
     return token
 
 # 获取用户token
@@ -43,33 +50,61 @@ def getUserToken (arg):
     results = results[0]
   if not results :
     return ''
+  session.close()
   return results.token
 
 # 判断token的有效性
 def validToken (token):
   expireTime = int(token.split(':')[0])
   timeNow = time.time()
-  print(timeNow)
-  print(expireTime)
+  # print(timeNow)
+  # print(expireTime)
   if timeNow > expireTime:
     return False
   else:
     return True
 
 # 判断token 是否存在和失效
-def getUserByToken (token):
-  valid = validToken(token)
+def getUserByToken (token, openId):  # print('header token', token)
+  token = aes.decrypt(token)
+  # print('解密后的token', token)
+  token = token.split(openId)[1]
+  tokenValid = aes.decrypt(token)
+  # print('去除openId的token', token)
+  # print('tokenValid', tokenValid)
+  # valid = False
+  valid = validToken(tokenValid)
+  print('解析', token)
+  # print(valid)
   if valid == False :
     return '1'
   else:
       # sql = 'select * from user where token="%s"' % (token)
       results = session.query(t_user).filter(t_user.token==token).all()
+      # db.select(results)
+
       if len(results) == 0 :
         results = '2'
       else:
-        results = results[0]
-
-  return results
+        arry = []
+        results = results
+        dic = {
+          'id': fields.String,
+          'name': fields.String,
+          'openId': fields.String,
+          'token': fields.String,
+          'phone': fields.String,
+          'city': fields.String,
+          'auth': fields.String,
+          'avatarUrl': fields.String,
+          'age': fields.String
+        }
+        for item in results:
+          arry.append(item)
+        results =  marshal(arry, dic)
+      session.close()
+        # print('用户id', results[0])
+  return results[0]
 
 
 

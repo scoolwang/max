@@ -1,49 +1,57 @@
 <template>
   <view class="module" wx:key="id" bindtap="goActivity">
     <view class="info">
-      <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
+
       <view class="detail">
-        <view class="row" catch:tap="goHome" data-id="{{item.id}}">
-          <view class="user-info">
-            <view class="level-box">
-              <image class="level-img" src="{{item.level}}" />
-              <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
+        <view class="avatar">
+          <image class="level-img" mode="aspectFit" src="{{item.avatarUrl}}" />
+        </view>
+        <view class="usr">
+          <view class="user-info " catch:tap="goHome" data-id="{{item.id}}">
+            <view class="username">{{item.userName}}</view>
+          </view>
+          <view class="row">
+            <view wx:if="{{item.age}}" class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+              <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+              <text class="age">{{item.age}}</text>
             </view>
 
-            <text class="username">{{item.userName}}</text>
-          </view>
 
-        </view>
-        <view class="row">
-          <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
-            <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
-            <text class="age">{{item.age}}</text>
-          </view>
-          <view class="time right">{{item.createTime}}</view>
-          <!-- <view class="right voice-box">
-            <view class="void-box">
-              <void time="12" src="{{item.voidSrc}}"></void>
-            </view>
-            <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
-              <text class="iconfont icon-voice2"></text>
-            </view>
-          </view> -->
-        </view>
-        <view class="row">
-          <view class="start-time">发车时间：{{item.startTime}}</view>
-          <view class="right">{{item.city}}</view>
-        </view>
-        <view class="row">
-          <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
-          <view class="right">
-            <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
+            <!-- <view class="right voice-box">
+              <view class="void-box">
+                <void time="12" src="{{item.voidSrc}}"></void>
+              </view>
+              <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+                <text class="iconfont icon-voice2"></text>
+              </view>
+            </view> -->
           </view>
         </view>
+        <view class="level-box">
+          <image class="level-img" mode="scaleToFill" src="{{item.levelImg}}" />
+        </view>
+
       </view>
     </view>
-    <view class="desc">
-      {{item.t_desc}}
+    <view class="row cardinfo">
+      <view class="start-time">发车时间：{{item.startTime}}</view>
+      <!-- <view class="right">{{item.city}}</view> -->
+      <view class="user-limit">车位：{{item.passenger}}/{{item.seat}}</view>
+      <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
     </view>
+    <view class="desc">
+      {{item.detail}}
+    </view>
+    <view class="img-list imgs{{item.cover.length}}"  wx:if="{{item.cover.length > 1}}" >
+      <view class="cover" wx:for="{{item.cover}}"><image class="cover-img  " src="{{item.url}}" /></view>
+
+    </view>
+    <view  wx:if="{{item.cover.length <= 1}}" class="img-list imgs{{item.cover.length}}">
+
+      <view class="cover"  wx:for="{{item.cover}}"  style="width: {{item.width}}px"><image  class="cover-img  " src="{{item.url}}" /></view>
+    </view>
+
+    <view class="time right">{{item.createTime}}</view>
   </view>
   <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
     <view class="confirm-view">
@@ -78,7 +86,16 @@
     }
     methods = {
       goActivity () {
-        this.$route('navigate', './activity')
+        wx.navigateTo({
+          url: './activity?id=' + this.data.item.id
+        })
+      },
+      goHome (e) {
+        let id = e.currentTarget.dataset.id
+        // this.$route('navigate', './userHome', {id: id})
+        wx.navigateTo({
+          url: './userHome?id='  + id
+        })
       },
       openModal (arg) {
         let id = arg.target.dataset.id
@@ -117,10 +134,8 @@
     }
     ready () {
       console.log(this.data)
-      console.error('ready')
     }
     created () {
-      console.log('created')
     }
   }
 </script>
@@ -129,6 +144,46 @@
     background: #fff;
     box-shadow: 0 2px 4px 0 rgba(233,231,231,0.5);
     margin: 20px 10px;
+  }
+  .img-list {
+    display: flex;
+    flex-wrap: wrap;
+    view {
+      width: calc(33.33% - 4px);
+      padding-top: calc(33.33% - 4px);
+      position: relative;
+      margin-bottom: 4px;
+      margin-right: 3px;
+    }
+    image {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+    }
+  }
+  .imgs2 {
+    view {
+      width: calc(50% - 4px);
+      padding-top: calc(50% - 4px);
+    }
+  }
+
+  .imgs1 view {
+    width: 100%;
+    padding-top: 100%;
+  }
+  .imgs3 view {
+    width: calc(33.33% - 4px);
+    padding-top: calc(33.33% - 4px);
+  }
+  .imgs4 view {
+    width: calc(50% - 4px);
+    padding-top: calc(50% - 4px);
+  }
+  .img-list {
+    padding: 0 10px;
+    display: flex;
   }
   .confirm-view {
     padding: 20px 20px;
@@ -140,6 +195,15 @@
     font-weight:400;
     color:rgba(211,211,211,1);
   }
+  .usr {
+    height: 44px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex:1;
+
+
+  }
   .send-input {
     height:33px;
     font-size:14px;
@@ -148,31 +212,50 @@
     padding: 0 10px;
     line-height: 33px;
   }
+  .cardinfo {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+
+  }
   .cover-img {
     width: 100%;
     height: 100%;
   }
   .level-img {
-    width: 21px;
-    height: 24px;
+    width: 100%;
+    height: 100%;
+  }
+  .avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-right: 10px;
+    image {
+      width: 100%;
+      height: 100%;
+    }
   }
   .info {
     display: flex;
     flex-direction: row;
-    height: 123px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
-  .cover {
-    width: 123px;
-    height: 123px;
-  }
+
   .detail {
     flex: 1;
     padding: 10px 15px;
+    display: flex;
+    height: 45px;
+    align-items: flex-end;
   }
   .row {
     display: flex;
     font-size: 10px;
-    margin-bottom: 10px;
     align-items: center;
   }
   .right {
@@ -183,16 +266,28 @@
     display: flex;
   }
   .username {
-    font-size: 14px;
+    flex: 1;
+    font-size: 13px;
+    font-family: PingFangSC-Medium;
+    font-weight: 500;
+    color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100px;
+
+
   }
   .user-info {
     display: flex;
-    align-items: center;
+    flex: 1;
   }
   .level-box {
     display: flex;
     align-items: center;
-    margin-right: 5px;
+    margin-left: 5px;
+    width: 35px;
+    height: 35px;
   }
   .rank {
     font-size: 10px;

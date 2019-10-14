@@ -11,52 +11,10 @@
       <k-tab id="tab" custom-class="header-tab" />
     </view>
   </view>
+  <button open-type="getUserInfo">打开授权设置页1</button>
   <view  wx:for="{{list}}" wx:key="id">
+
     <card class="module" item="{{item}}">
-      <view class="info">
-        <view class="cover"><image class="cover-img" src="{{item.cover}}" /></view>
-        <view class="detail">
-          <view class="row" catch:tap="goHome" data-id="{{item.id}}">
-            <view class="user-info">
-              <view class="level-box">
-                <image class="level-img" src="{{item.level}}" />
-                <!-- <text class="rank" wx:if="{{item.rank}}">{{item.rank}}</text> -->
-              </view>
-
-              <text class="username">{{item.userName}}</text>
-            </view>
-
-          </view>
-          <view class="row">
-            <view class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
-              <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
-              <text class="age">{{item.age}}</text>
-            </view>
-            <view class="time right">{{item.createTime}}</view>
-            <!-- <view class="right voice-box">
-              <view class="void-box">
-                <void time="12" src="{{item.voidSrc}}"></void>
-              </view>
-              <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
-                <text class="iconfont icon-voice2"></text>
-              </view>
-            </view> -->
-          </view>
-          <view class="row">
-            <view class="start-time">发车时间：{{item.startTime}}</view>
-            <view class="right">{{item.city}}</view>
-          </view>
-          <view class="row">
-            <view class="user-limit">车位：{{item.t_left}}/{{item.t_limit}}</view>
-            <view class="right">
-              <view class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view class="desc">
-        {{item.t_desc}}
-      </view>
     </card>
   </view>
 
@@ -79,7 +37,6 @@
     config = {
       "navigationBarTitleText": "首页",
       "enablePullDownRefresh": false,
-      "backgroundTextStyle": "#333",
       "backgroundColor": "#f7f7f7",
       "onReachBottomDistance": 50,
       "usingComponents": {
@@ -154,11 +111,14 @@
       }
     }
     onLoad (opt) {
-      wx.setNavigationBarTitle({
-        title: opt.name
-      })
-      Tab._init('#tab', this.data.tabData)
+      // wx.setNavigationBarTitle({
+      //   title: opt.name
+      // })
+      // Tab._init('#tab', this.data.tabData)
       console.log(wx.getSystemInfoSync())
+      // this.getData()
+    }
+    onShow () {
       this.getData()
     }
     formatTime (time) {
@@ -186,10 +146,10 @@
       let minute = dateTime.getMinutes()
       let second = dateTime.getSeconds()
       let now = new Date()
-      let nowDate = new Date().getTime() / 1000
+      let nowDate = new Date().getTime()
       let spaceTime = nowDate - time
       let timeSpanStr = ''
-      if (spaceTime <= 60) {
+      if (spaceTime <= 60000) {
         timeSpanStr = '刚刚'
       } else if (60 * 1 < spaceTime && spaceTime <= 60 * 60) {
         timeSpanStr = Math.round((spaceTime / (60))) + '分钟前'
@@ -229,100 +189,37 @@
       return src
     }
     getData () {
-      let res = {
-        'code': '200',
-        'data': [{
-          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
-          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
-          'createTime': 1537949161,
-          'startTime': 1538168400,
-          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
-          't_limit': 1,
-          't_left': 0,
-          'gameId': 1,
-          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
-          'age': '18',
-          'sex': '女',
-          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
-          'rank': 10,
-          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
-          'city': '杭州',
-          'userName': '九妹'
-        }, {
-          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
-          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
-          'createTime': 1537949161,
-          'startTime': 1538168400,
-          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
-          't_limit': 1,
-          't_left': 0,
-          'gameId': 1,
-          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
-          'age': '18',
-          'sex': '女',
-          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
-          'rank': 10,
-          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
-          'city': '杭州',
-          'userName': '十三姐'
-        }, {
-          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
-          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
-          'createTime': 1537949161,
-          'startTime': 1538168400,
-          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
-          't_limit': 1,
-          't_left': 0,
-          'gameId': 1,
-          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
-          'age': '18',
-          'sex': '女',
-          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
-          'rank': 10,
-          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
-          'city': '杭州',
-          'userName': '九妹'
-        }, {
-          'id': '0240313a-c163-11e8-8ccd-dca9047ef1f4',
-          'userId': '9981681c-b1c9-11e8-8f14-dca9047ef1f4',
-          'createTime': 1537949161,
-          'startTime': 1538168400,
-          't_desc': '喜欢上了社区的一个男孩子  他是社区大佬 还有社区达人的小尾巴 而我连个妹子认证都没有 不敢跟他表白\n',
-          't_limit': 1,
-          't_left': 0,
-          'gameId': 1,
-          'cover': 'http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg',
-          'age': '18',
-          'sex': '女',
-          'level': 'https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png',
-          'rank': 10,
-          'voidSrc': 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
-          'city': '杭州',
-          'userName': '十三姐'
-        }],
-        'message': ''
-      }
-      let list = res.data
-      for (let item of list) {
-        item.startTime = this.formatTime(item.startTime)
-        item.createTime = this.formatCreateTime(item.createTime)
-      }
-      this.setData({
-        list: list
-      })
       getActivityList({
         page: 1,
-        pageSize: 2
+        pageSize: 10
       }).then((res) => {
-        // let list = res.data
-        // for (let item of list) {
-        //   item.startTime = this.formatTime(item.startTime)
-        //   item.createTime = this.formatCreateTime(item.createTime)
-        //   item.level = this.formatLevel(item.level)
-        // }
-        // this.setData({
-        //   list: list
-        // })
+        let list = res.data
+        for (let item of list) {
+          item.startTime = this.formatTime(item.startTime)
+          item.createTime = this.formatCreateTime(item.createTime)
+          // item.level = this.formatLevel(item.level)
+          item.level = ''
+          item.passenger = item.seat - item.vacancy
+          let imgs = item.cover ? item.cover.split(',') : []
+          for (let idx in imgs) {
+            let url = imgs[idx]
+            var params = {}
+            url.replace(/([^?&]+)=([^&]+)/g, (_,k,v) => params[k]=v)
+            let wh = params.wh ? params.wh.split(':') : []
+            let width = wh[0]
+            let screen = wx.getSystemInfoSync().windowWidth - 20
+            width = width > screen ? screen : width
+            imgs[idx] = {
+              url: url,
+              width: width
+            }
+          }
+          item.cover = imgs
+        }
+        this.setData({
+          list: list
+        })
+        console.log(list)
       })
     }
   }
