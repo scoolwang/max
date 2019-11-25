@@ -34,7 +34,8 @@ class DbMgr(object):
 
   def __init__(self):
     # 初始化数据库连接:
-    self.engine = create_engine('mysql+mysqlconnector://root:wts123456@127.0.0.1:3306/pp', pool_size=5)
+    # self.engine = create_engine('mysql+mysqlconnector://root:wts123456@127.0.0.1:3306/pp', pool_size=5)
+    self.engine = create_engine('mysql+mysqlconnector://root:Wts123456@rm-bp1y8030y4sj888225o.mysql.rds.aliyuncs.com:3306/pp', pool_size=5)
     # 创建DBSession类型:
     self.DBSession = sessionmaker(bind=self.engine,  autoflush=False)
     # # 创建Session:

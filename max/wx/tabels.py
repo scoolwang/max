@@ -23,7 +23,7 @@ class User(Base):
     auth = Column(Integer, comment="认证状态")
     age = Column(Integer, comment="年龄")
     account = Column(String(11), comment="账号，预留字段")
-    avatarUrl = Column(String(30), comment="用户头像")
+    avatarUrl = Column(Text, comment="用户头像")
     motto = Column(String(255), comment="签名")
 
 # game 游戏分类:
@@ -169,7 +169,7 @@ class Words(Base):
     content = Column(String(255), comment="评论内容")
     time = Column(TIMESTAMP, comment="评论时间")
 
-engine = create_engine('mysql+mysqlconnector://root:wts123456@127.0.0.1:3306/pp')
+engine = create_engine('mysql+mysqlconnector://root:Wts123456@rm-bp1y8030y4sj888225o.mysql.rds.aliyuncs.com:3306/pp')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 
