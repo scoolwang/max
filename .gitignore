@@ -8,3 +8,5 @@ max/wx/venv
 max/wx/__pycache__/
 weixin
 max/max/_pycache_/
+weixin2/dist/
+weixin2/node_modules/
