@@ -1,65 +1,67 @@
 <template>
-  <view class="module {{item.sex==2?'girl-module':''}}" wx:key="id" bindtap="goActivity">
-    <view class="user-hd">
-      <view class="info">
+  <view class="module" wx:key="id" bindtap="goActivity">
+    <view class="info">
 
-        <view class="detail">
-          <view class="avatar" data-id="{{item.userId}}" catch:tap="goHome">
-            <image class="level-img" mode="scaleToFill" src="{{item.avatarUrl}}" />
+      <view class="detail">
+        <view class="avatar">
+          <image class="level-img" mode="aspectFit" src="{{item.avatarUrl}}" />
+        </view>
+        <view class="usr">
+          <view class="user-info " catch:tap="goHome" data-id="{{item.id}}">
+            <view class="username">{{item.userName}}</view>
           </view>
-          <view class="usr">
-            <view class="user-info ">
-              <view class="username">{{item.userName}}</view>
+          <view class="row">
+            <view wx:if="{{item.age}}" class="tag {{item.sex==='女'? 'tag-girl' : 'tag-boy'}}">
+              <text class="iconfont icon-sex {{item.sex==='女'? 'icon-girl' : 'icon-boy'}}"></text>
+              <text class="age">{{item.age}}</text>
             </view>
-            <view class="row">
-              <view wx:if="{{item.age}}" class="tag {{item.sex==2? 'tag-girl' : 'tag-boy'}}">
-                <text class="iconfont icon-sex {{item.sex==2? 'icon-girl' : ''}}   {{item.sex==1? 'icon-boy' : ''}}"></text>
-                <text class="age">{{item.age}}</text>
+
+
+            <!-- <view class="right voice-box">
+              <view class="void-box">
+                <void time="12" src="{{item.voidSrc}}"></void>
               </view>
-
-
-              <!-- <view class="right voice-box">
-                <view class="void-box">
-                  <void time="12" src="{{item.voidSrc}}"></void>
-                </view>
-                <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
-                  <text class="iconfont icon-voice2"></text>
-                </view>
-              </view> -->
-            </view>
+              <view class="voice" bindtap="playVoice" data-hi="{{item.voidSrc}}">
+                <text class="iconfont icon-voice2"></text>
+              </view>
+            </view> -->
           </view>
-          <view class="level-box">
-            <image class="level-img" mode="scaleToFill" src="{{item.levelImg}}" />
+        </view>
+        <!-- <view class="level-box">
+          <image class="level-img" mode="scaleToFill" src="{{item.levelImg}}" />
+        </view> -->
+        <view class="status-box">
+          <view class="unagree status-txt" wx:if="{{item.status==1}}">已拒绝</view>
+          <view class="success status-txt" wx:if="{{item.status==2}}">成功</view>
+          <view class="waiting status-txt" wx:if="{{item.status==3}}">已申请</view>
+          <view class="finsh status-txt" wx:if="{{item.status==4}}">已完成</view>
+          <view class="old status-txt" wx:if="{{item.status==5}}">已过期</view>
+          <view  class="button" data-obj="{{item}}" wx:if="{{item.status==3}}" catchtap="cancel">撤回</view>
+          <view  class="button green-btn {{item.comment?'uncomment':''}}" catchtap="comment" data-obj="{{item}}" wx:if="{{(item.status==4 || item.status==2)}}">
+            <text wx:if="{{!item.comment}}">评价</text>
+            <text wx:else>我的评价</text>
           </view>
-
         </view>
       </view>
-      <view class="row cardinfo">
-        <view class="start-time">发车时间：{{item.startTime}}</view>
-        <!-- <view class="right">{{item.city}}</view> -->
-        <view class="user-limit">车位：{{item.passenger}}/{{item.seat}}</view>
-        <view wx:if="{{item.userId!=userId && item.isPassenger==2}}" class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
-        <view wx:if="{{item.isPassenger==1}}" class="passenger" data-id="{{item.id}}">已申请</view>
-      </view>
     </view>
-    <view class="act-bd">
-      <view class="desc">
-        {{item.title}}
-      </view>
-      <view class="img-list imgs{{item.cover.length}}"  wx:if="{{item.cover.length > 1}}" >
-        <view class="cover" wx:for="{{item.cover}}" wx:key="{{index}}"><image class="cover-img  " src="{{item.url}}" /></view>
-
-      </view>
-      <view  wx:if="{{item.cover.length <= 1}}" class="img-list imgs{{item.cover.length}}">
-
-        <view class="cover"  wx:for="{{item.cover}}"  wx:key="{{index}}" style="width: {{item.width}}px"><image  class="cover-img  " src="{{item.url}}" /></view>
-      </view>
-      <view class="desc-bd">
-        <view class="game-name">{{item.gameName}}</view>
-        <view class="time right">{{item.createTime}}</view>
-      </view>
+    <view class="row cardinfo">
+      <view class="start-time">发车时间：{{item.startTime}}</view>
+      <!-- <view class="right">{{item.city}}</view> -->
+      <view class="user-limit">车位：{{item.passenger}}/{{item.seat}}</view>
+      <view wx:if="{{item.userId!=userId}}" class="button" catch:tap="openModal" data-id="{{item.id}}">上车</view>
+    </view>
+    <view class="desc">
+      {{item.title}}
+    </view>
+    <view class="img-list imgs{{item.cover.length}}"  wx:if="{{item.cover.length > 1}}" >
+      <view class="cover" wx:for="{{item.cover}}" wx:key="{{index}}"><image class="cover-img  " src="{{item.url}}" /></view>
 
     </view>
+    <view  wx:if="{{item.cover.length <= 1}}" class="img-list imgs{{item.cover.length}}">
+
+      <view class="cover"  wx:for="{{item.cover}}"  wx:key="{{index}}" style="width: {{item.width}}px"><image  class="cover-img  " src="{{item.url}}" /></view>
+    </view>
+    <view class="time right">{{item.createTime}}</view>
 
   </view>
   <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
@@ -70,7 +72,7 @@
 </template>
 <script>
   import wexp from 'wexp/index'
-  import {joinActivity} from '../mixins/api'
+  import {joinActivity,  recallJoin} from '../mixins/api'
   import {getUserInfo, formatTime} from '../mixins/common'
   export default class Card extends wexp.component {
     config = {
@@ -106,7 +108,7 @@
         let id = e.currentTarget.dataset.id
         // this.$route('navigate', './userHome', {id: id})
         wx.navigateTo({
-          url: './userHome?id=' + id
+          url: './userHome?id='  + id
         })
       },
       openModal (arg) {
@@ -124,37 +126,45 @@
           }
         })
       },
-      send () {
-        console.log(this.data.item)
-        this.setData({
-          modalShow: false,
-          send: {
-            txt: ''
-          }
-        })
-        joinActivity({
-          id: this.data.item.id,
-          detail: this.data.detail
-        }).then(res => {
-          if (res.code === '200') {
-            wx.showToast({
-              icon: 'none',
-              title: '已申请'
-            })
-          } else {
-            wx.showToast({
-              icon: 'none',
-              title: res.data.message
-            })
-          }
-        })
-      },
       inputChange (e) {
         let val = e.detail.value
         this.setData({
           'detail': val
         })
-      }
+      },
+      comment (e) {
+        let val = e.currentTarget.dataset.obj
+        if (val.comment) {
+          wx.navigateTo({
+            url: './game?gameId='  + val.gameId + '&userId=' + val.userId
+          })
+        } else {
+          wx.navigateTo({
+            url: './editCmt?id='  + val.id
+          })
+        }
+      },
+      cancel (e) {
+        let obj = e.currentTarget.dataset.obj
+        let status = obj.status
+        if (status === 3) {
+          recallJoin({
+            activityId: obj.id,
+            id: obj.passengerId
+          }).then(res => {
+            wx.showToast({
+              icon: 'none',
+              title: '已取消'
+            })
+            this.triggerEvent('cancel')
+          })
+
+        } else {
+          this.setData({
+            modalShow: true
+          })
+        }
+      },
     }
     ready () {
 
@@ -175,21 +185,34 @@
   }
 </script>
 <style lang="less">
-  @import '../font/css/home.wxss';
   .module {
     background: #fff;
     box-shadow: 0 2px 4px 0 rgba(233,231,231,0.5);
     margin: 20px 10px;
-    /*border-radius: 5px;*/
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    overflow: hidden;
-    .user-hd {
-      background:linear-gradient(157deg,#4A90E2 0%,rgba(131,147,195,1) 100%);
-    }
   }
-  .girl-module .user-hd  {
-    background:linear-gradient(157deg,rgba(190,110,110,0.95) 0%, rgba(192,144,156,1) 100%);
+  .status-box {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    .status-txt {
+      margin-bottom: 5px;
+      text-align: right;
+    }
+    .unagree  {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(139,87,42,1);
+    }
+    .old {
+      color: #989898;
+    }
+    .agree {
+      font-size:12px;
+      font-family:PingFangSC-Medium;
+      font-weight:500;
+      color:rgba(65,117,5,1);
+    }
   }
   .img-list {
     display: flex;
@@ -262,7 +285,7 @@
     display: flex;
     justify-content: space-between;
     padding: 10px 15px;
-    color: #fff;
+
   }
   .cover-img {
     width: 100%;
@@ -313,17 +336,12 @@
     padding: 10px;
     color: #989898;
   }
-  .game-name {
-    font-size: 10px;
-    margin-left: 10px;
-
-  }
   .username {
     flex: 1;
     font-size: 13px;
     font-family: PingFangSC-Medium;
     font-weight: 500;
-    color: #fff;
+    color: #000000;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -400,28 +418,29 @@
     padding: 10px;
     border-top: 1px solid #F3F3F3;
     font-size: 12px;
-    color: #333;
+    color: #666;
     line-height: 18px;
     letter-spacing: 1px;
-    font-weight: bold;
   }
   .button {
-    background: #7CC986;
-    border-radius: 2px;
-    width: 45px;
-    height: 18px;
-    line-height: 18px;
-    text-align: center;
-    font-size: 10px;
+    height:20px;
+    background:rgba(74,144,226,1);
+    border-radius:2px;
+    line-height: 20px;
     color: #fff;
+    padding: 0 10px;
+    font-size:12px;
+    font-family:PingFangSC-Medium;
+    font-weight:500;
+    color:rgba(255,255,255,1);
   }
-  .passenger {
-    color: #7CC986;
+  .green-btn {
+    background: #6EBC14;
   }
-  .desc-bd {
-    display: flex;
-    justify-content: space-between;
-    color: #989898;
-    align-items: center;
+  .uncomment {
+    background: none;
+    color: #6EBC14;
+    border: 1px solid #6EBC14;
+
   }
 </style>

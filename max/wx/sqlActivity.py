@@ -10,9 +10,10 @@ from wx.tabels import Auth as t_auth
 from wx.tabels import Level as t_level
 from wx.tabels import Comment as t_comment
 from wx.tabels import Reply as t_reply
+from wx.tabels import Words as t_words
 import math
 # from wx import tabels as
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, and_
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from django.core import serializers
@@ -37,11 +38,14 @@ print(datetime.datetime.now())
 # 查询活动详情
 def activityDetail (arg, userInfo):
   activityId = arg['id']
-  results = session.query(t_activity, t_user.name, t_user.age, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).filter(t_activity.id==activityId).all()
+  results = results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id).outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId)).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).outerjoin(t_level, t_level.id == t_auth.levelId).filter(t_activity.id==activityId)
+
+
+  print(results)
   # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
-  print(len(results), '长度')
+  # print(len(results), '长度')
   arry = []
-  for item, userName, userAge, gameName, gameLogo, authSex, levelId, authStatus, levelImg in results :
+  for item, userName, userAge,avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg,userId in results :
     print('结果遍历', item.startTime)
     item.userName = userName
     item.age = userAge
@@ -50,22 +54,24 @@ def activityDetail (arg, userInfo):
     item.sex = authSex
     item.levelId = levelId
     item.auth = authStatus
+    item.avatarUrl = avatarUrl
     item.levelImg = levelImg
-    item.startDate = time.mktime(item.startTime.timetuple()) * 1000
-    item.startTime = arrow.get(item.startTime).timestamp * 1000
-    item.createTime = arrow.get(item.createTime).timestamp * 1000
+    # item.startDate = pendulum.instance(item.startTime).int_timestamp
+    item.startTime = pendulum.instance(item.startTime).int_timestamp * 1000
+    item.createTime = pendulum.instance(item.createTime).int_timestamp * 1000
     arry.append(item)
 
   dic = {
+    'avatarUrl': fields.String, # 用户名    'userId': fields.String, # 用户id
     'id': fields.String, # 活动ID
     'detail': fields.String, # 描述
+    'title': fields.String, # 标题
     'gameId': fields.String, # 游戏ID
     'gameName': fields.String, # 游戏名字
     'gameLogo': fields.String, # 游戏图标
     'userName': fields.String, # 用户名
     'userId': fields.String, # 用户id
     'cover': fields.String, # 活动封面
-    'desc': fields.String(attribute='detail'), # 描述
     'startTime': fields.Integer, # 发车时间
     'createTime': fields.Integer, # 发帖时间
     'vacancy': fields.String, # 空位
@@ -90,14 +96,42 @@ def activityDetail (arg, userInfo):
 def activityList (arg, userInfo):
   page = int(arg['page']) - 1
   pageSize = int(arg['pageSize'])
+  userId = arg.get('userId', False)
+  gameId = arg.get('gameId', False)
+  filterUserId = userInfo['id']
+  # if userId:
+  #   filterUserId = userId
 
-  results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).limit(pageSize).offset(page * pageSize)
+  results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id, t_passenger.id)
+  results = results.outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId))
+  results = results.join(t_user, t_activity.userId == t_user.id)
+  results = results.outerjoin(t_passenger, and_(t_passenger.activityId == t_activity.id, t_passenger.userId==filterUserId))
+  results = results.join(t_game, t_activity.gameId==t_game.id)
+  results = results.outerjoin(t_level, t_level.id == t_auth.levelId)
+  results = results.order_by(t_activity.createTime.desc())
+
+
+  if userId:
+    results = results.filter(t_activity.userId==userId)
+
+  if gameId:
+    results = results.filter(t_activity.gameId==gameId)
+
+  num = results.count()
+  results = results.limit(pageSize).offset(page * pageSize)
+  print(results)
   # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
 
   arry = []
-  for item, userName, userAge, avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg in results :
-    print('结果遍历', item.startTime)
+  for item, userName, userAge, avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg, userId, pid in results :
+    print('结果遍历2', item.createTime)
+    print('乘客', pid)
+    if pid == None:
+      passenger = 2
+    else:
+      passenger = 1
     item.userName = userName
+    item.userId = userId
     item.age = userAge
     item.gameName = gameName
     item.avatarUrl = avatarUrl
@@ -106,14 +140,16 @@ def activityList (arg, userInfo):
     item.levelId = levelId
     item.auth = authStatus
     item.levelImg = levelImg
-    item.startDate = time.mktime(item.startTime.timetuple()) * 1000
-    item.startTime = arrow.get(item.startTime).timestamp * 1000
-    item.createTime = arrow.get(item.createTime).timestamp * 1000
+    item.startDate = pendulum.instance(item.startTime).int_timestamp * 1000
+    item.createTime1 = pendulum.instance(item.createTime).int_timestamp * 1000
+    item.isPassenger = passenger # 1已申请，2未申请
     arry.append(item)
 
   dic = {
     'id': fields.String, # 活动ID
+    'userId': fields.String, # 用户
     'detail': fields.String, # 描述
+    'title': fields.String, # 标题
     'gameId': fields.String, # 游戏ID
     'gameName': fields.String, # 游戏名字
     'gameLogo': fields.String, # 游戏图标
@@ -121,9 +157,10 @@ def activityList (arg, userInfo):
     'avatarUrl': fields.String, # 用户名    'userId': fields.String, # 用户id
     'cover': fields.String, # 活动封面
     'desc': fields.String(attribute='detail'), # 描述
-    'startTime': fields.Integer, # 发车时间
+    'isPassenger': fields.Integer, # 发车时间
+    'startTime': fields.Integer(attribute='startDate'), # 发车时间
     # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
-    'createTime': fields.Integer, # 发帖时间
+    'createTime': fields.Integer(attribute='createTime1'), # 发帖时间
     'vacancy': fields.String, # 空位
     'seat': fields.String, # 座位总数
     'sex': fields.String, # 性别
@@ -139,7 +176,7 @@ def activityList (arg, userInfo):
     results = []
   else:
     results = results
-  return returnFormat(results)
+  return returnFormat(results, total=num)
 
 # 发布活动
 def addActivity (arg, userInfo):
@@ -150,25 +187,27 @@ def addActivity (arg, userInfo):
   # city = arg['city']
   cover = arg['cover']
   gameId = arg['gameId']
+  title = arg['title']
   activityId = str(uuid.uuid1())
   # createTime = int(round(time.time() * 1000))
-  createTime = datetime.datetime.now()
+  createTime = pendulum.now('UTC')
   print('时间', createTime)
   if startTime == '':
     startTime = 0
   else:
     startTime = int(startTime)
     startTime = datetime.datetime.fromtimestamp(startTime/1000)
+    startTime = pendulum.instance(startTime)
     print('时间戳转换', startTime)
   userId = userInfo['id']
-  results = t_activity(id=activityId, gameId=gameId, cover=cover, detail=desc, startTime=startTime, createTime=createTime, seat=seat, userId=userId, vacancy=seat)
+  results = t_activity(id=activityId, gameId=gameId, cover=cover, detail=desc, title=title, startTime=startTime, createTime=createTime, seat=seat, userId=userId, vacancy=seat)
   session.add(results)
   session.commit()
   session.close()
   # sql = 'insert into activity (id, userId, createTime, startTime, t_desc, t_limit, t_left, cover, gameId) values ("%s", "%s", "%d", "%d", "%s", "%d", "%d", "%s", "%s")' % (activityId, userId, createTime, startTime, desc, limit, 0, cover, gameId)
   print(results)
   # results = runSql(sql)
-  return returnFormat('', '发布成功')
+  return returnFormat(activityId, '发布成功')
 
 # 参加活动
 def joinActivity (arg, userInfo):
@@ -178,9 +217,7 @@ def joinActivity (arg, userInfo):
 
   userId = userInfo['id']
   status = 3
-  createTime1 = time.time()
-  createTime = datetime.datetime.now()
-  print('时间', userId, createTime1 * 1000)
+  createTime = pendulum.now('UTC')
   results = session.query(t_passenger).filter(t_passenger.userId==userId, t_passenger.activityId==activityId).all()
   session.close()
   # print(str(session.query(t_passenger).filter(t_passenger.userId==userId)))
@@ -199,12 +236,14 @@ def joinActivity (arg, userInfo):
   arg = {
     'sendId': userId,
     'receiveId':activity.Activity.userId,
-    'time': createTime1 * 1000,
+    'time': createTime.format('x'),
     'type': 3,
     'data': {
       'sendName': activity.name,
       'sendAvatar': activity.avatarUrl,
-      'content': '加入车队'
+      'content': detail,
+      'activityTitle': activity.Activity.title,
+      'activityId': activityId
     }
   }
   socket1.sendMsg(arg)
@@ -217,6 +256,8 @@ def joinActivity (arg, userInfo):
 # 获取参加成员
 def getActivityUsers (arg, userInfo):
   activityId = arg['id']
+  activity = session.query(t_activity).filter(t_activity.id==activityId).first()
+  print(activity.gameId, '游戏id')
   results = session.query(t_passenger,
     t_passenger.detail,
     t_passenger.status,
@@ -226,11 +267,12 @@ def getActivityUsers (arg, userInfo):
     t_user.avatarUrl,
     t_auth.sex,
     t_user.age,
-    t_auth.status).join(t_user, t_passenger.userId==t_user.id).outerjoin(t_auth, t_passenger.userId==t_auth.id).filter(t_passenger.activityId==activityId).all()
+    t_auth.status).join(t_user, t_passenger.userId==t_user.id).outerjoin(t_auth, and_(t_passenger.userId==t_auth.userId, t_auth.gameId==activity.gameId)).filter(t_passenger.activityId==activityId).all()
   arry = []
-  print(len(results), '用户长度')
+
 
   for item, detail, status, createTime, userId, userName, userAvatarUrl, userSex, userAge,authstatus in results :
+    print(authstatus, '用户长度')
     item.userName = userName
     item.age = userAge if authstatus== 1 else ''
     item.avatarUrl = userAvatarUrl
@@ -294,8 +336,10 @@ def addComment (arg, userInfo):
   createTime = pendulum.now('UTC')
 
   print('创建时间')
-  print(createTime, createTime.timezone_name)
+  print(len(parentId))
+  activity = session.query(t_activity, t_activity.title).filter(t_activity.id==activityId).one()
   if len(parentId) > 0 :
+    reply = session.query(t_comment).filter(t_comment.id==parentId).one()
     # data = {
     #   'userId': userId,
     #   'content': content,
@@ -311,14 +355,56 @@ def addComment (arg, userInfo):
     toAvatarUrl =  toInfo.avatarUrl
     addReply = t_reply(id=ids, userId=userId, time=createTime, activityId=activityId, parentId=parentId, content=content, userName=userName, userAvatarUrl=userAvatarUrl, toId = toId, toAvatarUrl=toAvatarUrl, toName=toName, replyCmtId=replyCmtId)
     db.insert(addReply)
+    msg = {
+      'sendId': userId,
+      'receiveId':toId,
+      'time': createTime.int_timestamp * 1000,
+      'type': 5,
+      'id': ids,
+      'data': {
+        'sendName': userName,
+        'sendAvatar': userAvatarUrl,
+        'content': content,
+        'activityTitle': activity.title,
+        'activityId': activityId,
+        'replyCmtId': replyCmtId
+      }
+    }
+    if parentId==replyCmtId:
+      cmt = session.query(t_comment, t_comment.content).filter(t_comment.id==parentId).one()
+    else:
+      if toId==userId:
+        msg['data']['replyCmtId'] = parentId
+        cmt = session.query(t_comment, t_comment.content).filter(t_comment.id==parentId).one()
+      else:
+        cmt = session.query(t_reply, t_reply.content).filter(t_reply.id==replyCmtId).one()
+    msg['data']['replyContent'] = cmt.content
+    # if cmt.toId==cmt.userId:
+    print('创建时间11')
   else:
     # 添加评论
-    print('参数')
-    print(createTime)
+    msg = {
+      'sendId': userId,
+      'receiveId':activity.Activity.userId,
+      'time': createTime.int_timestamp * 1000,
+      'type': 5,
+      'id': ids,
+      'data': {
+        'sendName': userName,
+        'sendAvatar': userAvatarUrl,
+        'content': content,
+        'activityTitle': activity.title,
+        'activityId': activityId
+      }
+    }
+    print(msg)
     addComment = t_comment(id=ids, userId=userId, time=createTime, activityId=activityId, content=content, userName=userName, userAvatarUrl=userAvatarUrl, imgs=imgs)
     db.insert(addComment)
 
-  return  returnFormat('', '评论成功')
+  print(msg)
+  socket1.sendMsg(msg)
+  addMsg(msg)
+  return  returnFormat({'id': ids}, '评论成功')
 
 # 获取评论列表
 def getComment(arg, userInfo):
@@ -400,7 +486,7 @@ def getComment(arg, userInfo):
     }
     parentId = item.parentId
     reply = replyObj.get(parentId, [])
-    time = pendulum.instance(item.time).format('x')
+    time = pendulum.instance(item.time).int_timestamp * 1000
     replyItem['time'] = time
     reply.append(replyItem)
     replyObj[parentId] = reply
@@ -454,13 +540,108 @@ def getReply(arg, userInfo):
   }
   arry = []
   for item in reply :
-    time = pendulum.instance(item.time).format('x')
+    time = pendulum.instance(item.time).int_timestamp * 1000
     item.time = time
     arry.append(item)
 
   results =  marshal(arry, replydic)
   db.select(reply)
   return returnFormat(results)
+
+# 获取用户申请加入的帖子
+def getMyJoin(arg, userInfo):
+  page = int(arg['page']) - 1
+  pageSize = int(arg['pageSize'])
+  userId = userInfo['id']
+  results = session.query(t_passenger, t_activity, t_auth, t_level, t_game, t_user, t_words)
+  results = results.join(t_activity, t_activity.id==t_passenger.activityId)
+  results = results.outerjoin(t_auth, and_(t_auth.userId == t_passenger.userId, t_auth.gameId== t_activity.gameId))
+  results = results.join(t_user, t_passenger.userId == t_user.id)
+  results = results.join(t_game, t_activity.gameId==t_game.id)
+  results = results.outerjoin(t_level, t_level.id == t_auth.levelId)
+  results = results.outerjoin(t_words, t_words.activityId == t_activity.id)
+  results = results.order_by(t_passenger.createTime.asc())
+
+  print('心大的sql')
+  print(results)
+  results = results.filter(t_passenger.userId==userId)
+
+  results.limit(pageSize).offset(page * pageSize)
+  arry = []
+  for item, activity, auth, level, game, user, words  in results :
+    startTime  =  pendulum.instance(activity.startTime).int_timestamp * 1000
+    nowTime = pendulum.now('UTC').int_timestamp * 1000
+    if words == None:
+      comment = False
+    else:
+      comment = True
+    print(words,  '评价')
+    if nowTime > startTime :
+      if item.status==2 :
+        status = 4 # 已完成
+      elif item.status == 3 :
+        status = 5 # 已过期
+      else:
+        status = item.status
+    else:
+      status = item.status
+    ret = {
+      'comment': comment,
+      'passengerId': item.id, # 乘客编号
+      'id': activity.id, # 活动ID
+      'userId': userId, # 用户
+      'detail': activity.detail, # 描述
+      'status': status, # 上车状态
+      'gameId': activity.gameId, # 游戏ID
+      'gameName': game.name, # 游戏名字
+      'gameLogo': game.logo, # 游戏图标
+      'userName': user.name, # 用户名
+      'avatarUrl': user.avatarUrl, # 用户名    'userId': fields.String, # 用户id
+      'cover': activity.cover, # 活动封面
+      'desc': item.detail, # 乘客留言
+      'startTime': pendulum.instance(activity.startTime).int_timestamp * 1000, # 发车时间
+      # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
+      'createTime': pendulum.instance(activity.createTime).int_timestamp * 1000, # 发帖时间
+      'vacancy': activity.vacancy, # 空位
+      'seat': activity.seat, # 座位总数
+      'sex': auth.sex if auth != None else '' , # 性别
+      'levelId':  auth.levelId if auth != None else '', # 段位id
+      'auth':  auth.status if auth != None else '', # 认证状态
+      'age':  user.age, # 年龄
+      'levelImg':  level.levelImg  if level != None else '' # 段位logo
+    }
+    arry.append(ret)
+
+
+  session.close()
+
+  return returnFormat(arry)
+
+# 撤回退票
+def recallJoin(arg, userInfo):
+  passengerId = arg['id']
+  activityId = arg['activityId']
+  row = session.query(t_passenger).filter(t_passenger.id==passengerId, t_passenger.activityId==activityId).first()
+  session.delete(row)
+
+  session.commit()
+  session.close()
+  return returnFormat('', '撤回成功')
+
+# 评价用户
+def commentUser(arg, userInfo):
+  activityId = arg['id']
+  content = arg['content']
+  fromUser = userInfo['id']
+  row = session.query(t_activity).filter(t_activity.id==activityId).first()
+  toUser = row.userId
+  gameId = row.gameId
+  ids = str(uuid.uuid1())
+  createTime = pendulum.now('UTC')
+  addRow = t_words(id=ids, from_user=fromUser, to_user=toUser, content=content, activityId=activityId, gameId=gameId, time=createTime)
+  db.insert(addRow)
+  return  returnFormat('', '评论成功')
+
 # # 认证
 # def auth (arg):
 #   token = arg['token']

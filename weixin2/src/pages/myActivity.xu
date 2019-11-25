@@ -1,5 +1,5 @@
 <template>
-  <view class="item" bind:tap="linkDetail">
+  <!-- <view class="item" bind:tap="linkDetail">
     <view class="user-info">
       <view class="header">
         <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
@@ -52,11 +52,19 @@
       </view>
     </view>
     <view class="desc">5人车，4缺1</view>
+  </view> -->
+  <view  wx:for="{{list}}" wx:key="id">
+
+    <card class="module" item="{{item}}">
+    </card>
   </view>
 </template>
 <script>
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
+  import {getActivityList} from '../mixins/api.js'
+  import {getUserInfo, formatTime} from '../mixins/common.js'
+
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "活动列表",
@@ -65,10 +73,13 @@
       "onReachBottomDistance": 50,
       "usingComponents": {
         "sex": "../components/sex",
-        "k-tab": "kai-ui/tab/index"
+        "k-tab": "kai-ui/tab/index",
+        "card": "../components/card"
       }
     }
     data = {
+      userId: '',
+      list: []
     }
     methods = {
       linkDetail () {
@@ -76,7 +87,45 @@
       }
     }
 
-    onLoad () {
+    onLoad (opt) {
+
+      this.setData({
+        userId: opt.userId
+      })
+      getActivityList({
+        userId: opt.userId,
+        page: 1,
+        pageSize: 10
+      }).then(res => {
+        let list = res.data
+        for (let item of list) {
+          let startTime = formatTime(item.startTime)
+          item.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+          item.createTime = formatTime(item.createTime).str
+          // item.level = this.formatLevel(item.level)
+          item.level = ''
+          item.passenger = item.seat - item.vacancy
+          let imgs = item.cover ? item.cover.split(',') : []
+          for (let idx in imgs) {
+            let url = imgs[idx]
+            var params = {}
+            url.replace(/([^?&]+)=([^&]+)/g, (_,k,v) => params[k]=v)
+            let wh = params.wh ? params.wh.split(':') : []
+            let width = wh[0]
+            let screen = wx.getSystemInfoSync().windowWidth - 20
+            width = width > screen ? screen : width
+            imgs[idx] = {
+              url: url,
+              width: width
+            }
+          }
+          item.cover = imgs
+        }
+        this.setData({
+          list: list
+        })
+        console.log(list)
+      })
     }
   }
 </script>

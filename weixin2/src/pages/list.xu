@@ -1,24 +1,49 @@
 <template>
-<!-- <swiper class="type-module" display-multiple-items="4">
-  <block wx:for="{{seachList}}" wx:key="id">
-    <swiper-item class="dota type-box" catch:tap="goGameList" data-id="{{item.id}}"  data-name="{{item.name}}">
-      <text class="type-name">{{item.name}}</text>
-    </swiper-item>
-  </block>
-</swiper> -->
-  <view class="type-module-wrap">
-    <view class="type-module">
-      <k-tab id="tab" custom-class="header-tab" />
-    </view>
-  </view>
-  <button open-type="getUserInfo">打开授权设置页1</button>
-  <view  wx:for="{{list}}" wx:key="id">
+<view class="game-type">
+  <swiper display-multiple-items="4">
+    <block wx:for="{{seachList}}" wx:key="id">
+      <swiper-item class="dota type-box" catch:tap="selectGame" data-id="{{item.id}}"  data-name="{{item.name}}">
+        <view class="game-box {{gameId==item.id?'active-game-box':''}}">
+          <view class="logo-box">
+            <image class="game-logo" src="{{item.logo}}" />
+          </view>
 
-    <card class="module" item="{{item}}">
-    </card>
-  </view>
+          <text class="type-name">{{item.name}}</text>
+        </view>
 
-<view class="edit" bindtap="editActivity">
+      </swiper-item>
+    </block>
+  </swiper>
+</view>
+<view   class="game-type-solt"></view>
+
+
+<!-- <view class="type-module-wrap">
+  <view class="type-module">
+    <k-tab id="tab" custom-class="header-tab" />
+  </view>
+</view> -->
+<!-- <button open-type="getUserInfo">打开授权设置页1</button> -->
+<!-- <loading></loading> -->
+<view  wx:for="{{list}}" wx:key="id">
+
+  <card class="module" item="{{item}}">
+  </card>
+
+</view>
+<view wx:if="{{list.length <=0}}" class="empty">
+  <image src="../image/logo.png" alt="">
+  <text>空空如也</text>
+
+</view>
+<view class="loading-box" wx:if="{{loading&&hasMore}}">
+  <loading></loading>
+</view>
+
+<view class="tabbar-slot"></view>
+
+
+<view class="edit" catchtap="editActivity">
   <text class="iconfont icon-edit"></text>
 </view>
 <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
@@ -31,18 +56,20 @@
 <script>
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
-  import {getActivityList} from '../mixins/api.js'
+  import {getActivityList, getGameList} from '../mixins/api.js'
+  import {formatTime} from '../mixins/common.js'
   const palyVoidContext = wx.createInnerAudioContext()
   export default class extends wexp.page {
     config = {
-      "navigationBarTitleText": "首页",
-      "enablePullDownRefresh": false,
+      "navigationBarTitleText": "开黑首页",
+      "enablePullDownRefresh": true,
       "backgroundColor": "#f7f7f7",
       "onReachBottomDistance": 50,
       "usingComponents": {
         "confirm": "../components/confirm",
         "card": "../components/card",
         "void": "../components/void",
+        "loading": "../components/loading",
         "k-tab": "kai-ui/tab/index"
       }
     }
@@ -79,18 +106,23 @@
         selectedId: 4,
         class: 'tab-success'
       },
+      gameId: '',
+      seachList: [],
       modalShow: false,
-      send: {
-        txt: '',
-        id: ''
-      }
+      page: 1,
+      pageSize: 3,
+      animation: '',
+      loading: false,
+      hasMore: true
     }
     methods = {
       goActivity () {
         this.$route('navigate', './activity')
       },
       editActivity () {
-        this.$route('navigate', './addActivity')
+        this.$route('navigate', './addActivity', {
+          gameId: this.data.gameId
+        })
       },
       goChat (e) {
         let id = e.currentTarget.dataset.id
@@ -108,18 +140,59 @@
         palyVoidContext.stop()
         palyVoidContext.src = src
         palyVoidContext.play()
+      },
+      selectGame (item) {
+        let id = item.currentTarget.dataset.id
+        this.setData({
+          gameId: id,
+          page: 1
+        })
+        this.getData(true)
       }
+    }
+    onPullDownRefresh () {
+      this.setData({
+        page: 1
+      })
+      this.getData(true)
+    }
+    onReachBottom () {
+      console.log('上拉加载')
+      if (this.data.loading || !this.data.hasMore) {
+        return
+      }
+      this.setData({
+        page: this.data.page + 1,
+        loading: true
+      })
+      this.getData()
     }
     onLoad (opt) {
       // wx.setNavigationBarTitle({
       //   title: opt.name
       // })
-      // Tab._init('#tab', this.data.tabData)
-      console.log(wx.getSystemInfoSync())
-      // this.getData()
+      wx.showShareMenu({
+        withShareTicket: true
+      })
+      wx.showLoading()
+      getGameList().then(res =>{
+        let list = res.data
+        list.unshift({
+          id: '',
+          name: '全部',
+          logo: 'https://sta-op.douyucdn.cn/dycatr/6b1ca7930ebf10c660f46dfda64a3f64.png'
+        })
+        this.setData({
+          seachList: res.data
+        })
+      })
+      this.setData({
+        page: 1
+      })
+      this.getData(true)
     }
     onShow () {
-      this.getData()
+
     }
     formatTime (time) {
       let dateTime = new Date(time)
@@ -136,35 +209,6 @@
       } else {
         return year + '-' + month + '-' + day + ' ' + str
       }
-    }
-    formatCreateTime (time) {
-      let dateTime = new Date(time)
-      let year = dateTime.getFullYear()
-      let month = dateTime.getMonth() + 1
-      let day = dateTime.getDate()
-      let hour = dateTime.getHours()
-      let minute = dateTime.getMinutes()
-      let second = dateTime.getSeconds()
-      let now = new Date()
-      let nowDate = new Date().getTime()
-      let spaceTime = nowDate - time
-      let timeSpanStr = ''
-      if (spaceTime <= 60000) {
-        timeSpanStr = '刚刚'
-      } else if (60 * 1 < spaceTime && spaceTime <= 60 * 60) {
-        timeSpanStr = Math.round((spaceTime / (60))) + '分钟前'
-      } else if (60 * 60 * 1 < spaceTime && spaceTime <=  60 * 60 * 24) {
-        timeSpanStr = Math.round(spaceTime / ( 60 * 60)) + '小时前';
-      }
-      else if (60 * 60 * 24 < spaceTime && spaceTime <=  60 * 60 * 24 * 15) {
-        timeSpanStr = Math.round(spaceTime / ( 60 * 60 * 24)) + '天前';
-      }
-      else if (spaceTime > 60 * 60 * 24 * 15 && year == now.getFullYear()) {
-        timeSpanStr = month + '-' + day + ' ' + hour + ':' + minute;
-      } else {
-        timeSpanStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute;
-      }
-      return timeSpanStr
     }
     formatLevel (level, rank, levelStart) {
       // let map = {
@@ -188,15 +232,19 @@
       console.log(level)
       return src
     }
-    getData () {
+    getData (isRefresh) {
       getActivityList({
-        page: 1,
-        pageSize: 10
+        page: this.data.page,
+        pageSize: this.data.pageSize,
+        gameId: this.data.gameId
       }).then((res) => {
         let list = res.data
+        let total = res.total
         for (let item of list) {
-          item.startTime = this.formatTime(item.startTime)
-          item.createTime = this.formatCreateTime(item.createTime)
+          let startTime = formatTime(item.startTime)
+          console.log(startTime)
+          item.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+          item.createTime = formatTime(item.createTime).str
           // item.level = this.formatLevel(item.level)
           item.level = ''
           item.passenger = item.seat - item.vacancy
@@ -216,28 +264,76 @@
           }
           item.cover = imgs
         }
+        if (isRefresh) {
+          this.setData({
+            list: list
+          })
+        } else {
+          this.setData({
+            list: this.data.list.concat(list)
+          })
+        }
         this.setData({
-          list: list
+          loading: false
         })
+        if (this.data.list.length >= total) {
+          this.setData({
+            hasMore: false
+          })
+        } else {
+          this.setData({
+            hasMore: true
+          })
+        }
+        wx.stopPullDownRefresh()
+        wx.hideLoading()
         console.log(list)
       })
     }
   }
 </script>
-<style>
+<style  lang="less">
+  .loading-box  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .empty {
+    text-align: center;
+    color:#989898;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    top: 100px;
+    bottom: 100px;
+    image {
+      width: 46px;
+      height: 10px;
+      margin-bottom: 10px;
+    }
+  }
   page {
     background: #f7f7f7;
   }
-  .type-module-wrap {
-    height: 50px;
-    width: 100%;
+  .game-type-solt {
+    height: 70px;
+    margin-bottom: 10px;
   }
-  .type-module {
+  .game-type {
     position: fixed;
     width: 100%;
-    height: 50px;
     border-top: 1px solid #f3f3f3;
     top: 0;
+    background: #fff;
+    height: 70px;
+    z-index: 11;
+  }
+  .type-module {
+
   }
   .header-tab {
     border-bottom: 1px solid #f3f3f3;
@@ -248,7 +344,7 @@
     bottom: 30px;
     width:35px;
     height:35px;
-    background:rgba(113,140,82,1);
+    background:#4A90E2;
     box-shadow:0px 2px 4px 0px rgba(91,91,91,0.5);
     border:1px solid rgba(255,255,255,1);
     text-align: center;
@@ -259,5 +355,37 @@
     border-radius: 50%;
   }
 
+  .game-logo{
+    width: 32px;
+    height: 32px;
+  }
+  .game-box {
+    text-align: center;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.5s;
+  }
+  .type-name {
+    font-size: 12px;
+  }
+  .type-box {
+    height: 70px;
+  }
+  swiper {
+    height: 70px;
+  }
+  .active-game-box {
+    /*background: linear-gradient(157deg, #2c66bf 0%, #8393c3 100%);*/
+    background: #4A90E2;
+    .type-name {
+      color: #fff;
+    }
 
+  }
+  .tabbar-slot {
+    height: 60px;
+  }
 </style>

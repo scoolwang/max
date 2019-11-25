@@ -24,6 +24,7 @@ class User(Base):
     age = Column(Integer, comment="年龄")
     account = Column(String(11), comment="账号，预留字段")
     avatarUrl = Column(String(30), comment="用户头像")
+    motto = Column(String(255), comment="签名")
 
 # game 游戏分类:
 class Game(Base):
@@ -34,6 +35,7 @@ class Game(Base):
     id = Column(Integer, primary_key=True)
     logo = Column(String(255), comment="游戏logo")
     name = Column(String(10), comment="游戏名字")
+    views = Column(String(255), comment="示例图")
 
 # auth 段位列表:
 class Level(Base):
@@ -56,12 +58,12 @@ class Auth(Base):
     gameId = Column(Integer, comment="游戏id")
     userId = Column(String(255), ForeignKey("user.id"),comment="用户id")
     voidSrc = Column(String(255), comment="音频路径")
+    voidTime = Column(Integer, comment="音频时长")
     gameImg = Column(String(255), comment="资质图")
     sex = Column(Integer, comment="性别 1:男；2:女")
-    status = Column(Integer, comment="认证状态0:未认证 1:已认证")
+    status = Column(Integer, comment="认证状态0:未认证 1:已认证; 3:审核中")
     levelId = Column(Integer, ForeignKey("level.id"), comment="段位id")
     detail = Column(String(35), comment="技能介绍")
-    ugameId = Column(String(35), comment="认证的游戏id")
     createTime = Column(TIMESTAMP, comment="创建时间")
 
 # activity 发帖列表:
@@ -75,6 +77,7 @@ class Activity(Base):
     createTime = Column(TIMESTAMP, comment="创建时间")
     startTime = Column(TIMESTAMP, comment="发车时间")
     detail = Column(String(200), comment="描述")
+    title = Column(String(40), comment="标题")
     seat = Column(Integer, comment="座位数")
     vacancy = Column(Integer, comment="空位")
     cover = Column(Text, comment="活动海报")
@@ -103,10 +106,10 @@ class Message(Base):
     id = Column(String(255), primary_key=True)
     sendId = Column(String(255), ForeignKey("user.id"), comment="消息发送者ID")
     receiveId = Column(String(255), ForeignKey("user.id"), comment="消息接收者Id")
-    msg = Column(String(255), comment="消息内容")
+    msg = Column(Text, comment="消息内容")
     time = Column(TIMESTAMP, comment="消息发送时间")
-    msgType = Column(Integer, comment="消息类型 [1聊天；2系统；3上车消息]")
-    status = Column(Integer, comment="消息状态: 1:未读；2:已读")
+    msgType = Column(Integer, comment="消息类型1聊天；2系统；3上车消息；4、关注； 5:评论回复")
+    status = Column(Integer, comment="消息状态: 0:未读；1:已读")
 
 # 评论:
 class Comment(Base):
@@ -142,11 +145,35 @@ class Reply(Base):
     toAvatarUrl = Column(String(255), comment="回复头像")
     toName = Column(String(255), comment="回复昵称")
 
+# 粉丝表
+class Fans(Base):
+    # 表的名字:
+    __tablename__ = 'Fans'
+
+    # 表的结构:
+    id = Column(String(255), primary_key=True)
+    from_user = Column(String(255),  comment="操作用户")
+    to_user = Column(String(255), comment="被关注用户")
+
+# 评价表
+class Words(Base):
+    # 表的名字:
+    __tablename__ = 'words'
+
+    # 表的结构:
+    id = Column(String(255), primary_key=True)
+    from_user = Column(String(255),  comment="操作用户")
+    to_user = Column(String(255), comment="被关注用户")
+    activityId = Column(String(255), comment="活动id")
+    gameId = Column(String(255), comment="活动id")
+    content = Column(String(255), comment="评论内容")
+    time = Column(TIMESTAMP, comment="评论时间")
+
 engine = create_engine('mysql+mysqlconnector://root:wts123456@127.0.0.1:3306/pp')
 # 创建DBSession类型:
 DBSession = sessionmaker(bind=engine)
 
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 # 创建session对象:
 session = DBSession()
 # # 创建新User对象:

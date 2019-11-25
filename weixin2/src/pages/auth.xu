@@ -14,7 +14,7 @@
       <view  class="cell">
         <text class="cell-label">段位</text>
         <view class="cell-right">
-          <text class="cell-value {{!sex ? 'empty-value': ''}}">{{level || '请设置'}}</text>
+          <text class="cell-value {{!level ? 'empty-value': ''}}">{{level || '请设置'}}</text>
           <text class="iconfont icon-arrow-right icon"></text>
         </view>
       </view>
@@ -32,7 +32,7 @@
       <view class="header">
         <text>资质图</text>
 
-        <view class="cell-right">
+        <view class="cell-right" bindtap="showViews">
           <text class="iconfont icon-image image-icon"></text>
           <text class="tip">示例</text>
         </view>
@@ -63,7 +63,7 @@
             <text class="iconfont icon-stop icon-stop-item" wx:if="{{playInfo.status===1}}"></text>
             <text class="iconfont icon-play icon-play-item" wx:else></text>
             <progress percent="{{playInfo.percent}}" class="progress" stroke-width="3" activeColor="#fff" backgroundColor="rgba(103, 103, 103, 0.8)" active="{{true}}" active-mode="forwards"/>
-            <text class="void-second">5'</text>
+            <text class="void-second">{{voidSrcTime}}'</text>
           </view>
           <!-- <view class="reset-void">重新录制</view> -->
           <view class="reset-void" bindtap="clearVoid">
@@ -77,7 +77,7 @@
         <text>自我介绍</text>
       </view>
       <view class="body">
-        <area limit="30" placeholder="技能描述" bind:change="descChange"></area>
+        <area limit="30" placeholder="技能描述" value="{{desc}}" bind:change="descChange"></area>
       </view>
     </view>
   </scroll-view>
@@ -89,21 +89,24 @@
         </view>
         <view class="modal-content">
           <view class="start-time">00:{{timer >= 10 ? timer : '0' + timer}}</view>
-          <view class="record-tip">最长30秒{{voidStatus}}</view>
+          <view class="record-tip">最长30秒</view>
           <!-- <view bindtap="player">播放音频</view>
           <view bindtap="upLoad">上传音频</view> -->
           <view class="void-content">
 
-            <view class="reset"  bindtap="resetRecord" wx:if="{{voidStatus===2}}">
+            <view class="reset"  bindtap="resetRecord" wx:if="{{voidStatus===2 || voidStatus===3}}">
               <text class="iconfont icon-reset"></text>
             </view>
             <view class="play"  bindtap="player" wx:if="{{voidStatus===2}}">
               <text class="iconfont icon-play"></text>
             </view>
+            <view class="play"  bindtap="suspend" wx:if="{{voidStatus===3}}">
+              <text class="iconfont icon-stop"></text>
+            </view>
             <view class="record {{voidStatus===1 ? 'recording': ''}}" bindlongpress="startRecord" wx:if="{{voidStatus===1 || voidStatus===0}}" bindtouchend="stopRecord">
               <text class="iconfont icon-record"></text>
             </view>
-            <view class="save" wx:if="{{voidStatus===2}}" bindtap="sureRecord">
+            <view class="save" wx:if="{{voidStatus===2 || voidStatus===3}}" bindtap="sureRecord">
               <text class="iconfont icon-gou"></text>
             </view>
           </view>
@@ -226,7 +229,7 @@
   }
   /** 遮罩 */
   .cover {
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
@@ -378,7 +381,7 @@
 import wexp from 'wexp/index'
 import { uploadImg, uploadVoid } from '../mixins/common'
 // import {rootUrl} from '../mixins/config.js'
-import {addAuth} from '../mixins/api.js'
+import {addAuth, getGameInfo, getUserAuth} from '../mixins/api.js'
 // const qiniuUploader = require('../mixins/qiniuUploader')
 const recorderManager = wx.getRecorderManager()
 const innerAudioContext = wx.createInnerAudioContext()
@@ -397,18 +400,20 @@ export default class extends wexp.page {
     }
   }
   data = {
-    voidSrc: 'http://peqep4fsa.bkt.clouddn.com/tmp_9e928dd11c493be462440ad9c2f01cd1.m4a',
+    voidSrc: '',
+    voidSrcTime: 0,
     recordSrc: '',
     timer: 0,
     timerServer: '',
-    voidStatus: 0,
-    showModal: false,
-    imgSrc: 'http://images.kaishiba.com/o_1d3tmj348g1nsa91s5316isac47.jpeg',
-    sex: '男',
-    sexId: 1,
-    level: '卫士',
-    levelId: 1,
-    desc: '很好啊', // 技能描述
+    voidStatus: 0,  // 0 未开始； 1 正在录音 2 录制完成 3 试听
+    showModal: true,
+    imgSrc: '',
+    sex: '',
+    sexId: '',
+    level: '',
+    levelId: '',
+    views: '',
+    desc: '', // 技能描述
     playInfo: {
       status: 0,
       time: 0,
@@ -441,7 +446,8 @@ export default class extends wexp.page {
         name: '万古',
         key: 4
       }
-    ]
+    ],
+    gameId:  ''
   }
   initPlayer () {
     palyVoidContext.onPlay((res) => {
@@ -489,7 +495,8 @@ export default class extends wexp.page {
       console.log('监听结束录音')
     })
   }
-  onLoad () {
+  onLoad (opt) {
+    let user = wx.getStorageSync('userInfo')
     wx.getSetting({
       success (res) {
         console.log(res)
@@ -497,6 +504,43 @@ export default class extends wexp.page {
     })
     this.initPlayer()
     this.initRecod()
+    this.setData({
+      gameId: opt.gameId
+    })
+    if (opt.isEdit) {
+      getUserAuth({
+        gameId: opt.gameId,
+        userId: user.userId
+      }).then(res => {
+        let data = res.data
+        this.setData({
+          voidSrc: data.voidSrc,
+          imgSrc: data.gameImg,
+          sexId: data.sex,
+          sex: data.sex === 2 ? '女' : '男',
+          levelId: data.levelId,
+          level: data.levelName,
+          desc: data.detail
+        })
+      })
+    }
+    getGameInfo({
+      id: opt.gameId
+    }).then(res => {
+      let data = res.data
+      let list = []
+      for (let item of data.levels)  {
+        list.push({
+          key: item.id,
+          name: item.levelName,
+          img: item.levelImg
+        })
+      }
+      this.setData({
+        views: data.gameViews,
+        levellist: list
+      })
+    })
   }
   valid () {
     if (this.data.sex === '') {
@@ -532,6 +576,12 @@ export default class extends wexp.page {
         desc: e.detail
       })
     },
+    showViews () {
+      wx.previewImage({
+        urls: [this.data.views],
+        current: this.data.views
+      })
+    },
     /** 提交 */
     submit () {
       let error = this.valid()
@@ -543,8 +593,9 @@ export default class extends wexp.page {
         return
       }
       addAuth({
-        gameId: 1,
+        gameId: this.data.gameId,
         voidSrc: this.data.voidSrc,
+        voidTime: this.data.voidSrcTime,
         gameImg: this.data.imgSrc,
         sex: this.data.sexId,
         levelId: this.data.levelId,
@@ -596,6 +647,7 @@ export default class extends wexp.page {
     },
     /** 性别 */
     levelChange (res) {
+      debugger
       let level = this.data.levellist[res.detail.value]
       this.setData({
         level: level.name,
@@ -675,13 +727,28 @@ export default class extends wexp.page {
       this.setData({
         showModal: false,
         voidSrc: this.data.recordSrc,
-        voidStatus: 0
+        voidStatus: 0,
+        voidSrcTime: this.data.timer
       })
     },
     /** 试听录音 */
     player () {
       innerAudioContext.play()
-      console.log('播放录音')
+      this.setData({
+        voidStatus: 3
+      })
+      innerAudioContext.onEnded((res) => {
+        console.log('录音播放结束')
+        this.setData({
+          voidStatus: 2
+        })
+      })
+    },
+    suspend () {
+      innerAudioContext.stop()
+      this.setData({
+        voidStatus: 2
+      })
     },
     /** 播放录好的音频 */
     playerVoid () {
@@ -708,7 +775,7 @@ export default class extends wexp.page {
           let pms = uploadImg(filePath)
           pms.then((resUp) => {
             that.setData({
-              imgSrc: resUp.imageURL + '?imageView2/2/w/80/h/80'
+              imgSrc: resUp.imageUrl.imageURL
             })
             wx.hideLoading()
             console.log(res)
@@ -723,7 +790,8 @@ export default class extends wexp.page {
       this.setData({
         voidSrc: '',
         recordSrc: '',
-        voidStatus: 0
+        voidStatus: 0,
+        timer: 0
       })
     }
   }

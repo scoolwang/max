@@ -38,12 +38,14 @@ def on():
 
 def sendMsg(data):
   print('系统池', systemSocket)
+  print('系统池', data)
   toid = data['receiveId']
   print('id', toid)
   systemClient = systemSocket.get('id' + toid)
   if not systemClient:
-    print('未连接')
+    print('\033[41m未连接\033[0m!')
   else:
+    print('\033[42m聊天链接' + toid + '\033[0m!')
     message = json.dumps(data)
     notify(message, systemClient)
 
@@ -102,33 +104,33 @@ class websocket_thread(threading.Thread):
             selectClient = self.clients.get(receiveId)
             #客户端关闭连接，解析错误，服务端关闭连接
             if data == 'q':
-                print('解析异常，关闭客户端连接')
+                print('\033[41m解析异常，关闭客户端连接\033[0m!')
                 selectClient = self.clients.get(sendId)
                 selectClient.close()
                 del self.clients[sendId]
                 return
             message = json.loads(data)
-            print('发送的数据', message['content'])
             sqlData = {
-                'content': message['content'],
                 'sendId': headers['data']['sendId'],
                 'receiveId': headers['data']['receiveId'],
                 'type': 1,
-                'time': time.time() * 1000
+                'time': time.time() * 1000,
+                'data': message['data']
             }
             message = json.dumps(sqlData)
+            # print('\033[42m接受的data数据\033[0m!', message['data']['conent'])
             if not selectClient or not data:
                 if not selectClient:
                     systemClient = systemSocket.get(receiveId)
                     if not systemClient:
-                      print('聊天对象未打开小程序')
+                      print('\033[41m聊天对象未打开小程序\033[0m!')
                     else:
-                      print('聊天对象不在线，系统通知')
+                      print('\033[41m聊天对象不在线，系统通知\033[0m!')
                       notify(message, systemClient)
                     addMsg(sqlData)
             else:
-                print('服务端转发数据', message)
-                print('socket通信id', receiveId)
+                print('\033[42m服务端转发数据\033[0m!', message)
+                print('\033[42msocket通信id\033[0m!', receiveId)
                 notify(message, selectClient)
 
     # def parse_data(self, msg):

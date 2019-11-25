@@ -4,8 +4,12 @@
   <view id="page">
     <view wx:for="{{chatList}}" class="item-wrap" wx:key="index">
       <view wx:if="{{item.type==1}}" class="item {{item.sendId === userInfo.userId? 'user-item':'to-item'}}">
-        <view class="avatar" wx:if="{{item.sendId === userInfo.userId}}"><image class="avatar-img" src="{{userInfo.avatarUrl}}" /></view>
-        <view class="avatar" wx:else><image class="avatar-img" src="{{toUserInfo.avatarUrl}}" /></view>
+        <view class="avatar" wx:if="{{item.sendId === userInfo.userId}}" data-id="{{item.sendId}}" bindtap="linkHome">
+          <image class="avatar-img" src="{{userInfo.avatarUrl}}" />
+        </view>
+        <view  class="avatar" data-id="{{item.sendId}}" bindtap="linkHome" wx:else>
+          <image class="avatar-img" src="{{toUserInfo.avatarUrl}}" />
+        </view>
         <view class="msg">{{item.data.content}}</view>
       </view>
       <view wx:if="{{item.type==0}}">
@@ -31,6 +35,10 @@
     width: 0;
     height: 0;
     color: transparent;
+  }
+  #page {
+    padding: 0 10px;
+
   }
   .avatar-img {
     width: 40px;
@@ -100,8 +108,8 @@
 </style>
 <script>
   import wexp from 'wexp/index'
-  import {getUserInfo} from '../mixins/common.js'
-  import {getUserById, getUnreadMsg, addMsg} from '../mixins/api.js'
+  import {getUserInfo, msgHandle} from '../mixins/common.js'
+  import {getUserById, getUnreadMsg, addMsg, readMsg} from '../mixins/api.js'
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
@@ -133,40 +141,56 @@
           'content': b.detail.value
         })
       },
+      linkHome (e) {
+        let id = e.currentTarget.dataset.id
+        this.$route('navigate', './userHome', {id: id})
+      },
       send (e) {
         let msgObj = {
           sendId: this.data.userInfo.userId,
           receiveId: this.data.toId,
-          content: this.data.content,
-          type: 1
-        }
-
-        // msgObj = JSON.stringify(msgObj)
-        this.data.socketTask.send({
-          data: JSON.stringify(msgObj),
-          fail () {},
-          success: res => {
-            let time = new Date().getTime()
-            let data = {
-              time: time,
-              sendId: this.data.userInfo.userId,
-              data: msgObj,
-              type: 1, // 用户聊天内容
-            }
-            msgObj.sendAvatar = this.data.toUserInfo.avatarUrl
-            msgObj.sendName = this.data.toUserInfo.name
-            msgObj.receiveAvatar = this.data.userInfo.avatarUrl
-            msgObj.receiveName = this.data.userInfo.name
-            console.log(data, '聊天发送串')
-            this.msgHandle(data)
-            this.setData({
-              content: ''
-            })
+          type: 1,
+          data: {
+            sendAvatar: this.data.userInfo.avatarUrl,
+            sendName: this.data.userInfo.name,
+            content: this.data.content,
+            receiveAvatar: this.data.toUserInfo.avatarUrl,
+            receiveName: this.data.toUserInfo.name
           }
-        })
+        }
+        this.sendMsg(msgObj, 0)
+        // msgObj = JSON.stringify(msgObj)
+
       }
     }
 
+    sendMsg (msgObj, i) {
+      let that = this
+      this.data.socketTask.send({
+        data: JSON.stringify(msgObj),
+        fail () {
+          console.error(i + '次')
+          if (i > 3) {
+            return
+          }
+          i++
+          that.connect(function () {
+            that.sendMsg(msgObj, i)
+          }, function () {
+          })
+          console.error('消息发送失败')
+        },
+        success: res => {
+          let time = new Date().getTime()
+          msgObj.time = time
+          console.log(msgObj, '聊天发送串')
+          this.msgHandle(msgObj)
+          this.setData({
+            content: ''
+          })
+        }
+      })
+    }
     fileDir () {
       let chatDir = getApp().globalData.chatDir
       return chatDir
@@ -187,33 +211,39 @@
      *  data.toNick 消息接受者昵称
      */
     msgHandle (data) {
-      let time = data.time
-      let innserTag = false
+      // let time = data.time
+      // let innserTag = false
       let arry = this.data.chatList
-      let timeTag = this.formateTime(time)
-      if (!this.data.timeTag) {
-        innserTag = true
-      } else {
-        if (time - this.data.timeTag > 5 * 60 * 1000) {
-          innserTag = true
-        }
-      }
-      if (innserTag) {
-        let obj = {
-          type: 0,
-          time: time,
-          timeStr: timeTag[0] + '年' + timeTag[1] + '月' + timeTag[2] + '日 ' + (timeTag[3] < 10 ? '0' + timeTag[3] : timeTag[3]) + ':' + (timeTag[4] < 10 ? '0' + timeTag[4] : timeTag[4]),
-          data: timeTag[3] + ':' + timeTag[4]
-        }
-        arry.push(obj)
-        this.setData({
-          timeTag: time
-        })
-        this.writeChatFile(obj)
-      }
-      arry.push(data)
-      this.writeChatFile(data)
-      console.log(data, '新增聊天对象')
+      // let timeTag = this.formateTime(time)
+      // if (!this.data.timeTag) {
+      //   innserTag = true
+      // } else {
+      //   if (time - this.data.timeTag > 5 * 60 * 1000) {
+      //     innserTag = true
+      //   }
+      // }
+      // if (innserTag) {
+      //   let obj = {
+      //     type: 0,
+      //     time: time,
+      //     timeStr: timeTag[0] + '年' + timeTag[1] + '月' + timeTag[2] + '日 ' + (timeTag[3] < 10 ? '0' + timeTag[3] : timeTag[3]) + ':' + (timeTag[4] < 10 ? '0' + timeTag[4] : timeTag[4]),
+      //     data: timeTag[3] + ':' + timeTag[4]
+      //   }
+      //   arry.push(obj)
+      //   this.setData({
+      //     timeTag: time
+      //   })
+      //   this.writeChatFile(obj)
+      // }
+      // arry.push(data)
+      // this.writeChatFile(data)
+      // console.log(data, '新增聊天对象')
+      let fileDir = this.fileChat()
+      let ret = msgHandle(data, this.data.timeTag, fileDir)
+      arry = arry.concat(ret.data)
+      this.setData({
+        timeTag: ret.lastTimeTag
+      })
       this.setData({
         chatList: arry
       })
@@ -385,12 +415,7 @@
     }
     scrollBottom () {
       let that = this
-      // setTimeout(() => {
-      //   console.log('滚动')
-      //   that.setData({
-      //     scrollTop: 10000
-      //   })
-      // }, 3000)
+
       wx.createSelectorQuery().select('#page').boundingClientRect(function(rect){
         console.log(rect)
         // 使页面滚动到底部
@@ -400,39 +425,34 @@
         console.log('滚动', that.data.scrollTop)
       }).exec()
     }
-    init () {
+    connect (success, fail) {
+      let that = this
       let userId = this.data.userInfo.userId
-      // let url = 'ws://47.94.244.143:8899/demo/websck?sender=yue&receiver=ioio'
       let url = 'ws://192.168.21.37:9000?sendId=' + userId +'&receiveId=' + this.data.toId
-      console.log(url)
       let socketTask = wx.connectSocket({
         url: url,
         fail (res) {
-          console.log('webscoket链接失败', res)
+          if (fail) {
+            fail()
+          }
+          console.error('webscoket链接失败', res)
         },
         success (res) {
+          if (success) {
+            setTimeout(success, 100)
+          }
           console.log('链接成功', res)
         }
       })
-      console.log(socketTask)
-      this.setData({
+      that.setData({
         socketTask: socketTask
       })
-      // 穿件聊天记录存储本地文件
-      this.createFile(userId)
+
       // 接受消息
       socketTask.onMessage((data) => {
         console.log(data)
         let item = JSON.parse(data.data)
-        console.log(data, '接收到的消息')
-        let msg = {
-          data: item,
-          sendId: item.sendId,
-          receiveId: userId,
-          data: item,
-          time: item.time,
-          type: item.type
-        }
+        console.log(item, '接收到的消息')
         /** 消息接受的用户Id不等于当前聊天对象的id，怎把此条消息存储到数据库中 */
         if (item.sendId !== this.data.toId) {
           // addMsg({
@@ -444,15 +464,18 @@
           // })
           return
         }
-        msg.data.sendAvatar = this.data.toUserInfo.avatarUrl
-        msg.data.sendName = this.data.toUserInfo.name
-        msg.data.receiveAvatar = this.data.userInfo.avatarUrl
-        msg.data.receiveName = this.data.userInfo.name
-        this.msgHandle(msg)
+        this.msgHandle(item)
       })
       socketTask.onClose((data) => {
-        console.log('连接已关闭')
+        console.error('连接已关闭')
       })
+    }
+    init () {
+      let userId = this.data.userInfo.userId
+      // 穿件聊天记录存储本地文件
+      this.createFile(userId)
+      this.connect()
+
       getUserById({userId: this.data.toId}).then(res => {
         console.log('聊天对象', res)
         this.setData({
@@ -470,6 +493,11 @@
       })
       this.readChatList()
       this.getUnreadMsg()
+      readMsg({
+        receiveId: userId,
+        sendId: this.data.toId,
+        type: 1
+      })
     }
     getUnreadMsg () {
       getUnreadMsg({
@@ -479,18 +507,17 @@
         for (let item of msg) {
           item.data = JSON.parse(item.data)
           /** 将未读消息存储到本地 */
-          item.data.sendAvatar = this.data.toUserInfo.avatarUrl
-          item.data.sendName = this.data.toUserInfo.name
-          item.data.receiveAvatar = this.data.userInfo.avatarUrl
-          item.data.receiveName = this.data.userInfo.name
-          this.msgHandle({
-            data: item.data,
-            time: item.time,
-            type: item.type,
-            sendId: this.data.toId,
-            receiveId: this.data.userInfo.userId
-          })
+          // item.data.sendAvatar = this.data.toUserInfo.avatarUrl
+          // item.data.sendName = this.data.toUserInfo.name
+          // item.data.receiveAvatar = this.data.userInfo.avatarUrl
+          // item.data.receiveName = this.data.userInfo.name
+          this.msgHandle(item)
         }
+        getApp().globalData.unreadNum = getApp().globalData.unreadNum - msg.length
+        wx.setTabBarBadge({
+          index: 1,
+          text: getApp().globalData.unreadNum + ''
+        })
         /** 获取未读消息 */
         console.log('获取用户未读消息')
         console.log(res)
@@ -502,14 +529,6 @@
       })
     }
     onShow () {
-      let str = new Date(1563274550444.4082)
-      wx.showToast({
-        title: str.getFullYear() + '',
-        icon:'none'
-      })
-      // this.setData({
-      //   toId: opt.id
-      // })
       console.log('show')
       console.log(this.data)
       // let that = this

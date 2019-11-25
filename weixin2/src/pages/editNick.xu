@@ -33,6 +33,7 @@
 </style>
 <script>
   import wexp from 'wexp/index'
+  import {updateUser} from '../mixins/api.js'
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "昵称",
@@ -57,11 +58,15 @@
       },
       save () {
         let pages = getCurrentPages()
-        let lastPage = pages[pages.length - 2]
-        lastPage.setData({
-          nick: this.data.value
+        updateUser({
+          name: this.data.value
+        }).then(res => {
+          let lastPage = pages[pages.length - 2]
+          lastPage.setData({
+            nick: this.data.value
+          })
+          wx.navigateBack()
         })
-        wx.navigateBack()
       }
     }
     onLoad (opt) {

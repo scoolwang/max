@@ -68,7 +68,8 @@ def login (arg):
         return returnFormat('202', '数据库操作失败')
 
   obj['userId'] = userId
-  obj['nickName'] = results.name
+  obj['name'] = results.name
+  obj['avatarUrl'] = results.avatarUrl
   obj['openId'] = results.openId
   obj['token'] = token
   session.close()

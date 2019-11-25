@@ -35,6 +35,7 @@
 </style>
 <script>
   import wexp from 'wexp/index'
+  import {addWords} from '../mixins/api.js'
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "评论",
@@ -47,6 +48,7 @@
       }
     }
     data = {
+      id: '',
       value: ''
     }
     methods = {
@@ -57,6 +59,10 @@
         })
       },
       save () {
+        addWords({
+          id: this.data.id,
+          content: this.data.value
+        })
         // let pages = getCurrentPages()
         // let lastPage = pages[pages.length - 2]
         // lastPage.setData({
@@ -66,8 +72,9 @@
       }
     }
     onLoad (opt) {
+      let id = opt.id
       this.setData({
-        value: opt.value
+        id: id
       })
     }
   }

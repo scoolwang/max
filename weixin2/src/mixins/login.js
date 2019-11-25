@@ -39,7 +39,7 @@ function loginValid (res) {
         getUserInfo().then((userInfo) => {
           console.log('用户信息', userInfo)
           api.reg({
-            name: userInfo.nickName,
+            name: userInfo.name,
             avatarUrl: userInfo.avatarUrl,
             openId: openid
           }).then((res) => {

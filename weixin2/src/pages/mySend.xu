@@ -1,173 +1,8 @@
 <template>
-  <view class="item" bind:tap="linkDetail">
-    <view class="user-info">
-      <view class="header">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-      </view>
-      <view class="item-info">
-        <view class="inner">
-          <view>空位：0</view>
-          <view class="unagree">未同意</view>
-        </view>
-        <view class="inner">
-          <view class="left-inner">
-            <view>今晚 8:30</view>
+  <view  wx:for="{{list}}" wx:key="{{index}}">
 
-
-            <view class="bus-info">
-              <!-- <view class="user-num">
-                <text class="iconfont icon-user"></text>
-                <text>120</text>
-              </view> -->
-              <view class="bus-num">
-                <text class="iconfont icon-bus"></text>
-                <text>5/10</text>
-              </view>
-            </view>
-          </view>
-          <view>
-            <view class="button" data-status="1" catch:tap="cancel">取消</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="desc">5人车，4缺1</view>
-  </view>
-  <view class="item" bind:tap="linkDetail">
-    <view class="user-info">
-      <view class="header">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-      </view>
-      <view class="item-info">
-        <view class="inner">
-          <view>空位：0</view>
-          <view class="agree">已同意</view>
-        </view>
-        <view class="inner">
-          <view class="left-inner">
-            <view>今晚 8:30</view>
-
-
-            <view class="bus-info">
-              <!-- <view class="user-num">
-                <text class="iconfont icon-user"></text>
-                <text>120</text>
-              </view> -->
-              <view class="bus-num">
-                <text class="iconfont icon-bus"></text>
-                <text>5/10</text>
-              </view>
-            </view>
-          </view>
-          <view>
-            <view class="button" data-status="2" catch:tap="cancel">取消</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="desc">5人车，4缺1</view>
-  </view>
-  <view class="item" bind:tap="linkDetail">
-    <view class="user-info">
-      <view class="header">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-      </view>
-      <view class="item-info">
-        <view class="inner">
-          <view>空位：0</view>
-          <view >已拒绝</view>
-        </view>
-        <view class="inner">
-          <view class="left-inner">
-            <view>今晚 8:30</view>
-
-
-            <view class="bus-info">
-              <!-- <view class="user-num">
-                <text class="iconfont icon-user"></text>
-                <text>120</text>
-              </view> -->
-              <view class="bus-num">
-                <text class="iconfont icon-bus"></text>
-                <text>5/10</text>
-              </view>
-            </view>
-          </view>
-          <!-- <view>
-            <view class="button">取消</view>
-          </view> -->
-        </view>
-      </view>
-    </view>
-    <view class="desc">5人车，4缺1</view>
-  </view>
-  <view class="item" bind:tap="linkDetail">
-    <view class="user-info">
-      <view class="header">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-      </view>
-      <view class="item-info">
-        <view class="inner">
-          <view>空位：0</view>
-          <view >已过期</view>
-        </view>
-        <view class="inner">
-          <view class="left-inner">
-            <view>今晚 8:30</view>
-
-
-            <view class="bus-info">
-              <!-- <view class="user-num">
-                <text class="iconfont icon-user"></text>
-                <text>120</text>
-              </view> -->
-              <view class="bus-num">
-                <text class="iconfont icon-bus"></text>
-                <text>5/10</text>
-              </view>
-            </view>
-          </view>
-          <!-- <view>
-            <view class="button">取消</view>
-          </view> -->
-        </view>
-      </view>
-    </view>
-    <view class="desc">5人车，4缺1</view>
-  </view>
-  <view class="item" bind:tap="linkDetail">
-    <view class="user-info">
-      <view class="header">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
-      </view>
-      <view class="item-info">
-        <view class="inner">
-          <view>空位：0</view>
-          <view >已结束</view>
-        </view>
-        <view class="inner">
-          <view class="left-inner">
-            <view>今晚 8:30</view>
-
-
-            <view class="bus-info">
-              <!-- <view class="user-num">
-                <text class="iconfont icon-user"></text>
-                <text>120</text>
-              </view> -->
-              <view class="bus-num">
-                <text class="iconfont icon-bus"></text>
-                <text>5/10</text>
-              </view>
-            </view>
-          </view>
-          <view>
-            <view class="button comment-btn" catch:tap="comment">评价</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="desc">5人车，4缺1</view>
+    <card class="module" item="{{item}}" bindcancel="cancel"  data-key>
+    </card>
   </view>
   <confirm show="{{modalShow}}" bindclose="closeConfirm" bindok="send">
     <view class="confirm-view">
@@ -178,6 +13,8 @@
 <script>
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
+  import {getJoin, recallJoin} from '../mixins/api.js'
+  import {formatTime} from '../mixins/common.js'
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "我的申请",
@@ -186,12 +23,14 @@
       "backgroundColor": "#FAFAFA",
       "onReachBottomDistance": 50,
       "usingComponents": {
-        "confirm": "../components/confirm"
+        "confirm": "../components/confirm",
+        "card": "../components/myjoin"
       }
     }
     data = {
       modalShow: false,
-      comment: ''
+      comment: '',
+      list: []
     }
     methods = {
       linkDetail () {
@@ -218,8 +57,13 @@
         })
       },
       cancel (e) {
-        let status = e.currentTarget.dataset.status
-        if (status === '1') {
+        let obj = e.currentTarget.dataset.obj
+        let status = obj.status
+        if (status === 3) {
+          recallJoin({
+            activityId: obj.id,
+            id: obj.passengerId
+          })
           wx.showToast({
             icon: 'none',
             title: '已取消'
@@ -236,6 +80,38 @@
     }
 
     onLoad () {
+      getJoin({
+        page: 1,
+        pageSize: 10
+      }).then(res => {
+        let list = res.data
+        for (let item of list) {
+          let startTime = formatTime(item.startTime)
+          item.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+          item.createTime = formatTime(item.createTime).str
+          // item.level = this.formatLevel(item.level)
+          item.level = ''
+          item.passenger = item.seat - item.vacancy
+          let imgs = item.cover ? item.cover.split(',') : []
+          for (let idx in imgs) {
+            let url = imgs[idx]
+            var params = {}
+            url.replace(/([^?&]+)=([^&]+)/g, (_,k,v) => params[k]=v)
+            let wh = params.wh ? params.wh.split(':') : []
+            let width = wh[0]
+            let screen = wx.getSystemInfoSync().windowWidth - 20
+            width = width > screen ? screen : width
+            imgs[idx] = {
+              url: url,
+              width: width
+            }
+          }
+          item.cover = imgs
+        }
+        this.setData({
+          list: list
+        })
+      })
     }
   }
 </script>

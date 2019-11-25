@@ -2,8 +2,8 @@
   <view class="avatar">
     <view class="label">头像</view>
     <view class="image">
-      <view class="image-inner">
-        <image mode="aspectFill" src="http://images.kaishiba.com/o_1d1uvgqul15m1oinlm11sbi1miq14.jpg" alt="">
+      <view class="image-inner" bindtap="upLoad">
+        <image bindload="imgLoad" mode="aspectFill" src="{{avatar}}" alt="">
       </view>
     </view>
   </view>
@@ -91,6 +91,8 @@
 </style>
 <script>
   import wexp from 'wexp/index'
+  import {updateUser} from '../mixins/api.js'
+  import { uploadImg } from '../mixins/common'
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "编辑个人资料",
@@ -104,9 +106,10 @@
       }
     }
     data = {
-      nick: '九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹九妹九妹漂亮的妹妹',
+      nick: '',
       age: 22,
-      info: '签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名签名'
+      info: '',
+      avatar: ''
     }
     methods = {
       linkList (e) {
@@ -114,9 +117,57 @@
         let val = e.currentTarget.dataset.val
         console.log(e)
         this.$route('navigate', './' + name, {value: val})
+      },
+      imgLoad (e) {
+        var width = e.detail.width,//图片宽度
+        height = e.detail.height
+        let idx = e.target.dataset.idx
+        let data = this.data.avatar
+        updateUser({
+          avatarUrl: data
+        })
+      },
+      upLoad () {
+        var that = this
+        wx.chooseImage({
+          count: 1,
+          success: function (res) {
+            console.log(res)
+            var filePath = res.tempFilePaths[0]
+            // 交给七牛上传
+            wx.showLoading({
+              mask: true
+            })
+            let pms = uploadImg(filePath)
+            pms.then(function (e)  {
+              wx.hideLoading()
+              that.setData({
+                avatar: e.imageUrl.imageURL
+              })
+              wx.hideLoading()
+            })
+            // pms.then((resUp) => {
+            //   that.setData({
+            //     imgSrc: resUp.imageURL + '?imageView2/2/w/80/h/80'
+            //   })
+            //   wx.hideLoading()
+            //   console.log(res)
+            // }).catch(() => {
+            //   wx.hideLoading()
+            // })
+          }
+        })
       }
     }
-    onLoad () {
+    onLoad (opt) {
+      let user = opt
+
+      this.setData({
+        age: user.age,
+        nick: user.name,
+        avatar: user.avatarUrl,
+        info: user.motto
+      })
     }
   }
 </script>

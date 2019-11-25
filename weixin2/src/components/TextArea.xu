@@ -1,6 +1,8 @@
 <template>
-  <view class="area-text">
-    <textarea bindinput="change" placeholder="{{placeholder}}" placeholder-class="textarea-holder" value="{{value}}" name="dfdf" maxlength="{{limit}}" />
+  <view class="area-text custom-class">
+
+    <input  wx:if="{{type=='input'}}"  bindinput="change" placeholder="{{placeholder}}" placeholder-class="textarea-holder" value="{{value}}" name="dfdf" maxlength="{{limit}}">
+    <textarea wx:else bindinput="change" placeholder="{{placeholder}}" placeholder-class="textarea-holder" value="{{value}}" name="dfdf" maxlength="{{limit}}" />
     <text class="num" wx:if="limit > 0" class="limit">{{left}}/{{limit}}</text>
   </view>
 </template>
@@ -18,16 +20,25 @@
     }
 
     properties = {
-      value: {  // 已上传图片数量
+      value: {
         type: String,
-        value: ''
+        observer (news, old) {
+          console.log('observer')
+          this.setData({
+            left: news.length
+          })
+        }
       },
-      placeholder: {  // 已上传图片数量
+      type: {
+        type: String,
+        value: 'textarea'
+      },
+      placeholder: {
         type: String,
         value: ''
       },
       // limit: Number
-      limit: {  // 已上传图片数量
+      limit: {
         type: Number,
         value: 0
       }
@@ -52,9 +63,6 @@
       }
     }
     ready () {
-      this.setData({
-        left: this.data.value.length
-      })
     }
   }
 </script>
@@ -69,6 +77,7 @@
   textarea {
     display: block;
     width: 325px;
+    height: 150px;
     font-size: 14px;
     color: #333;
   }

@@ -44,14 +44,26 @@ def getUserToken (arg):
   openId = arg['openId']
   # sql = 'select * from user where openId="%s"' % (openId)
   results = session.query(t_user).filter(t_user.openId==openId).all()
+  dic = {
+    'age': fields.String,
+    'auth': fields.String,
+    'avatarUrl': fields.String,
+    'city': fields.String,
+    'id': fields.String,
+    'name': fields.String,
+    'phone': fields.String
+  }
+
   if len(results) == 0 :
     results = False
   else:
-    results = results[0]
+    token = results[0]
+    print(results)
   if not results :
     return ''
   session.close()
-  return results.token
+  print(results)
+  return token
 
 # 判断token的有效性
 def validToken (token):
@@ -92,7 +104,8 @@ def getUserByToken (token, openId):  # print('header token', token)
           'id': fields.String,
           'name': fields.String,
           'openId': fields.String,
-          'token': fields.String,
+          'motto': fields.String,
+          # 'token': fields.String,
           'phone': fields.String,
           'city': fields.String,
           'auth': fields.String,

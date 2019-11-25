@@ -1,0 +1,157 @@
+<style lang="less">
+page {
+  background:linear-gradient(229deg,rgba(128,195,243,1) 0%,rgba(74,144,226,1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+}
+.logo {
+  width: 56px;
+  height: 14px;
+}
+.big-txt {
+  color: #fff;
+  font-size: 36px;
+  margin: 20px 0;
+}
+.sub {
+  color: #fff;
+  font-size: #FFFFFF;
+  margin-bottom: 50px;
+}
+.button {
+  width: 165px;
+  height: 45px;
+  border-radius: 30px;
+  line-height: 45px;
+  text-align: center;
+  font-size: 14px;
+  color: #fff;
+  background: #115DB6;
+}
+.bottom {
+  position: absolute;
+  bottom: 30px;
+  color: #fff;
+  width: 100%;
+  text-align: center;
+  .tip {
+    font-size: 12px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  .tip1 {
+    font-size: 14px;
+  }
+}
+</style>
+<template>
+  <view>
+    <image class="logo" src="../image/logo.png" />
+  </view>
+  <view class="big-txt">welcome</view>
+  <view class="sub">欢迎来到开黑社区</view>
+  <view>
+    <button class="button" open-type="getUserInfo" bindgetuserinfo="getUser">微信授权登录</button>
+  </view>
+  <view class="bottom">
+    <view class="tip">首次登录将自动注册</view>
+    <view class="tip1">允许小程序获取你的公开信息</view>
+  </view>
+  <!-- <view>授权页</view> -->
+</template>
+
+<script>
+import wexp from 'wexp/index'
+import {getUnreadMsgTotal} from '../mixins/api.js'
+import {login} from  '../mixins/resource'
+export default class extends wexp.page {
+  config = {
+    "navigationBarTitleText": "微信授权",
+    "enablePullDownRefresh": false,
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#f8f8f8",
+    "onReachBottomDistance": 50
+  }
+  data = {
+
+  }
+  methods = {
+    getUser(res) {
+      let detail = res.detail
+      debugger
+      if (detail.errMsg !== 'getUserInfo:ok') {
+        return
+      } else {
+        this.login()
+      }
+      console.log(res)
+    }
+  }
+  login () {
+    login().then(res => {
+      res = res.data
+      getApp().globalData.chatDir = wx.env.USER_DATA_PATH + '/env1chat' + res.userId + '/'
+      console.log(res, '用户信息')
+      getUnreadMsgTotal().then(res => {
+        let num = res.total > 0 ? res.total : null
+        getApp().globalData.unreadNum = res.total
+        if (num) {
+          wx.setTabBarBadge({
+            index: 1,
+            text: num
+          })
+        } else {
+          wx.removeTabBarBadge({
+            index: 1
+          })
+        }
+      })
+      this.connectSocket(res.userId)
+      wx.switchTab({
+        url:  './list'
+      })
+    })
+  }
+  connectSocket (userId) {
+    let url = 'ws://192.168.21.37:7000?sendId=' + userId +'&receiveId=001'
+    console.log(url)
+    let socketTask = wx.connectSocket({
+      url: url,
+      fail (res) {
+        console.log('webscoket链接失败', res)
+      },
+      success (res) {
+        console.log('链接成功', res)
+      }
+    })
+    // 接受消息
+    socketTask.onMessage((data) => {
+      console.log(data)
+      let str = JSON.parse(data.data)
+      getApp().globalData.unreadNum = getApp().globalData.unreadNum + 1
+      wx.setTabBarBadge({
+        index: 1,
+        text: getApp().globalData.unreadNum + ''
+      })
+    })
+  }
+  onLoad () {
+    let that = this
+    wx.getSetting({
+      success (res) {
+        if (res.authSetting['scope.userInfo']) {
+          that.login()
+        } else {
+          wx.authorize({
+            scope: 'scope.userInfo'
+          })
+        }
+      }
+    })
+
+  }
+}
+</script>
+

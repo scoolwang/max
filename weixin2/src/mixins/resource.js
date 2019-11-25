@@ -73,8 +73,8 @@ function login () {
       name: 'getUser',
       complete (res) {
         console.log('云函数getUser', res)
-        loginValid(res).then(() => {
-          resolve()
+        loginValid(res).then((res) => {
+          resolve(res)
         })
       }
     })
@@ -95,18 +95,20 @@ function loginValid (res) {
       /** 登录成功 */
       if (res.code === '200') {
         /** 更新缓存信息 */
-        getUserInfo().then((userInfo) => {
-          let info = Object.assign(userInfo, res.data)
-          wx.setStorageSync('userInfo', info)
-          resolve()
-        })
+        // getUserInfo().then((userInfo) => {
+        //   let info = Object.assign(userInfo, res.data)
+
+
+        // })
+        wx.setStorageSync('userInfo', res.data)
+        resolve(res)
       }
        /** 登录用户未注册，进行注册 */
       if (res.code === '901') {
         getUserInfo().then((userInfo) => {
           send( {
             avatarUrl: userInfo.avatarUrl,
-            name: userInfo.nickName,
+            name: userInfo.name,
             openId: openid
           }, 'api/register', 'POST').then((res)=> {
             console.log('注册', res)

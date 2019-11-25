@@ -61,6 +61,7 @@
 </style>
 <script>
   import wexp from 'wexp/index'
+  import {updateUser} from '../mixins/api.js'
   export default class extends wexp.page {
     config = {
       "navigationBarTitleText": "年龄",
@@ -116,9 +117,13 @@
       },
       save () {
         let pages = getCurrentPages()
-        let lastPage = pages[pages.length - 2]
-        lastPage.setData({
+        updateUser({
           age: this.data.value
+        }).then(res => {
+          let lastPage = pages[pages.length - 2]
+          lastPage.setData({
+            age: this.data.value
+          })
         })
         wx.navigateBack()
       }

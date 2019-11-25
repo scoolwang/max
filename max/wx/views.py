@@ -23,6 +23,7 @@ def action (request, sqlFn, isValidAuth=1):
   if isValidAuth == 1:
       auth = request.META.get("HTTP_ACCESS_TOKEN")
       print('获取token', auth)
+      print('获取params', params)
       sqlReuslt = getUserByToken(auth, params['openId'])
       if sqlReuslt == '1' or sqlReuslt == '2':
         sqlReuslt = returnFormat('', 'token无效', '701')
@@ -83,7 +84,7 @@ def getMsg(request):
   return action(request, sqlMsg.getMsg)
 
 def readMsg(request):
-  return action(request, models.readChatMsg)
+  return action(request, sqlMsg.readChatMsg)
 
 def getUnReadMsg(request):
   return action(request, sqlMsg.getUnReadMsgByUser)
@@ -117,3 +118,49 @@ def load(request):
 
 def getReply(request):
   return action(request, sqlActivity.getReply)
+
+def gameStatus(request):
+  return action(request, sqlUser.gameStatus)
+
+def updateUser(request):
+  return action(request, sqlUser.updateUser)
+
+def userAuth(request):
+  return action(request, sqlUser.userAuth)
+
+def getMyJoin(request):
+  return action(request, sqlActivity.getMyJoin)
+
+def recallJoin(request):
+  return action(request, sqlActivity.recallJoin)
+
+def getGameInfo(request):
+  return action(request, sqlAuth.getGameInfo)
+
+def careUser(request):
+  return action(request, sqlUser.careUser)
+
+def userAuthGame(request):
+  return action(request, sqlUser.userAuthGame)
+
+def commentUser(request):
+  return action(request, sqlActivity.commentUser)
+
+def getWords(request):
+  return action(request, sqlUser.getWords)
+
+def getGameList(request):
+  return action(request, sqlAuth.getGameList)
+
+def getFansList(request):
+  return action(request, sqlUser.getFansList)
+
+def getCareList(request):
+  return action(request, sqlUser.getCareList)
+
+def getUnreadMsgTotal(request):
+  return action(request, sqlMsg.getUnreadMsgTotal)
+def readMsgById(request):
+  return action(request, sqlMsg.readMsgById)
+
+

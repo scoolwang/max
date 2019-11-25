@@ -39,7 +39,7 @@ function loginValid (res) {
       if (res.code === '901') {
         getUserInfo().then((userInfo) => {
           api.reg({
-            name: userInfo.nickName,
+            name: userInfo.name,
             openId: openid
           }).then((res) => {
             /** 注册成功更新用户信息 */

@@ -1,6 +1,7 @@
 <template>
-  <view class="tag {{sex===1? 'tag-girl' : 'tag-boy'}}">
-    <text class="iconfont icon-sex {{sex==2? 'icon-girl' : 'icon-boy'}}"></text>
+  <view class="tag {{sex===2? 'tag-girl' : 'tag-boy'}}">
+    <text wx:if="{{sex==1}}" class="iconfont icon-sex icon-boy"></text>
+    <text wx:if="{{sex==2}}" class="iconfont icon-sex icon-girl"></text>
     <text class="age" wx:if="{{age > 0}}">{{age}}</text>
   </view>
 </template>

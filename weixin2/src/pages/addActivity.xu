@@ -3,8 +3,21 @@
   <scroll-view class="page">
     <view>
       <view class="title">车型</view>
-      <view class="item">
-        <text class="tag">DOTA2</text>
+      <view class="item swiper-item" wx:if="{{games.length > 0}}">
+        <swiper display-multiple-items="4"  current="{{swiperCurrent}}">
+          <block wx:for="{{games}}" wx:key="id">
+            <swiper-item class="dota type-box" catch:tap="selectGame" data-id="{{item.id}}"  data-name="{{item.name}}">
+              <view class="game-box {{params.gameId==item.id?'active-game-box':''}}">
+                <view class="logo-box">
+                  <image class="game-logo" src="{{item.logo}}" />
+                </view>
+
+                <text class="type-name">{{item.name}}</text>
+              </view>
+
+            </swiper-item>
+          </block>
+        </swiper>
       </view>
     </view>
     <view>
@@ -51,17 +64,25 @@
       </view>
     </view>
     <view>
+      <view class="title">标题</view>
+      <view class="item" style="display: block">
+        <!-- <area value="{{params.desc}}" ></area> -->
+        <area value="{{title}}" type="input"  custom-class="input-item" placeholder="" bind:change="titleChange" limit="{{30}}"></area>
+        <!-- <textarea value="{{}}" maxlength=10 class="input desc-area" placeholder="说点什么" placeholder-class="holder-text" /> -->
+      </view>
+    </view>
+    <view>
       <view class="title">描述</view>
       <view class="item">
         <!-- <area value="{{params.desc}}" ></area> -->
-        <area value="{{desc}}" placeholder="说点什么" bind:change="descChange" limit="{{limit}}"></area>
+        <area value="{{desc}}" type="textarea" placeholder="说点什么" bind:change="descChange" limit="{{limit}}"></area>
         <!-- <textarea value="{{}}" maxlength=10 class="input desc-area" placeholder="说点什么" placeholder-class="holder-text" /> -->
       </view>
     </view>
     <view>
       <view class="title">图片</view>
       <view class="item cover-item">
-        <view class="img-show" wx:for="{{imgs}}">
+        <view class="img-show" wx:for="{{imgs}}" wx:key="{{index}}">
           <image bindload="imgLoad" data-idx="{{index}}" mode="aspectFill" src="{{item}}" />
           <view class="del" catchtap="delImg" data-idx="{{index}}"><view class="iconfont icon-del-circle"></view></view>
         </view>
@@ -78,7 +99,7 @@
 import wexp from 'wexp/index'
 import { getUserInfo } from '../mixins/common'
 import {rootUrl} from '../mixins/config.js'
-import {addActivity} from '../mixins/api.js'
+import {addActivity, getGameList} from '../mixins/api.js'
 import { uploadImg } from '../mixins/common'
 const qiniuUploader = require('../mixins/qiniuUploader')
 export default class Index extends wexp.page {
@@ -103,21 +124,48 @@ export default class Index extends wexp.page {
     cover: '',
     limit: 200,
     desc: '',
+    title: '',
     startTime: '',
     imgs: [],
     imgsList: [],
+    games: [],
+    swiperCurrent: 0,
     params: {
-      gameId: 1,
+      gameId: '',
       startTime: '',
       limit: 1,
       desc: '',
+      title: '',
       cover: ''
     }
   }
 
-  onLoad () {
+  onLoad (opt) {
+    let gameId = opt.gameId
+    this.setData({
+      'params.gameId': gameId
+    })
     this.initPicker()
     this.getAddrss()
+    getGameList().then(res => {
+      let swiperCurrent =  this.data.swiperCurrent
+      for (let index in res.data) {
+        let item = res.data[index]
+        if ((item.id + '') ===  this.data.params.gameId) {
+          swiperCurrent = (index - 0) + 1
+        }
+      }
+      console.log(Math.ceil(swiperCurrent / 4) - 1)
+      this.setData({
+        games: res.data,
+        swiperCurrent: Math.ceil(swiperCurrent / 4)
+      })
+      // setTimeout(() => {
+      //   this.setData({
+      //     swiperCurrent: 2
+      //   })
+      // }, 5000)
+    })
     // this.$on('change', (val) => {
     //   this.params.desc = val
     // })
@@ -186,6 +234,12 @@ export default class Index extends wexp.page {
   }
 
   methods = {
+    selectGame (e) {
+      let id = e.currentTarget.dataset.id
+      this.setData({
+        'params.gameId': id
+      })
+    },
     /** 删除图片 */
     delImg (e) {
       let idx = e.currentTarget.dataset.idx
@@ -212,6 +266,12 @@ export default class Index extends wexp.page {
         'params.desc': b.detail
       })
     },
+    titleChange (b) {
+      console.log(b)
+      this.setData({
+        'params.title': b.detail
+      })
+    },
     limitInput (b) {
       this.setData({
         'params.seat': b.detail.value
@@ -222,14 +282,14 @@ export default class Index extends wexp.page {
         date: res.detail.value
       })
       // this.date = res.detail.value
-      console.log(res)
+      console.log('时间日期',res.detail.value)
     },
     bindTimeChange (res) {
       this.setData({
         time: res.detail.value
       })
-      this.time = res.detail.value
       console.log(res)
+      console.log('时间',res.detail.value)
     },
     bindRegionChange (res) {
       this.setData({
@@ -289,10 +349,8 @@ export default class Index extends wexp.page {
     },
     submit () {
       let startTime
-      wx.showToast({
-        title: '成功1',
-        icon: 'success'
-      })
+      let title = this.data.params.title.trim()
+      console.log(this.data.time)
       if (this.data.date === '') {
         if (this.data.time !== '') {
           wx.showToast({
@@ -311,8 +369,10 @@ export default class Index extends wexp.page {
           })
           return
         } else {
-          startTime = this.data.date + ' ' + this.data.time
-          startTime = new Date(startTime).getTime()
+          let date = this.data.date.split('-')
+          let time = this.data.time.split(':')
+          console.log(startTime)
+          startTime = new Date(date[0], date[1] - 1, date[2], time[0], time[1], 0).getTime()
           const nowTime = new Date().getTime()
           if (nowTime > startTime) {
             wx.showToast({
@@ -323,21 +383,34 @@ export default class Index extends wexp.page {
           }
         }
       }
+      if (title <= 0) {
+        wx.showToast({
+          title: '请输入标题',
+          icon: 'none'
+        })
+        return
+      }
+      console.log(this.data.date)
+      console.log(this.data.time)
       this.setData({
         params: {
           startTime: startTime,
           // city: this.data.region[1] || '',
           cover: this.data.imgsList.join(','),
           desc: this.data.params.desc,
+          title: this.data.params.title,
           seat: this.data.params.seat,
           gameId: this.data.params.gameId
         }
       })
       addActivity(this.data.params).then((res) => {
-          wx.showToast({
-            title: '发布成功',
-            icon: 'success'
-          })
+        wx.showToast({
+          title: '发布成功',
+          icon: 'success'
+        })
+        this.$route('navigater', './activity', {
+          id: res.data
+        })
       })
     }
   }
@@ -346,6 +419,12 @@ export default class Index extends wexp.page {
 <style lang="less" >
   page {
     background: #f8f8f8;
+  }
+
+  .input-item  {
+    input {
+      padding-right: 40px;
+    }
   }
   .del {
     position: absolute;
@@ -423,7 +502,7 @@ export default class Index extends wexp.page {
     align-items: center;
   }
   .primary-button {
-    background: #7CC986;
+    background: #4A90E2;
     height: 50px;
     line-height: 50px;
     border-radius: 0;
@@ -489,10 +568,46 @@ export default class Index extends wexp.page {
     /*background-color: red;*/
     flex: none;
   }
-    .select-area {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #f3f3f3;
+  .select-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f3f3f3;
+  }
+  swiper {
+    height: 55px;
+
+  }
+  .game-logo {
+    width: 30px;
+    height: 30px;
+    image {
+      width: 100%;
+      height: 100%;
     }
+  }
+  .type-name {
+    font-size: 10px;
+    color: #333;
+  }
+  .game-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.5s;
+    height: 55px;
+    box-sizing: border-box;
+    padding: 3px 0 10px 0;
+  }
+  .swiper-item {
+    display: block;
+    padding: 0;
+  }
+  .active-game-box {
+    background: #4A90E2;
+    .type-name {
+      color: #fff;
+    }
+  }
 </style>

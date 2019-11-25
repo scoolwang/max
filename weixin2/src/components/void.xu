@@ -6,7 +6,7 @@
       <text class="iconfont icon-shengyin-zuida void-icon" wx:if="{{(status===1 && ame === 3) || status === 0}}"></text>
     </view>
 
-    <text>{{voidTime}}</text>
+    <text class="time">{{voidTime}}</text>
   </view>
 </template>
 <script>
@@ -23,7 +23,11 @@
       },
       time: {
         type: Number,
-        default: 15
+        observer (val) {
+          this.setData({
+            voidTime: val
+          })
+        }
       },
       stop: {
         type: Boolean,
@@ -126,9 +130,7 @@
     }
     ready () {
       console.log(this.data)
-      this.setData({
-        voidTime: this.data.time
-      })
+
       console.error('ready')
     }
     created () {
@@ -151,8 +153,11 @@
       width: 20px;
     }
   }
-
-  .void text {
+  .time {
+    font-size: 10px;
+    line-height: 18px;
+  }
+  .void .iconfont {
     font-size: 10px;
     line-height: 18px;
   }

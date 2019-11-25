@@ -1,23 +1,14 @@
 // import wepy from 'wepy'
+import {formateTime} from 'common.js'
 const qiniuUploader = require("./qiniuUploader")
+let fileSystemManager = wx.getFileSystemManager()
+// import {getUser} from 'api.js'
 /** 获取用户信息 */
 function getUserInfo () {
   return new Promise((resolve, reject) => {
     let info = wx.getStorageSync('userInfo')
     if (!info) {
-      wx.getUserInfo({
-        success (res) {
-          debugger
-          console.log(res)
-          info = res.userInfo
-          wx.setStorageSync('userInfo', info)
-          resolve(info)
-        },
-        fail (res) {
-          console.log(res)
-          reject(res)
-        }
-      })
+      resolve(info)
     } else {
       resolve(info)
     }
@@ -91,13 +82,16 @@ function formatCreateTime (time) {
   let minute = dateTime.getMinutes()
   let second = dateTime.getSeconds()
   let now = new Date()
-  let nowDate = new Date().getTime() / 1000
+  let nowDate = (new Date().getTime()) / 1000
   let spaceTime = nowDate - time / 1000
   let timeSpanStr = ''
+  let isTody = false
   minute = minute < 10 ? '0' + minute : minute
   if (spaceTime <= 60) {
     timeSpanStr = '刚刚'
+
     if (spaceTime >=0) {
+      isTody = true
       timeSpanStr = parseInt(spaceTime) + '秒前'
     } else {
       if (year == now.getFullYear()) {
@@ -105,21 +99,145 @@ function formatCreateTime (time) {
       } else {
         timeSpanStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute
       }
+      isTody = false
     }
   } else if (60 * 1 < spaceTime && spaceTime <= 60 * 60) {
+    isTody = true
     timeSpanStr = Math.round((spaceTime / (60))) + '分钟前'
   } else if (60 * 60 * 1 < spaceTime && spaceTime <=  60 * 60 * 24) {
+    isTody = true
     timeSpanStr = Math.round(spaceTime / ( 60 * 60)) + '小时前';
   }
   else if (60 * 60 * 24 < spaceTime && spaceTime <=  60 * 60 * 24 * 15) {
+    isTody = false
     timeSpanStr = Math.round(spaceTime / ( 60 * 60 * 24)) + '天前';
   }
   else if (spaceTime > 60 * 60 * 24 * 15 && year == now.getFullYear()) {
+    isTody = false
     timeSpanStr = month + '-' + day + ' ' + hour + ':' + minute
   } else {
+    isTody = false
     timeSpanStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute
   }
-  return timeSpanStr
+  return {
+    str: timeSpanStr,
+    isTody: isTody,
+    spaceTime: spaceTime,
+    y: year,
+    m: month,
+    d: day,
+    h: hour,
+    mt: minute
+  }
+}
+/** data
+ *  data.time 时间戳
+ *  data.from 聊天对象用户id
+ *  data.data 聊天消息
+ *  data.type 消息类型 0：用户聊天 1：时间戳
+ *  data.avatarUrl 消息主体头像
+ *  data.nick 消息主体昵称
+ *  data.toAvatarUrl 消息接受者头像
+ *  data.toNick 消息接受者昵称
+ *  lastTimeTag 最后一条消息的时间点
+ */
+
+function msgHandle (data, lastTimeTag, fileDir) {
+  let time = data.time
+  let innserTag = false
+  let arry = []
+  let timeTag = formateMsgTime(time)
+  if (!lastTimeTag) {
+    innserTag = true
+  } else {
+    if (time - lastTimeTag > 5 * 60 * 1000) {
+      innserTag = true
+    }
+  }
+  if (innserTag) {
+    let obj = {
+      type: 0,
+      time: time,
+      timeStr: timeTag[0] + '年' + timeTag[1] + '月' + timeTag[2] + '日 ' + (timeTag[3] < 10 ? '0' + timeTag[3] : timeTag[3]) + ':' + (timeTag[4] < 10 ? '0' + timeTag[4] : timeTag[4]),
+      data: timeTag[3] + ':' + timeTag[4]
+    }
+    arry.push(obj)
+    lastTimeTag = time
+    writeChatFile(obj, fileDir)
+  }
+  arry.push(data)
+  debugger
+  writeChatFile(data, fileDir)
+  return {
+    data: arry,
+    lastTimeTag: time
+  }
+}
+function formateMsgTime (time) {
+  let d = time ? new Date(time) : new Date()
+  let y = d.getFullYear()
+  let m = d.getMonth() - 1
+  let day = d.getDay()
+  let hh = d.getHours()
+  let mm = d.getMinutes()
+  let ss = d.getSeconds()
+
+  return [y, m, day, hh, mm, ss]
+}
+// 把聊天记录写入到本地文件
+function writeChatFile (str, fileDir) {
+  let data = JSON.stringify(str) + '\r\n\r\n'
+  // let fileDir = wx.env.USER_DATA_PATH +  '/test.txt'
+  console.log('文件目录')
+  fileSystemManager.stat({
+    path: fileDir,
+    success: res => {
+      console.log('文件存在', res)
+      fileSystemManager.appendFile({
+        // filePath: res.savedFilePath,
+        filePath: fileDir,
+        data: data,
+        encoding: 'utf8',
+        success (res) {
+          console.log('追加1', res)
+        },
+        fail (res) {
+          console.log('追加2', res)
+        }
+      })
+    },
+    fail: res => {
+      console.log('文件不存在', fileDir, res)
+      /*
+       * writeFile第一天消息无法写入，所以先新建文件，再appFile追加新消息
+       *
+       *
+       */
+      fileSystemManager.writeFile({
+        // filePath: res.savedFilePath,
+        filePath: fileDir,
+        data: '\r\n\r\n',
+        encoding: 'utf8',
+        success (res) {
+          fileSystemManager.appendFile({
+            // filePath: res.savedFilePath,
+            filePath: fileDir,
+            data: data,
+            encoding: 'utf8',
+            success (res) {
+              console.log('追加3', res)
+            },
+            fail (res) {
+              console.log('追加4', res)
+            }
+          })
+        },
+        fail (res) {
+          console.log('写入失败', res)
+        }
+      })
+    }
+  })
 }
 qiniuUploader.init({
   region: 'ECN',
@@ -139,5 +257,6 @@ module.exports = {
   getUserInfo,
   base64_encode,
   uploadImg,
+  msgHandle,
   formatTime: formatCreateTime
 }
