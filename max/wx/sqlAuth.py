@@ -90,7 +90,7 @@ def getGameInfo(arg, userInfo):
   rows['levels']   =  levelRows
   return returnFormat(rows)
 
-def getGameList(arg, userInfo):
+def getGameList(arg):
   rows = session.query(t_game).all()
   rowsDic = {
     'id': fields.Integer(attribute='id'),
