@@ -150,7 +150,7 @@ def getWords(request):
   return action(request, sqlUser.getWords)
 
 def getGameList(request):
-  return action(request, sqlAuth.getGameList)
+  return action(request, sqlAuth.getGameList, 0)
 
 def getFansList(request):
   return action(request, sqlUser.getFansList)
