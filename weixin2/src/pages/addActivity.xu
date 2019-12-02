@@ -1,7 +1,7 @@
 
 <template>
   <scroll-view class="page">
-    <view>
+<!--     <view>
       <view class="title">车型</view>
       <view class="item swiper-item" wx:if="{{games.length > 0}}">
         <swiper display-multiple-items="4"  current="{{swiperCurrent}}">
@@ -19,7 +19,7 @@
           </block>
         </swiper>
       </view>
-    </view>
+    </view> -->
     <view>
       <view class="title">发车时间</view>
       <view class="item">
@@ -131,7 +131,7 @@ export default class Index extends wexp.page {
     games: [],
     swiperCurrent: 0,
     params: {
-      gameId: '',
+      gameId: 1,
       startTime: '',
       limit: 1,
       desc: '',
@@ -147,25 +147,25 @@ export default class Index extends wexp.page {
     })
     this.initPicker()
     this.getAddrss()
-    getGameList().then(res => {
-      let swiperCurrent =  this.data.swiperCurrent
-      for (let index in res.data) {
-        let item = res.data[index]
-        if ((item.id + '') ===  this.data.params.gameId) {
-          swiperCurrent = (index - 0) + 1
-        }
-      }
-      console.log(Math.ceil(swiperCurrent / 4) - 1)
-      this.setData({
-        games: res.data,
-        swiperCurrent: Math.ceil(swiperCurrent / 4)
-      })
-      // setTimeout(() => {
-      //   this.setData({
-      //     swiperCurrent: 2
-      //   })
-      // }, 5000)
-    })
+    // getGameList().then(res => {
+    //   let swiperCurrent =  this.data.swiperCurrent
+    //   for (let index in res.data) {
+    //     let item = res.data[index]
+    //     if ((item.id + '') ===  this.data.params.gameId) {
+    //       swiperCurrent = (index - 0) + 1
+    //     }
+    //   }
+    //   console.log(Math.ceil(swiperCurrent / 4) - 1)
+    //   this.setData({
+    //     games: res.data,
+    //     swiperCurrent: Math.ceil(swiperCurrent / 4)
+    //   })
+    //   // setTimeout(() => {
+    //   //   this.setData({
+    //   //     swiperCurrent: 2
+    //   //   })
+    //   // }, 5000)
+    // })
     // this.$on('change', (val) => {
     //   this.params.desc = val
     // })

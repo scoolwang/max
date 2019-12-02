@@ -1,5 +1,5 @@
 <template>
-<view class="game-type">
+<!-- <view class="game-type">
   <swiper display-multiple-items="4">
     <block wx:for="{{seachList}}" wx:key="id">
       <swiper-item class="dota type-box" catch:tap="selectGame" data-id="{{item.id}}"  data-name="{{item.name}}">
@@ -16,7 +16,7 @@
   </swiper>
 </view>
 <view   class="game-type-solt"></view>
-
+ -->
 
 <!-- <view class="type-module-wrap">
   <view class="type-module">
@@ -106,7 +106,7 @@
         selectedId: 4,
         class: 'tab-success'
       },
-      gameId: '',
+      gameId: 1,
       seachList: [],
       modalShow: false,
       page: 1,
@@ -175,17 +175,17 @@
         withShareTicket: true
       })
       wx.showLoading()
-      getGameList().then(res =>{
-        let list = res.data
-        list.unshift({
-          id: '',
-          name: '全部',
-          logo: 'https://sta-op.douyucdn.cn/dycatr/6b1ca7930ebf10c660f46dfda64a3f64.png'
-        })
-        this.setData({
-          seachList: res.data
-        })
-      })
+      // getGameList().then(res =>{
+      //   let list = res.data
+      //   list.unshift({
+      //     id: '',
+      //     name: '全部',
+      //     logo: 'https://sta-op.douyucdn.cn/dycatr/6b1ca7930ebf10c660f46dfda64a3f64.png'
+      //   })
+      //   this.setData({
+      //     seachList: res.data
+      //   })
+      // })
       this.setData({
         page: 1
       })

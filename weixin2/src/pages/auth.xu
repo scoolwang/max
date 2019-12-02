@@ -406,7 +406,7 @@ export default class extends wexp.page {
     timer: 0,
     timerServer: '',
     voidStatus: 0,  // 0 未开始； 1 正在录音 2 录制完成 3 试听
-    showModal: true,
+    showModal: false,
     imgSrc: '',
     sex: '',
     sexId: '',

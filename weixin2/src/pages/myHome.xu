@@ -25,7 +25,7 @@
       <view class="title">游戏认证</view>
       <view class="auth-list">
 
-        <view wx:if="{{item.status!=0}}" class="type-box {{item.status==2?'waiting':''}}  {{item.status==0?'unauth':''}}" wx:for="{{authList}}" wx:key="{{index}}" data-obj="{{item}}" bind:tap="linkGame">
+        <view class="type-box {{item.status==2?'waiting':''}}  {{item.status==0?'unauth':''}}" wx:for="{{authList}}" wx:key="{{index}}" data-obj="{{item}}" bind:tap="linkGame">
           <view class="type">
             <image. mode="aspectFit" src="{{item.logo}}?1" />
           </view>
@@ -33,9 +33,9 @@
           <text wx:if="{{item.status==0}}" class="type-name">未认证</text>
           <text  wx:if="{{item.status==2}}" class="type-name">待审核</text>
         </view>
-        <view class="add-auth" bindtap="linkAuth">
+        <!-- <view class="add-auth" bindtap="linkAuth">
           <view class="iconfont icon-add"></view>
-        </view>
+        </view> -->
       </view>
     </view>
     <view class="link" bind:tap="linkActy">
@@ -339,6 +339,13 @@
             authList: res.data
           })
         })
+        // getUserAuthGame({
+        //   userId: res.data.id
+        // }).then(res => {
+        //   this.setData({
+        //     authList: res.data
+        //   })
+        // })
       })
     }
     onLoad () {
