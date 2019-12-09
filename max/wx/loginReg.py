@@ -21,7 +21,7 @@ from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken
 from wx.aescrypt import EncryptAES
 
 aes = EncryptAES()
-db = sqlConnect.DbMgr()
+db = sqlConnect.db
 session = db.session
 # 登录
 def login (arg):

@@ -30,23 +30,20 @@ from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
 from wx.sqlMsg import addMsg
 from wx import socket1
-db = sqlConnect.DbMgr()
+print(sqlConnect.db)
+db = sqlConnect.db
+# db = sqlConnect.db
 session = db.session
 engine = db.engine
-print('当前时间')
-print(datetime.datetime.now())
 # 查询活动详情
 def activityDetail (arg, userInfo):
   activityId = arg['id']
   results = results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id).outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId)).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).outerjoin(t_level, t_level.id == t_auth.levelId).filter(t_activity.id==activityId)
 
 
-  print(results)
   # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
-  # print(len(results), '长度')
   arry = []
   for item, userName, userAge,avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg,userId in results :
-    print('结果遍历', item.startTime)
     item.userName = userName
     item.age = userAge
     item.gameName = gameName
@@ -56,9 +53,9 @@ def activityDetail (arg, userInfo):
     item.auth = authStatus
     item.avatarUrl = avatarUrl
     item.levelImg = levelImg
-    # item.startDate = pendulum.instance(item.startTime).int_timestamp
-    item.startTime = pendulum.instance(item.startTime).int_timestamp * 1000
-    item.createTime = pendulum.instance(item.createTime).int_timestamp * 1000
+    # item.startDate = pendulum.instance(item.startTime).float_timestamp
+    item.startTime = pendulum.instance(item.startTime).float_timestamp * 1000
+    item.createTime = pendulum.instance(item.createTime).float_timestamp * 1000
     arry.append(item)
 
   dic = {
@@ -85,7 +82,6 @@ def activityDetail (arg, userInfo):
 
   results =  marshal(arry, dic)
   session.close()
-  print('活动', results)
   if len(results) == 0 :
     results = []
   else:
@@ -101,7 +97,7 @@ def activityList (arg, userInfo):
   filterUserId = userInfo['id']
   # if userId:
   #   filterUserId = userId
-
+  time1 = pendulum.now('UTC').float_timestamp * 1000
   results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id, t_passenger.id)
   results = results.outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId))
   results = results.join(t_user, t_activity.userId == t_user.id)
@@ -119,64 +115,89 @@ def activityList (arg, userInfo):
 
   num = results.count()
   results = results.limit(pageSize).offset(page * pageSize)
-  print(results)
-  # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
 
+  # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
+  time2 = pendulum.now('UTC').float_timestamp * 1000
+  t = time2 - time1
+  t = str(t)
+  print('sql查询耗时:', t)
   arry = []
   for item, userName, userAge, avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg, userId, pid in results :
-    print('结果遍历2', item.createTime)
-    print('乘客', pid)
     if pid == None:
       passenger = 2
     else:
       passenger = 1
-    item.userName = userName
-    item.userId = userId
-    item.age = userAge
-    item.gameName = gameName
-    item.avatarUrl = avatarUrl
-    item.gameLogo = gameLogo
-    item.sex = authSex
-    item.levelId = levelId
-    item.auth = authStatus
-    item.levelImg = levelImg
-    item.startDate = pendulum.instance(item.startTime).int_timestamp * 1000
-    item.createTime1 = pendulum.instance(item.createTime).int_timestamp * 1000
-    item.isPassenger = passenger # 1已申请，2未申请
-    arry.append(item)
+    # item.userName = userName
+    # item.userId = userId
+    # item.age = userAge
+    # item.gameName = gameName
+    # item.avatarUrl = avatarUrl
+    # item.gameLogo = gameLogo
+    # item.sex = authSex
+    # item.levelId = levelId
+    # item.auth = authStatus
+    # item.levelImg = levelImg
+    # item.startDate = pendulum.instance(item.startTime).float_timestamp * 1000
+    # item.createTime1 = pendulum.instance(item.createTime).float_timestamp * 1000
+    # item.isPassenger = passenger # 1已申请，2未申请
+    act = {
+      'id': item.id, # 活动ID
+      'userId': userId, # 用户
+      'detail': item.detail, # 描述
+      'title': item.title, # 标题
+      'gameId': item.gameId, # 游戏ID
+      'gameName': gameName, # 游戏名字
+      'gameLogo': gameLogo, # 游戏图标
+      'userName': userName, # 用户名
+      'avatarUrl': avatarUrl, # 用户名    'userId': fields.String, # 用户id
+      'cover': item.cover, # 活动封面
+      'desc': item.detail, # 描述
+      'isPassenger': passenger, # 1已申请，2未申请
+      'startTime': pendulum.instance(item.startTime).float_timestamp * 1000, # 发车时间
+      # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
+      'createTime': pendulum.instance(item.createTime).float_timestamp * 1000, # 发帖时间
+      'vacancy': item.vacancy, # 空位
+      'seat': item.seat, # 座位总数
+      'sex': authSex, # 性别
+      'levelId':  levelId, # 段位id
+      'auth':  authStatus, # 认证状态
+      'age':  userAge, # 年龄
+      'levelImg':  levelImg # 段位logo
+    }
+    arry.append(act)
 
-  dic = {
-    'id': fields.String, # 活动ID
-    'userId': fields.String, # 用户
-    'detail': fields.String, # 描述
-    'title': fields.String, # 标题
-    'gameId': fields.String, # 游戏ID
-    'gameName': fields.String, # 游戏名字
-    'gameLogo': fields.String, # 游戏图标
-    'userName': fields.String, # 用户名
-    'avatarUrl': fields.String, # 用户名    'userId': fields.String, # 用户id
-    'cover': fields.String, # 活动封面
-    'desc': fields.String(attribute='detail'), # 描述
-    'isPassenger': fields.Integer, # 发车时间
-    'startTime': fields.Integer(attribute='startDate'), # 发车时间
-    # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
-    'createTime': fields.Integer(attribute='createTime1'), # 发帖时间
-    'vacancy': fields.String, # 空位
-    'seat': fields.String, # 座位总数
-    'sex': fields.String, # 性别
-    'levelId':  fields.String, # 段位id
-    'auth':  fields.String, # 认证状态
-    'age':  fields.String, # 年龄
-    'levelImg':  fields.String # 段位logo
-  }
-  results =  marshal(arry, dic)
-  print('活动', results)
+  # dic = {
+  #   'id': fields.String, # 活动ID
+  #   'userId': fields.String, # 用户
+  #   'detail': fields.String, # 描述
+  #   'title': fields.String, # 标题
+  #   'gameId': fields.String, # 游戏ID
+  #   'gameName': fields.String, # 游戏名字
+  #   'gameLogo': fields.String, # 游戏图标
+  #   'userName': fields.String, # 用户名
+  #   'avatarUrl': fields.String, # 用户名    'userId': fields.String, # 用户id
+  #   'cover': fields.String, # 活动封面
+  #   'desc': fields.String(attribute='detail'), # 描述
+  #   'isPassenger': fields.Integer, # 发车时间
+  #   'startTime': fields.Integer(attribute='startDate'), # 发车时间
+  #   # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
+  #   'createTime': fields.Integer(attribute='createTime1'), # 发帖时间
+  #   'vacancy': fields.String, # 空位
+  #   'seat': fields.String, # 座位总数
+  #   'sex': fields.String, # 性别
+  #   'levelId':  fields.String, # 段位id
+  #   'auth':  fields.String, # 认证状态
+  #   'age':  fields.String, # 年龄
+  #   'levelImg':  fields.String # 段位logo
+  # }
+  # results =  marshal(results, dic)
+  time3 = pendulum.now('UTC').float_timestamp * 1000
+  t1 = time3 - time2
+  t1 = str(t1)
+
   session.close()
-  if len(results) == 0 :
-    results = []
-  else:
-    results = results
-  return returnFormat(results, total=num)
+  print('遍历耗时:', t1)
+  return returnFormat(arry, total=num)
 
 # 发布活动
 def addActivity (arg, userInfo):
@@ -191,21 +212,18 @@ def addActivity (arg, userInfo):
   activityId = str(uuid.uuid1())
   # createTime = int(round(time.time() * 1000))
   createTime = pendulum.now('UTC')
-  print('时间', createTime)
   if startTime == '':
     startTime = 0
   else:
     startTime = int(startTime)
     startTime = datetime.datetime.fromtimestamp(startTime/1000)
     startTime = pendulum.instance(startTime)
-    print('时间戳转换', startTime)
   userId = userInfo['id']
   results = t_activity(id=activityId, gameId=gameId, cover=cover, detail=desc, title=title, startTime=startTime, createTime=createTime, seat=seat, userId=userId, vacancy=seat)
   session.add(results)
   session.commit()
   session.close()
   # sql = 'insert into activity (id, userId, createTime, startTime, t_desc, t_limit, t_left, cover, gameId) values ("%s", "%s", "%d", "%d", "%s", "%d", "%d", "%s", "%s")' % (activityId, userId, createTime, startTime, desc, limit, 0, cover, gameId)
-  print(results)
   # results = runSql(sql)
   return returnFormat(activityId, '发布成功')
 
@@ -220,15 +238,12 @@ def joinActivity (arg, userInfo):
   createTime = pendulum.now('UTC')
   results = session.query(t_passenger).filter(t_passenger.userId==userId, t_passenger.activityId==activityId).all()
   session.close()
-  # print(str(session.query(t_passenger).filter(t_passenger.userId==userId)))
   with session.no_autoflush:
     activity = session.query(t_activity, t_user.name, t_user.avatarUrl).join(t_user, t_user.id==t_activity.userId).filter(t_activity.id==activityId).one()
     session.close()
   if len(results) > 0:
     return returnFormat('', '已申请过', '901')
 
-  print(createTime, 'createTime字符串')
-  # print(activity.Activity.userId, 'createTime字符串')
   row = t_passenger(id=ids, activityId=activityId, detail=detail,createTime=createTime,userId=userId, status=status)
   session.add(row)
   session.commit()
@@ -257,7 +272,6 @@ def joinActivity (arg, userInfo):
 def getActivityUsers (arg, userInfo):
   activityId = arg['id']
   activity = session.query(t_activity).filter(t_activity.id==activityId).first()
-  print(activity.gameId, '游戏id')
   results = session.query(t_passenger,
     t_passenger.detail,
     t_passenger.status,
@@ -272,7 +286,6 @@ def getActivityUsers (arg, userInfo):
 
 
   for item, detail, status, createTime, userId, userName, userAvatarUrl, userSex, userAge,authstatus in results :
-    print(authstatus, '用户长度')
     item.userName = userName
     item.age = userAge if authstatus== 1 else ''
     item.avatarUrl = userAvatarUrl
@@ -307,7 +320,6 @@ def editStatus (arg, userInfo):
   actionUserid = userInfo['id']
   activity = session.query(t_activity).filter(t_activity.id==activityId).one()
   session.close()
-  print(activity.userId)
   if activity.userId != actionUserid:
     return returnFormat('', '没有权限', '901')
 
@@ -335,8 +347,6 @@ def addComment (arg, userInfo):
   toAvatarUrl = ''
   createTime = pendulum.now('UTC')
 
-  print('创建时间')
-  print(len(parentId))
   activity = session.query(t_activity, t_activity.title).filter(t_activity.id==activityId).one()
   if len(parentId) > 0 :
     reply = session.query(t_comment).filter(t_comment.id==parentId).one()
@@ -358,7 +368,7 @@ def addComment (arg, userInfo):
     msg = {
       'sendId': userId,
       'receiveId':toId,
-      'time': createTime.int_timestamp * 1000,
+      'time': createTime.float_timestamp * 1000,
       'type': 5,
       'id': ids,
       'data': {
@@ -380,13 +390,12 @@ def addComment (arg, userInfo):
         cmt = session.query(t_reply, t_reply.content).filter(t_reply.id==replyCmtId).one()
     msg['data']['replyContent'] = cmt.content
     # if cmt.toId==cmt.userId:
-    print('创建时间11')
   else:
     # 添加评论
     msg = {
       'sendId': userId,
       'receiveId':activity.Activity.userId,
-      'time': createTime.int_timestamp * 1000,
+      'time': createTime.float_timestamp * 1000,
       'type': 5,
       'id': ids,
       'data': {
@@ -397,11 +406,9 @@ def addComment (arg, userInfo):
         'activityId': activityId
       }
     }
-    print(msg)
     addComment = t_comment(id=ids, userId=userId, time=createTime, activityId=activityId, content=content, userName=userName, userAvatarUrl=userAvatarUrl, imgs=imgs)
     db.insert(addComment)
 
-  print(msg)
   socket1.sendMsg(msg)
   addMsg(msg)
   return  returnFormat({'id': ids}, '评论成功')
@@ -421,15 +428,12 @@ def getComment(arg, userInfo):
   session.close()
 
   maxPage = math.ceil(cmtTotal/pageSize)
-  print(page, maxPage)
   if page >= maxPage :
     return returnFormat([], total=commentTotal.total)
 
-  print('return最后')
   #评论查询
   comment = session.query(t_comment, t_comment.time, t_comment.id).order_by(t_comment.time.asc()).filter(t_comment.activityId==activityId).limit(pageSize).offset(page * pageSize)
 
-  print(comment)
   session.close()
   ids = []
 
@@ -437,7 +441,6 @@ def getComment(arg, userInfo):
     ids.append(id)
 
   parentIds = ','.join(map(lambda x: "'%s'" % x, ids))
-  print(len(ids), '拼了长度')
   # 回复查询
   sql = "SELECT t.* FROM (SELECT a.*, a.parentId as pId, IF (@str1 = a.parentId, @rank := @rank + 1, @rank := 1) AS rank_no, (@str1 := a.parentId) as d FROM ( SELECT reply.* FROM reply ORDER BY parentId, time asc) a, (select @str1 :=0, @rank :=0) tmp ) t WHERE t.parentId in (%s) and t.rank_no <= 4" % (parentIds)
 
@@ -468,7 +471,6 @@ def getComment(arg, userInfo):
     # 'reply': fields.List
   }
   replyObj = {}
-  print('id                                    内容                              rank_no')
   for item in ret :
     replyItem = {
       'activityId': item.activityId,
@@ -486,11 +488,10 @@ def getComment(arg, userInfo):
     }
     parentId = item.parentId
     reply = replyObj.get(parentId, [])
-    time = pendulum.instance(item.time).int_timestamp * 1000
+    time = pendulum.instance(item.time).float_timestamp * 1000
     replyItem['time'] = time
     reply.append(replyItem)
     replyObj[parentId] = reply
-    print(item.parentId, '         ' ,item.content, '                       ', item.rank_no )
 
   for item, time, id in comment:
     commentId = item.id
@@ -540,7 +541,7 @@ def getReply(arg, userInfo):
   }
   arry = []
   for item in reply :
-    time = pendulum.instance(item.time).int_timestamp * 1000
+    time = pendulum.instance(item.time).float_timestamp * 1000
     item.time = time
     arry.append(item)
 
@@ -562,20 +563,17 @@ def getMyJoin(arg, userInfo):
   results = results.outerjoin(t_words, t_words.activityId == t_activity.id)
   results = results.order_by(t_passenger.createTime.asc())
 
-  print('心大的sql')
-  print(results)
   results = results.filter(t_passenger.userId==userId)
 
   results.limit(pageSize).offset(page * pageSize)
   arry = []
   for item, activity, auth, level, game, user, words  in results :
-    startTime  =  pendulum.instance(activity.startTime).int_timestamp * 1000
-    nowTime = pendulum.now('UTC').int_timestamp * 1000
+    startTime  =  pendulum.instance(activity.startTime).float_timestamp * 1000
+    nowTime = pendulum.now('UTC').float_timestamp * 1000
     if words == None:
       comment = False
     else:
       comment = True
-    print(words,  '评价')
     if nowTime > startTime :
       if item.status==2 :
         status = 4 # 已完成
@@ -599,9 +597,9 @@ def getMyJoin(arg, userInfo):
       'avatarUrl': user.avatarUrl, # 用户名    'userId': fields.String, # 用户id
       'cover': activity.cover, # 活动封面
       'desc': item.detail, # 乘客留言
-      'startTime': pendulum.instance(activity.startTime).int_timestamp * 1000, # 发车时间
+      'startTime': pendulum.instance(activity.startTime).float_timestamp * 1000, # 发车时间
       # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
-      'createTime': pendulum.instance(activity.createTime).int_timestamp * 1000, # 发帖时间
+      'createTime': pendulum.instance(activity.createTime).float_timestamp * 1000, # 发帖时间
       'vacancy': activity.vacancy, # 空位
       'seat': activity.seat, # 座位总数
       'sex': auth.sex if auth != None else '' , # 性别
@@ -652,13 +650,11 @@ def commentUser(arg, userInfo):
 #   age = arg['age']
 #   authId = str(uuid.uuid1())
 #   userInfo = getUserByToken(token)
-#   print(userInfo)
 #   if userInfo == '1' or userInfo == '2':
 #     return returnFormat('', 'token无效', '701')
 #   else:
 #     userId = userInfo['id']
 #     sql = 'insert into auth (id, userId, gameId, voidSrc, gameImg, sex, age) values ("%s", "%s", "%d", "%s", "%s", "%s", "%s")' % (authId, userId, gameId, voidSrc, gameImg, sex, age)
-#     print(sql)
 #     results = runSql(sql)
 #     return returnFormat('', '提交成功')
 
@@ -671,15 +667,11 @@ def commentUser(arg, userInfo):
 #   timeStr = arg['time']
 #   msgType = int(arg['type'])
 #   status = 0
-#   print(arg)
-#   print('时间')
-#   print(timeStr)
 #   # userInfo = getUserByToken(token)
 #   # if userInfo == '1' or userInfo == '2':
 #   #   return returnFormat('', 'token无效', '701')
 #   # else:
 #   sql = 'insert into message (id, sendId, receiveId, msg, time, type, status) values ("%s", "%s", "%s", "%s", "%d", "%d", "%d")' % (msgId, sendId, receiveId, msg, timeStr, msgType, status)
-#   print(sql)
 #   results = runSql(sql)
 #   return returnFormat('', '添加成功')
 
@@ -687,16 +679,11 @@ def commentUser(arg, userInfo):
 # def getMsg (arg):
 #   token = arg['token']
 #   userInfo = getUserByToken(token)
-#   print('用户信心')
-#   print(userInfo)
-#   print('用户信心1')
 #   if userInfo == '1' or userInfo == '2':
 #     return returnFormat('', 'token无效', '701')
 #   else:
 #     userId = userInfo['id']
-#     print('信息查询')
 #     sql = 'select t1.*, t2.name, t2.avatarUrl from message as t1, user as t2 where t1.receiveId= "%s" and t1.status=0 and t2.id=t1.sendId order by t1.time ASC' % (userId)
-#     print(sql)
 #     results = runSql(sql)
 #     return returnFormat(results, 'success')
 
@@ -705,9 +692,6 @@ def commentUser(arg, userInfo):
 #   sendId = arg['id']
 #   token = arg['token']
 #   userInfo = getUserByToken(token)
-#   print('用户信心')
-#   print(userInfo)
-#   print('用户信心1')
 #   if userInfo == '1' or userInfo == '2':
 #     return returnFormat('', 'token无效', '701')
 #   else:
@@ -718,8 +702,6 @@ def commentUser(arg, userInfo):
 
 # # 获取用户的未读消息
 # def getUnReadMsgByUser (arg):
-#   print('获取用户的未读消息')
-#   print(arg)
 #   sendId = arg['id']
 #   token = arg['token']
 #   userInfo = getUserByToken(token)

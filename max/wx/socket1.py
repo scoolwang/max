@@ -260,6 +260,7 @@ class websocket_server(threading.Thread):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(('39.98.220.75', self.port))
+        # sock.bind(('192.168.21.37', self.port))
         sock.listen(5)
 
         print('服务端连接建立')

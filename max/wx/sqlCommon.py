@@ -17,7 +17,7 @@ from wx import sqlConnect
 from Crypto.Cipher import AES
 from binascii import b2a_hex, a2b_hex
 from wx.aescrypt import EncryptAES
-db = sqlConnect.DbMgr()
+db = sqlConnect.db
 session = db.session
 aes = EncryptAES()
 def returnFormat (data, message='', code='200', total=''):

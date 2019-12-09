@@ -3,17 +3,18 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.core import serializers
-from wx import models, upload, loginReg, sqlUser, sqlActivity, sqlAuth, sqlMsg
+from wx import upload, loginReg, sqlUser, sqlActivity, sqlAuth, sqlMsg
 from wx import socket1
 from wx.sqlCommon import getUserByToken, returnFormat
-from wx.sqlConnect import session
 # from wx import upload
 import json
+import pendulum
 socket1.on()
 def action (request, sqlFn, isValidAuth=1):
   # print('签名', request.META.get("HTTP_ACCESS_TOKEN"))
   # print('签名2', request.META.get("HTTP_CLIENT"))
   # print(request.META.get("HTTP_ACCESS_TOKEN"))
+  time1 = pendulum.now('UTC').float_timestamp * 1000
   if request.method == 'GET' :
     params = request.GET.dict()
   else:
@@ -22,8 +23,6 @@ def action (request, sqlFn, isValidAuth=1):
   # print('签名2', params)
   if isValidAuth == 1:
       auth = request.META.get("HTTP_ACCESS_TOKEN")
-      print('获取token', auth)
-      print('获取params', params)
       sqlReuslt = getUserByToken(auth, params['openId'])
       if sqlReuslt == '1' or sqlReuslt == '2':
         sqlReuslt = returnFormat('', 'token无效', '701')
@@ -38,6 +37,12 @@ def action (request, sqlFn, isValidAuth=1):
   else:
     sqlReuslt = sqlFn(params)
 
+  time2 = pendulum.now('UTC').float_timestamp * 1000
+  t = time2 - time1
+  t = str(t)
+  print(time1)
+  print(time2)
+  print('接口耗时:', t)
   # print('***********返回数据start***************')
   # print(json.dumps(sqlReuslt, ensure_ascii=False))
   # print('***********返回数据end***************')

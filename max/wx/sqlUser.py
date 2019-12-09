@@ -26,7 +26,7 @@ from wx import socket1
 # from wx.sqlConnect import session
 from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
-db = sqlConnect.DbMgr()
+db = sqlConnect.db
 session = db.session
 
 # 获取用户信息
@@ -160,7 +160,7 @@ def careUser(arg, userInfo):
   msg = {
     'sendId': from_user,
     'receiveId':to_user,
-    'time': createTime.int_timestamp * 1000,
+    'time': createTime.float_timestamp * 1000,
     'type': 4,
     'data': {
       'sendName': userInfo['name'],
@@ -220,7 +220,7 @@ def getWords(arg, userInfo):
       'gameId': words.gameId,
       'userName': user.name,
       'avatarUrl': user.avatarUrl,
-      'time': pendulum.instance(words.time).int_timestamp * 1000, # 发帖时间
+      'time': pendulum.instance(words.time).float_timestamp * 1000, # 发帖时间
     }
     arry.append(item)
   db.select(row)

@@ -23,7 +23,7 @@ from binascii import b2a_hex, a2b_hex
 from wx.aescrypt import EncryptAES
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
 aes = EncryptAES()
-db = sqlConnect.DbMgr()
+db = sqlConnect.db
 session = db.session
 # 添加未读消息
 def addMsg (arg):

@@ -22,7 +22,7 @@ import uuid
 import pendulum
 from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
-db = sqlConnect.DbMgr()
+db = sqlConnect.db
 session = db.session
 def sql_result_to_json(result):
   if type(result) is dict:

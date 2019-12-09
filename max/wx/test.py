@@ -1,2 +1,2 @@
-import datetime
+import {}
 print(datetime.datetime.now())
