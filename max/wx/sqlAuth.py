@@ -104,17 +104,6 @@ def getGameList(arg):
   t = str(t)
   print('getGameList查询耗时：', t)
 
-  count = 0
-  while count < 50:
-    session.query(t_game).all()
-    count = count + 1
-
-  time3 = pendulum.now('UTC').float_timestamp * 1000
-  t = time3 - time2
-  t = str(t)
-  print('getGameList循环50次耗时：', t)
-
-
   rows =  marshal(rows, rowsDic)
 
   # session.close()
