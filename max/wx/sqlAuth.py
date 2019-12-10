@@ -59,14 +59,14 @@ def auth (arg, userInfo):
     if authRow.status != 2:
        session.delete(authRow)
        session.commit()
-       session.close()
+       # session.close()
     else:
        return returnFormat('', '提交失败，认证信息正在审核中', '901')
 
   row = t_auth(id=authId, gameId=gameId, voidSrc=voidSrc, detail=detail, gameImg=gameImg, sex=sex, status=2, levelId=levelId, userId=userId, createTime=createTime, voidTime=voidTime)
   session.add(row)
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat('', '提交成功')
 
 def getGameInfo(arg, userInfo):

@@ -72,7 +72,7 @@ def getUserById (arg, userInfo):
     results =  marshal(arry, dic)
     results = results[0]
     print('用户信息', results)
-  session.close()
+  # session.close()
   if not results :
     return returnFormat('', '用户不存在', '901')
   return returnFormat(results)
@@ -109,7 +109,7 @@ def updateUser(arg, userInfo):
   person = session.query(t_user).filter(t_user.id==userInfo['id']).update(arg)
 
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat('')
 
 # 获取用户认证信息
@@ -150,7 +150,7 @@ def careUser(arg, userInfo):
   if len(fans) > 0:
     session.delete(fans[0])
     session.commit()
-    session.close()
+    # session.close()
     return returnFormat('', '已取消关注')
 
   id = str(uuid.uuid1())
@@ -240,7 +240,7 @@ def getFansList(arg, userInfo):
       'motto': user.motto
     }
     arry.append(item)
-  session.close()
+  # session.close()
   return returnFormat(arry)
 
 # 我关注的
@@ -257,6 +257,6 @@ def getCareList(arg, userInfo):
       'motto': user.motto
     }
     arry.append(item)
-  session.close()
+  # session.close()
   return returnFormat(arry)
 

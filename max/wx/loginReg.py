@@ -39,7 +39,7 @@ def login (arg):
     results = results[0]
 
   if not results :
-    session.close()
+    # session.close()
     return returnFormat('', '登录openId未注册', '901')
   else:
     userId = results.id
@@ -62,7 +62,7 @@ def login (arg):
         # 提交即保存到数据库:
         session.commit()
         # 关闭session:
-        session.close()
+        # session.close()
       except:
         session.rollback()
         return returnFormat('202', '数据库操作失败')

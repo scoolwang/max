@@ -50,7 +50,7 @@ def addMsg (arg):
   row = t_message(id=msgId, sendId=sendId, receiveId=receiveId, msg=msgStr, time=startTime, msgType=msgType, status=0)
   session.add(row)
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat('', '添加成功')
 
 
@@ -83,7 +83,7 @@ def getUnReadMsgByUser (arg, userInfo):
   }
   results =  marshal(results, dic)
   print('用户消息', results)
-  session.close()
+  # session.close()
   readChatMsg({
     'receiveId': userId,
     'sendId': sendId,
@@ -119,7 +119,7 @@ def getChatUnreadMsg ():
   }
   results =  marshal(results, dic)
   print('用户消息', results)
-  session.close()
+  # session.close()
   return returnFormat(results, '拉取用户未读消息不修改状态')
 
 # 获取系统消息
@@ -154,7 +154,7 @@ def getSysMsg (arg, userInfo):
   }
   results =  marshal(results, dic)
   print('用户消息', results)
-  session.close()
+  # session.close()
   return returnFormat({'list': results, 'unReadNum': unReadNum}, '拉取系统未读消息')
 
 # 获取上车消息
@@ -185,7 +185,7 @@ def getApplyMsg (arg, userInfo):
   }
   results =  marshal(results, dic)
   print('用户消息', results)
-  session.close()
+  # session.close()
   readChatMsg({
     'receiveId': userId,
     'sendId': '001'
@@ -209,7 +209,7 @@ def getMsg(arg, userInfo):
   # results5 = session.query(t_message, t_user.avatarUrl, t_user.name).join(t_user, t_message.sendId == t_user.id).filter(t_message.receiveId==userId, t_message.msgType==5, t_message.status==0).all()
   # 评论
   results = session.query(t_message, t_user.avatarUrl, t_user.name).join(t_user, t_message.sendId == t_user.id).filter(t_message.receiveId==userId).all()
-  session.close()
+  # session.close()
   arry1 = []
   arry2 = []
   arry3 = []
@@ -252,7 +252,7 @@ def getMsg(arg, userInfo):
   results3 =  marshal(arry3, dic)
   results4 =  marshal(arry4, dic)
   results5 =  marshal(arry5, dic)
-  session.close()
+  # session.close()
   # print(results1, '集合长度')
   # print(len(results1), '集合长度')
   return returnFormat({'chat': results1, 'sys': results2, 'apply': results3, 'comment': results5, 'fans': results4}, '消息页面')
@@ -274,7 +274,7 @@ def readChatMsg (arg, userInfo):
       return returnFormat('', '参数错误', '901')
     results = session.query(t_message).filter(t_message.id == id,t_message.status==0).update({t_message.status: 1})
   session.commit()
-  session.close()
+  # session.close()
   print('更新成功', lenNum, '####' ,msgType)
   return returnFormat(lenNum, '')
 
@@ -295,6 +295,6 @@ def readMsgById(arg, userInfo):
   lenNum = len(row.all())
   row.update({t_message.status: 1})
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat(lenNum, '')
 

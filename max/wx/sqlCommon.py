@@ -61,7 +61,7 @@ def getUserToken (arg):
     print(results)
   if not results :
     return ''
-  session.close()
+  # session.close()
   print(results)
   return token
 
@@ -115,7 +115,7 @@ def getUserByToken (token, openId):  # print('header token', token)
         for item in results:
           arry.append(item)
         results =  marshal(arry, dic)
-      session.close()
+      # session.close()
         # print('用户id', results[0])
   return results[0]
 

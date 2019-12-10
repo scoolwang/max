@@ -81,7 +81,7 @@ def activityDetail (arg, userInfo):
   }
 
   results =  marshal(arry, dic)
-  session.close()
+  # session.close()
   if len(results) == 0 :
     results = []
   else:
@@ -184,7 +184,7 @@ def addActivity (arg, userInfo):
   results = t_activity(id=activityId, gameId=gameId, cover=cover, detail=desc, title=title, startTime=startTime, createTime=createTime, seat=seat, userId=userId, vacancy=seat)
   session.add(results)
   session.commit()
-  session.close()
+  # session.close()
   # sql = 'insert into activity (id, userId, createTime, startTime, t_desc, t_limit, t_left, cover, gameId) values ("%s", "%s", "%d", "%d", "%s", "%d", "%d", "%s", "%s")' % (activityId, userId, createTime, startTime, desc, limit, 0, cover, gameId)
   # results = runSql(sql)
   return returnFormat(activityId, '发布成功')
@@ -199,17 +199,17 @@ def joinActivity (arg, userInfo):
   status = 3
   createTime = pendulum.now('UTC')
   results = session.query(t_passenger).filter(t_passenger.userId==userId, t_passenger.activityId==activityId).all()
-  session.close()
+  # session.close()
   with session.no_autoflush:
     activity = session.query(t_activity, t_user.name, t_user.avatarUrl).join(t_user, t_user.id==t_activity.userId).filter(t_activity.id==activityId).one()
-    session.close()
+    # session.close()
   if len(results) > 0:
     return returnFormat('', '已申请过', '901')
 
   row = t_passenger(id=ids, activityId=activityId, detail=detail,createTime=createTime,userId=userId, status=status)
   session.add(row)
   session.commit()
-  session.close()
+  # session.close()
   arg = {
     'sendId': userId,
     'receiveId':activity.Activity.userId,
@@ -269,7 +269,7 @@ def getActivityUsers (arg, userInfo):
     'age':  fields.String, # 年龄
     'status':  fields.String # 请求状态
   }
-  session.close()
+  # session.close()
   results =  marshal(arry, dic)
   # db.select(results)
   return returnFormat(results)
@@ -281,16 +281,16 @@ def editStatus (arg, userInfo):
   status = int(arg['status'])
   actionUserid = userInfo['id']
   activity = session.query(t_activity).filter(t_activity.id==activityId).one()
-  session.close()
+  # session.close()
   if activity.userId != actionUserid:
     return returnFormat('', '没有权限', '901')
 
   row = session.query(t_passenger).filter(t_passenger.userId==userId, t_passenger.activityId==activityId).update({'status': status})
   session.commit()
-  session.close()
+  # session.close()
   session.query(t_activity).filter(t_activity.id==activityId).update({'vacancy': activity.seat-1})
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat('', '操作成功')
 
 # 添加评论
@@ -387,7 +387,7 @@ def getComment(arg, userInfo):
   commentTotalSql = 'SELECT count(*) as total from comment where activityId="%s"' % (activityId)
   commentTotal = session.execute(commentTotalSql).fetchone()
   cmtTotal = commentTotal.total
-  session.close()
+  # session.close()
 
   maxPage = math.ceil(cmtTotal/pageSize)
   if page >= maxPage :
@@ -396,7 +396,7 @@ def getComment(arg, userInfo):
   #评论查询
   comment = session.query(t_comment, t_comment.time, t_comment.id).order_by(t_comment.time.asc()).filter(t_comment.activityId==activityId).limit(pageSize).offset(page * pageSize)
 
-  session.close()
+  # session.close()
   ids = []
 
   for item, time, id in comment:
@@ -413,7 +413,7 @@ def getComment(arg, userInfo):
   totalsObj = {}
   for item in totals :
     totalsObj[item.parentId] = item.counts
-  session.close()
+  # session.close()
 
   ret = session.execute(sql).fetchall()
 
@@ -479,7 +479,7 @@ def getComment(arg, userInfo):
   }
 
   results =  marshal(arry, dic)
-  session.close()
+  # session.close()
   return returnFormat(results, total=commentTotal.total)
 
 
@@ -573,7 +573,7 @@ def getMyJoin(arg, userInfo):
     arry.append(ret)
 
 
-  session.close()
+  # session.close()
 
   return returnFormat(arry)
 
@@ -585,7 +585,7 @@ def recallJoin(arg, userInfo):
   session.delete(row)
 
   session.commit()
-  session.close()
+  # session.close()
   return returnFormat('', '撤回成功')
 
 # 评价用户
