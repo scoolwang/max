@@ -106,6 +106,7 @@ def getGameList(arg):
 
   count = 0
   while count < 50:
+    session.query(t_game).all()
     count = count + 1
 
   time3 = pendulum.now('UTC').float_timestamp * 1000
