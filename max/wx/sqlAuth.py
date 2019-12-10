@@ -103,11 +103,19 @@ def getGameList(arg):
   t = time2 - time1
   t = str(t)
   print('getGameList查询耗时：', t)
-  rows =  marshal(rows, rowsDic)
+
+  count = 0
+  while count < 50:
+    count = count + 1
+
   time3 = pendulum.now('UTC').float_timestamp * 1000
   t = time3 - time2
   t = str(t)
-  print('getGameList遍历耗时：', t)
+  print('getGameList循环50次耗时：', t)
+
+
+  rows =  marshal(rows, rowsDic)
+
   # session.close()
 
   return returnFormat(rows)
