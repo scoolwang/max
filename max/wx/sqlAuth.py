@@ -91,6 +91,7 @@ def getGameInfo(arg, userInfo):
   return returnFormat(rows)
 
 def getGameList(arg):
+  time1 = pendulum.now('UTC').float_timestamp * 1000
   rows = session.query(t_game).all()
   rowsDic = {
     'id': fields.Integer(attribute='id'),
@@ -98,8 +99,17 @@ def getGameList(arg):
     'name': fields.String(attribute='name'),
     'views': fields.String(attribute='views')
   }
+  time2 = pendulum.now('UTC').float_timestamp * 1000
+  t = time2 - time1
+  t = str(t)
+  print('getGameList查询耗时：', t)
   rows =  marshal(rows, rowsDic)
+  time3 = pendulum.now('UTC').float_timestamp * 1000
+  t = time3 - time2
+  t = str(t)
+  print('getGameList遍历耗时：', t)
   session.close()
+
   return returnFormat(rows)
 
 # # 添加未读消息
