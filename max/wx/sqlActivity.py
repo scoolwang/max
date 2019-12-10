@@ -157,7 +157,7 @@ def activityList (arg, userInfo):
   t1 = time3 - time2
   t1 = str(t1)
 
-  session.close()
+  # session.close()
   print('遍历耗时:', t1)
   return returnFormat(arry, total=num)
 

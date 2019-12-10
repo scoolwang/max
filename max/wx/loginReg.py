@@ -72,7 +72,7 @@ def login (arg):
   obj['avatarUrl'] = results.avatarUrl
   obj['openId'] = results.openId
   obj['token'] = token
-  session.close()
+  # session.close()
   return returnFormat(obj)
 
 # 注册
@@ -91,7 +91,7 @@ def register (arg):
   # 提交即保存到数据库:
   session.commit()
   # 关闭session:
-  session.close()
+  # session.close()
   return returnFormat({'token': token, 'userId': userId}, '注册成功')
 
 

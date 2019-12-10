@@ -108,7 +108,7 @@ def getGameList(arg):
   t = time3 - time2
   t = str(t)
   print('getGameList遍历耗时：', t)
-  session.close()
+  # session.close()
 
   return returnFormat(rows)
 

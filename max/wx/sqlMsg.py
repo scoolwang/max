@@ -283,7 +283,7 @@ def readChatMsg (arg, userInfo):
 def getUnreadMsgTotal (arg, userInfo):
   receiveId = userInfo['id']
   rows = session.query(t_message).filter(t_message.receiveId==receiveId, t_message.status==0).all()
-  session.close()
+  # session.close()
   total = len(rows)
   return returnFormat('', total=total)
 
