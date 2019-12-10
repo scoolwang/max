@@ -98,13 +98,7 @@ def activityList (arg, userInfo):
   # if userId:
   #   filterUserId = userId
   time1 = pendulum.now('UTC').float_timestamp * 1000
-  results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id, t_passenger.id)
-  results = results.outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId))
-  results = results.join(t_user, t_activity.userId == t_user.id)
-  results = results.outerjoin(t_passenger, and_(t_passenger.activityId == t_activity.id, t_passenger.userId==filterUserId))
-  results = results.join(t_game, t_activity.gameId==t_game.id)
-  results = results.outerjoin(t_level, t_level.id == t_auth.levelId)
-  results = results.order_by(t_activity.createTime.desc())
+  results = session.query(t_activity, t_user.name, t_user.age, t_user.avatarUrl, t_game.name, t_game.logo, t_auth.sex, t_auth.levelId, t_auth.status, t_level.levelImg, t_user.id, t_passenger.id).outerjoin(t_auth, and_(t_auth.userId == t_activity.userId, t_auth.gameId==t_activity.gameId)).join(t_user, t_activity.userId == t_user.id).outerjoin(t_passenger, and_(t_passenger.activityId == t_activity.id, t_passenger.userId==filterUserId)).join(t_game, t_activity.gameId==t_game.id).outerjoin(t_level, t_level.id == t_auth.levelId).order_by(t_activity.createTime.desc())
 
 
   if userId:
