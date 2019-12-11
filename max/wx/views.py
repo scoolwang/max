@@ -4,12 +4,10 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.core import serializers
 from wx import upload, loginReg, sqlUser, sqlActivity, sqlAuth, sqlMsg
-from wx import socket1
 from wx.sqlCommon import getUserByToken, returnFormat
 # from wx import upload
 import json
 import pendulum
-socket1.on()
 def action (request, sqlFn, isValidAuth=1):
   # print('签名', request.META.get("HTTP_ACCESS_TOKEN"))
   # print('签名2', request.META.get("HTTP_CLIENT"))
