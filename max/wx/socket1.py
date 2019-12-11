@@ -259,7 +259,7 @@ class websocket_server(threading.Thread):
     def run(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('127.0.0.1', self.port))
+        sock.bind(('0.0.0.0', self.port))
         # sock.bind(('192.168.21.37', self.port))
         sock.listen(5)
 
