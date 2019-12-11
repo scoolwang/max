@@ -110,6 +110,7 @@
   import wexp from 'wexp/index'
   import {getUserInfo, msgHandle} from '../mixins/common.js'
   import {getUserById, getUnreadMsg, addMsg, readMsg} from '../mixins/api.js'
+  import {sockeChatUrl} from '../mixins/config'
   let fileSystemManager = wx.getFileSystemManager()
   export default class extends wexp.page {
     config = {
@@ -428,7 +429,7 @@
     connect (success, fail) {
       let that = this
       let userId = this.data.userInfo.userId
-      let url = 'ws://192.168.21.37:9000?sendId=' + userId +'&receiveId=' + this.data.toId
+      let url = sockeChatUrl + '?sendId=' + userId +'&receiveId=' + this.data.toId
       let socketTask = wx.connectSocket({
         url: url,
         fail (res) {

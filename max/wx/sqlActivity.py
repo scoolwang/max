@@ -29,7 +29,6 @@ import pendulum
 from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
 from wx.sqlMsg import addMsg
-from wx import socket1
 print(sqlConnect.db)
 db = sqlConnect.db
 # db = sqlConnect.db

@@ -66,6 +66,7 @@ page {
 import wexp from 'wexp/index'
 import {getUnreadMsgTotal} from '../mixins/api.js'
 import {login} from  '../mixins/resource'
+import {sockeSysUrl} from '../mixins/config'
 export default class extends wexp.page {
   config = {
     "navigationBarTitleText": "微信授权",
@@ -95,7 +96,7 @@ export default class extends wexp.page {
       getApp().globalData.chatDir = wx.env.USER_DATA_PATH + '/env1chat' + res.userId + '/'
       console.log(res, '用户信息')
       getUnreadMsgTotal().then(res => {
-        let num = res.total > 0 ? res.total : null
+        let num = res.total > 0 ? res.total + '' : null
         getApp().globalData.unreadNum = res.total
         if (num) {
           wx.setTabBarBadge({
@@ -115,7 +116,7 @@ export default class extends wexp.page {
     })
   }
   connectSocket (userId) {
-    let url = 'ws://192.168.21.37:7000?sendId=' + userId +'&receiveId=001'
+    let url = sockeSysUrl + '?sendId=' + userId +'&receiveId=001'
     console.log(url)
     let socketTask = wx.connectSocket({
       url: url,
