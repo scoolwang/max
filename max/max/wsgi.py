@@ -8,9 +8,10 @@ https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/
 """
 
 import os
-
+from wx import sqlConnect
+from wx import socket1
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'max.settings')
-
+socket1.on()
 application = get_wsgi_application()
