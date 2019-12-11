@@ -282,6 +282,5 @@ class websocket_server(threading.Thread):
                 print('websocket connection timeout!')
         sock.close()
 
-application = get_wsgi_application()
 
 
