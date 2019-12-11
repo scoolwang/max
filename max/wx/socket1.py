@@ -8,10 +8,13 @@ import struct
 import json
 import time
 from wx.sqlMsg import addMsg
+import os
+
 chatSocket = {}
 chatSendMap = {}
 systemSocket = {}
 systemSendMap = {}
+print('socket 引用')
 #通知客户端
 def notify(message, connection):
   # for connection in clients.values():
@@ -31,6 +34,7 @@ def notify(message, connection):
   connection.send(data)
 
 def on():
+  print('监听socket端口')
   server1 = websocket_server(9000, chatSocket)
   server1.start()
   server2 = websocket_server(7000, systemSocket)
@@ -277,8 +281,7 @@ class websocket_server(threading.Thread):
             except socket.timeout:
                 print('websocket connection timeout!')
         sock.close()
-# if __name__ == '__main__':
-    # server = websocket_server(9000)
-    # server.start()
+
+application = get_wsgi_application()
 
 
