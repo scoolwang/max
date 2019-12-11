@@ -43,9 +43,9 @@ def sendMsg(data):
   print('id', toid)
   systemClient = systemSocket.get('id' + toid)
   if not systemClient:
-    print('\033[41m未连接\033[0m!')
+    print('未连接')
   else:
-    print('\033[42m聊天链接' + toid + '\033[0m!')
+    print('聊天链接' + toid + '')
     message = json.dumps(data)
     notify(message, systemClient)
 
@@ -104,7 +104,7 @@ class websocket_thread(threading.Thread):
             selectClient = self.clients.get(receiveId)
             #客户端关闭连接，解析错误，服务端关闭连接
             if data == 'q':
-                print('\033[41m解析异常，关闭客户端连接\033[0m!')
+                print('解析异常，关闭客户端连接')
                 selectClient = self.clients.get(sendId)
                 selectClient.close()
                 del self.clients[sendId]
@@ -118,19 +118,19 @@ class websocket_thread(threading.Thread):
                 'data': message['data']
             }
             message = json.dumps(sqlData)
-            # print('\033[42m接受的data数据\033[0m!', message['data']['conent'])
+            # print('[42m接受的data数据', message['data']['conent'])
             if not selectClient or not data:
                 if not selectClient:
                     systemClient = systemSocket.get(receiveId)
                     if not systemClient:
-                      print('\033[41m聊天对象未打开小程序\033[0m!')
+                      print('聊天对象未打开小程序')
                     else:
-                      print('\033[41m聊天对象不在线，系统通知\033[0m!')
+                      print('聊天对象不在线，系统通知')
                       notify(message, systemClient)
                     addMsg(sqlData)
             else:
-                print('\033[42m服务端转发数据\033[0m!', message)
-                print('\033[42msocket通信id\033[0m!', receiveId)
+                print('[42m服务端转发数据', message)
+                print('[42msocket通信id', receiveId)
                 notify(message, selectClient)
 
     # def parse_data(self, msg):
