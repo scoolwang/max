@@ -120,6 +120,8 @@ def activityList (arg, userInfo):
       passenger = 2
     else:
       passenger = 1
+    prit('活动时间;', item.startTime)
+    prit('活动时间;', item.createTime)
     act = {
       'id': item.id, # 活动ID
       'userId': userId, # 用户
