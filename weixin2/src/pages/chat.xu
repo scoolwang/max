@@ -1,4 +1,6 @@
 <template>
+<view class="error" bindtap="socketConnect" wx:if="{{socket=='fail'}}">消息连接失败，点击重连</view>
+<view class="error" wx:if="{{socket=='connecting'}}">消息连接中</view>
 <scroll-view scroll-y style="height: {{height}}px;" class="scroll-page" scroll-top="{{scrollTop}}">
 <!-- <scroll-view > -->
   <view id="page">
@@ -105,6 +107,14 @@
   .bottom {
     height: 60px;
   }
+  .error {
+    background: red;
+    opacity: 0.6;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    line-height: 25px;
+  }
 </style>
 <script>
   import wexp from 'wexp/index'
@@ -134,7 +144,8 @@
       toId: '',
       timeTag: '',
       height: '',
-      scrollTop: 10000
+      scrollTop: 10000,
+      socket: 'success'
     }
     methods = {
       change (b) {
@@ -162,6 +173,12 @@
         this.sendMsg(msgObj, 0)
         // msgObj = JSON.stringify(msgObj)
 
+      },
+      socketConnect () {
+        this.setData({
+          socket: 'connecting'
+        })
+        this.connect()
       }
     }
 
@@ -430,19 +447,14 @@
       let that = this
       let userId = this.data.userInfo.userId
       let url = sockeChatUrl + '?sendId=' + userId +'&receiveId=' + this.data.toId
+      console.log(url)
       let socketTask = wx.connectSocket({
         url: url,
         fail (res) {
-          if (fail) {
-            fail()
-          }
-          console.error('webscoket链接失败', res)
+
         },
         success (res) {
-          if (success) {
-            setTimeout(success, 100)
-          }
-          console.log('链接成功', res)
+
         }
       })
       that.setData({
@@ -468,7 +480,24 @@
         this.msgHandle(item)
       })
       socketTask.onClose((data) => {
-        console.error('连接已关闭')
+        that.setData({
+          socket: 'fail'
+        })
+        if (fail) {
+          fail()
+        }
+        that.setData({
+          socket: 'fail'
+        })
+        console.error('连接已关闭', data)
+      })
+      socketTask.onOpen((data) => {
+        if (success) {
+          setTimeout(success, 100)
+        }
+        that.setData({
+          socket: 'success'
+        })
       })
     }
     init () {

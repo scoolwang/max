@@ -9,6 +9,11 @@
       <input class="send-input" maxlength="20" placeholder-class="input-placeholder" placeholder="留言" bindinput="inputChange" />
     </view>
   </confirm>
+  <view wx:if="{{list.length <=0}}" class="empty">
+    <image src="../image/logo.png" alt="">
+    <text>暂无记录~</text>
+
+  </view>
 </template>
 <script>
   import Tab from 'kai-ui/tab/index'
@@ -118,6 +123,24 @@
 <style lang="less">
 page {
   background: #fafafa;
+}
+.empty {
+  text-align: center;
+  color:#989898;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  bottom: 100px;
+  image {
+    width: 46px;
+    height: 10px;
+    margin-bottom: 10px;
+  }
 }
 .item {
   background: #fff;

@@ -29,6 +29,7 @@ import pendulum
 from wx import sqlConnect
 from wx.sqlCommon import returnFormat, generate_token, getUserToken, validToken, getUserByToken
 from wx.sqlMsg import addMsg
+from wx import socket1
 print(sqlConnect.db)
 db = sqlConnect.db
 # db = sqlConnect.db
@@ -106,6 +107,7 @@ def activityList (arg, userInfo):
   if gameId:
     results = results.filter(t_activity.gameId==gameId)
 
+  print(results)
   num = results.count()
   results = results.limit(pageSize).offset(page * pageSize)
 
@@ -120,8 +122,8 @@ def activityList (arg, userInfo):
       passenger = 2
     else:
       passenger = 1
-    prit('活动时间;', item.startTime)
-    prit('活动时间;', item.createTime)
+    print('活动时间;', item.startTime)
+    print('活动时间;', item.createTime)
     act = {
       'id': item.id, # 活动ID
       'userId': userId, # 用户

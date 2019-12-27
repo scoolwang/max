@@ -202,11 +202,11 @@ class websocket_thread(threading.Thread):
             decoded = info[6:]
             print('0位')
         bytes_list = bytearray()
-        print('返回的数据12', decoded, len(decoded))
+        # print('返回的数据12', decoded, len(decoded))
         for i in range(len(decoded)):
             chunk = decoded[i] ^ mask[i % 4]
             bytes_list.append(chunk)
-        print('返回的数据1', bytes_list)
+        # print('返回的数据1', bytes_list)
         try:
           raw_str = str(bytes_list, encoding="utf-8")
         except Exception as e:

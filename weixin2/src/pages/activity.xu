@@ -435,11 +435,11 @@
   </view> -->
   <view class="page-hd  {{detail.sex==2?'girl-hd':''}}">
     <view class="user">
-      <view class="user-header">
+      <view class="user-header" bindtap="goHome">
         <image mode="aspectFill" src="{{detail.avatarUrl}}" alt="">
       </view>
       <view class="user-info">
-        <view class="user-nick">
+        <view class="user-nick"  bindtap="goHome">
           <!-- <view class="level">
             <image mode="aspectFit" src="https://cdn.max-c.com/app/dota2/leaderboard/archon_2.png" alt="">
           </view> -->
@@ -495,7 +495,7 @@
     </view>
     <view class="item"  wx:for="{{users}}" wx:key="{{index}}">
       <view class="user-item">
-        <view class="user-header">
+        <view class="user-header" bindtap="goUserHome" data-id="{{item.userId}}">
           <image mode="aspectFill" src="{{item.avatarUrl}}" alt="">
         </view>
         <view class="user-info">
@@ -542,7 +542,7 @@
   <view class="comment-list" wx:if="{{tabData.selectedId==0}}">
     <view class="item" wx:for="{{comments}}" wx:key="{{index}}">
       <view class="user-item" bindtap="replyParent" data-obj="{{item}}" data-idx="{{index}}">
-        <view class="user-header">
+        <view class="user-header" catchtap="goUserHome" data-id="{{item.userId}}">
           <image mode="scaleToFill" src="{{item.userAvatarUrl}}" alt="">
         </view>
         <view class="user-info">
@@ -694,6 +694,17 @@
       activityId: '' // 活动id
     }
     methods = {
+      goHome () {
+        wx.navigateTo({
+          url: './userHome?id=' + this.data.userId
+        })
+      },
+      goUserHome (e) {
+        let id = e.currentTarget.dataset.id
+        wx.navigateTo({
+          url: './userHome?id=' + id
+        })
+      },
       showImgs (e) {
         let urls = e.target.dataset.imgs
         let idx = e.target.dataset.idx
