@@ -138,9 +138,10 @@ def activityList (arg, userInfo):
       'cover': item.cover, # 活动封面
       'desc': item.detail, # 描述
       'isPassenger': passenger, # 1已申请，2未申请
-      'startTime': pendulum.instance(item.startTime).float_timestamp * 1000, # 发车时间
+      'startTime': 1576771200000.0, # 发车时间
       # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
-      'createTime': pendulum.instance(item.createTime).float_timestamp * 1000, # 发帖时间
+      # 'createTime': pendulum.instance(item.createTime).float_timestamp * 1000, # 发帖时间
+      'createTime': 1576771200000.0, # 发帖时间
       'vacancy': item.vacancy, # 空位
       'seat': item.seat, # 座位总数
       'sex': authSex, # 性别
