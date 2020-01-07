@@ -44,50 +44,33 @@ def activityDetail (arg, userInfo):
   # results = session.query(t_activity, t_user.name, t_game.name, t_game.logo).join(t_user, t_activity.userId == t_user.id).join(t_game, t_activity.gameId==t_game.id).all()
   arry = []
   for item, userName, userAge,avatarUrl, gameName, gameLogo, authSex, levelId, authStatus, levelImg,userId in results :
-    item.userName = userName
-    item.age = userAge
-    item.gameName = gameName
-    item.gameLogo = gameLogo
-    item.sex = authSex
-    item.levelId = levelId
-    item.auth = authStatus
-    item.avatarUrl = avatarUrl
-    item.levelImg = levelImg
-    # item.startDate = pendulum.instance(item.startTime).float_timestamp
-    item.startTime = pendulum.instance(item.startTime).float_timestamp * 1000
-    item.createTime = pendulum.instance(item.createTime).float_timestamp * 1000
-    arry.append(item)
+    row = {
+      "id": item.id,
+      "detail": item.detail,
+      "gameId": item.gameId,
+      "title": item.title,
+      "userName": userName,
+      "age": userAge,
+      "gameName": gameName,
+      "gameLogo": gameLogo,
+      "sex": authSex,
+      "levelId": levelId,
+      "auth": authStatus,
+      "avatarUrl": avatarUrl,
+      "levelImg": levelImg,
+      "userId": item.userId,
+      "cover": item.cover,
+      "vacancy": item.vacancy,
+      "seat": item.seat,
+      # item.startDate = pendulum.instance(item.startTime).float_timestamp
+      "startTime": pendulum.instance(item.startTime).float_timestamp * 1000,
+      "createTime": pendulum.instance(item.createTime).float_timestamp * 1000
+    }
 
-  dic = {
-    'avatarUrl': fields.String, # 用户名    'userId': fields.String, # 用户id
-    'id': fields.String, # 活动ID
-    'detail': fields.String, # 描述
-    'title': fields.String, # 标题
-    'gameId': fields.String, # 游戏ID
-    'gameName': fields.String, # 游戏名字
-    'gameLogo': fields.String, # 游戏图标
-    'userName': fields.String, # 用户名
-    'userId': fields.String, # 用户id
-    'cover': fields.String, # 活动封面
-    'startTime': fields.Integer, # 发车时间
-    'createTime': fields.Integer, # 发帖时间
-    'vacancy': fields.String, # 空位
-    'seat': fields.String, # 座位总数
-    'sex': fields.String, # 性别
-    'levelId':  fields.String, # 段位id
-    'auth':  fields.String, # 认证状态
-    'age':  fields.String, # 年龄
-    'levelImg':  fields.String # 段位logo
-  }
+    arry.append(row)
 
-  results =  marshal(arry, dic)
-  # session.close()
-  if len(results) == 0 :
-    results = []
-  else:
-    results = results
-  # db.select(results)
-  return returnFormat(results[0])
+
+  return returnFormat(arry[0])
 # 查询所有活动
 def activityList (arg, userInfo):
   page = int(arg['page']) - 1
@@ -138,7 +121,7 @@ def activityList (arg, userInfo):
       'cover': item.cover, # 活动封面
       'desc': item.detail, # 描述
       'isPassenger': passenger, # 1已申请，2未申请
-      'startTime': 1576771200000.0, # 发车时间
+      'startTime': pendulum.instance(item.startTime).float_timestamp * 1000, # 发车时间
       # 'startDate': fields.Integer(attribute='startTime'), # 发车时间
       'createTime': pendulum.instance(item.createTime).float_timestamp * 1000, # 发帖时间
       # 'createTime': 1576771200000.0, # 发帖时间
