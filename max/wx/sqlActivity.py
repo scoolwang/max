@@ -124,6 +124,7 @@ def activityList (arg, userInfo):
       passenger = 1
     print('活动时间;', item.startTime)
     print('活动时间;', item.createTime)
+    print('活动id;', item.id)
     act = {
       'id': item.id, # 活动ID
       'userId': userId, # 用户
