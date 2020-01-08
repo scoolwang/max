@@ -631,7 +631,7 @@
 <script>
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
-  import {formatTime, getUserInfo} from '../mixins/common.js'
+  import {formatTime,formatStartTime, getUserInfo} from '../mixins/common.js'
   import {getActivity, getActivityUsers, editStatus, addComment, getComment, getReply} from '../mixins/api.js'
   import { uploadImg, uploadVoid } from '../mixins/common'
   let activityId = ''
@@ -1032,8 +1032,8 @@
         id: activityId
       }).then((res) => {
         let data = res.data
-        let startTime = formatTime(data.startTime)
-        data.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+        let startTime = formatStartTime(data.startTime)
+        data.startTime = startTime
         data.createTime = formatTime(data.createTime).str
         let imgs = data.cover ? data.cover.split(',') : []
         for (let idx in imgs) {

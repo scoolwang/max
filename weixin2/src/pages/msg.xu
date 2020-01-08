@@ -394,7 +394,7 @@
       })
       this.init()
       getUnreadMsgTotal().then(res => {
-        let num = res.total > 0 ? res.total : null
+        let num = res.total > 0 ? res.total + '' : null
         getApp().globalData.unreadNum = res.total
         if (num) {
           wx.setTabBarBadge({

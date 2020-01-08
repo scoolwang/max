@@ -382,6 +382,8 @@ def getComment(arg, userInfo):
   ids = []
 
   for item, time, id in comment:
+    print('评论time')
+    print(time)
     ids.append(id)
 
   parentIds = ','.join(map(lambda x: "'%s'" % x, ids))
@@ -415,6 +417,7 @@ def getComment(arg, userInfo):
     # 'reply': fields.List
   }
   replyObj = {}
+  reply = []
   for item in ret :
     replyItem = {
       'activityId': item.activityId,
@@ -440,29 +443,26 @@ def getComment(arg, userInfo):
   for item, time, id in comment:
     commentId = item.id
     replyList = []
-    tt = time
-    tt = pendulum.instance(time)
+    print(time)
     item.reply = replyObj.get(commentId, [])
-    item.time = tt.format('x')
-    item.replyTotal = totalsObj.get(commentId, 0) - len(item.reply)
-    arry.append(item)
 
-  dic = {
-    'activityId': fields.String,
-    'id': fields.String,
-    'content': fields.String,
-    'userId': fields.String,
-    'userAvatarUrl': fields.String,
-    'userName': fields.String,
-    'imgs': fields.String,
-    'time': fields.Integer,
-    'replyTotal': fields.Integer,
-    'reply': fields.Nested(replydic)
-  }
+    replyTotal = totalsObj.get(commentId, 0) - len(item.reply)
+    obj = {
+      'activityId': item.activityId,
+      'id': item.id,
+      'content': item.content,
+      'userId': item.userId,
+      'userAvatarUrl': item.userAvatarUrl,
+      'userName': item.userName,
+      'imgs': item.imgs,
+      'time': pendulum.instance(time).float_timestamp * 1000,
+      'replyTotal': replyTotal,
+      'reply': reply
+    }
+    arry.append(obj)
 
-  results =  marshal(arry, dic)
   # session.close()
-  return returnFormat(results, total=commentTotal.total)
+  return returnFormat(arry, total=commentTotal.total)
 
 
 # 获取回复列表

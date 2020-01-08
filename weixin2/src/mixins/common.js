@@ -130,6 +130,54 @@ function formatCreateTime (time) {
     mt: minute
   }
 }
+
+function formatStartTime (time) {
+  let dateTime = new Date(time)
+  let year = dateTime.getFullYear()
+  let month = dateTime.getMonth() + 1
+  let day = dateTime.getDate()
+  let hour = dateTime.getHours()
+  let minute = dateTime.getMinutes()
+  let second = dateTime.getSeconds()
+  let tody = new Date() // 今天
+  let todyY = tody.getFullYear()
+  let todyM = tody.getMonth() + 1
+  let todyD = tody.getDate()
+  let tommory = new Date(tody.getTime() + (24 * 60 * 60 * 1000)) // 明天
+  let tommoryY = tommory.getFullYear()
+  let tommoryM = tommory.getMonth() + 1
+  let tommoryD = tommory.getDate()
+  let tommory1 = new Date(tody.getTime() + (24 * 60 * 60 * 1000 * 2)) // 后天
+  let tommory1Y = tommory1.getFullYear()
+  let tommory1M = tommory1.getMonth() + 1
+  let tommory1D = tommory1.getDate()
+  let am = ''
+  let d = ''
+  let timeStr = ''
+  if (hour >= 12 && hour < 18) {
+    am = '下午'
+  } else if (hour >= 18 && hour < 24) {
+    am = '晚上'
+  } else {
+    am = '上午'
+  }
+  if (year === todyY && month === todyM && day === todyD) {
+    d = '今天'
+  }
+  if (year === tommoryY && month === tommoryM && day === tommoryD) {
+    d = '明天'
+  }
+  if (year === tommory1Y && month === tommory1M && day === tommory1D) {
+    d = '后天'
+  }
+  minute = minute < 10 ? ('0' + minute ): minute
+  if (d) {
+    timeStr = d  + ' ' + hour + ':' + minute
+  } else {
+    timeStr = year + '-' + month + '-' + day + ' ' + hour + ':' + minute
+  }
+  return timeStr
+}
 /** data
  *  data.time 时间戳
  *  data.from 聊天对象用户id
@@ -166,7 +214,6 @@ function msgHandle (data, lastTimeTag, fileDir) {
     writeChatFile(obj, fileDir)
   }
   arry.push(data)
-  debugger
   writeChatFile(data, fileDir)
   return {
     data: arry,
@@ -258,5 +305,6 @@ module.exports = {
   base64_encode,
   uploadImg,
   msgHandle,
+  formatStartTime,
   formatTime: formatCreateTime
 }

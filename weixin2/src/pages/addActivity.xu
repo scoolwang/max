@@ -408,7 +408,7 @@ export default class Index extends wexp.page {
           title: '发布成功',
           icon: 'success'
         })
-        this.$route('navigater', './activity', {
+        this.$route('navigate', './activity', {
           id: res.data
         })
       })

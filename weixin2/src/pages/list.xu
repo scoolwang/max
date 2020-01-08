@@ -57,7 +57,7 @@
   import Tab from 'kai-ui/tab/index'
   import wexp from 'wexp/index'
   import {getActivityList, getGameList} from '../mixins/api.js'
-  import {formatTime} from '../mixins/common.js'
+  import {formatTime, formatStartTime} from '../mixins/common.js'
   const palyVoidContext = wx.createInnerAudioContext()
   export default class extends wexp.page {
     config = {
@@ -243,7 +243,8 @@
         for (let item of list) {
           let startTime = formatTime(item.startTime)
           console.log(startTime)
-          item.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+          // item.startTime = startTime.isTody ? (startTime.h + ':' + startTime.m) : startTime.y + '-' + startTime.m + '-' + startTime.d + ' ' +  startTime.h + ':' + startTime.mt
+          item.startTime = formatStartTime(item.startTime)
           item.createTime = formatTime(item.createTime).str
           // item.level = this.formatLevel(item.level)
           item.level = ''
